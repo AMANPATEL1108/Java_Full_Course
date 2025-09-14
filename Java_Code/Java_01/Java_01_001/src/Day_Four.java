@@ -62,18 +62,18 @@ class BankAccount{
     }
 }
 
-class Student{
-    String name;
-    Integer rollNo;
-    char grade;
-
-    public Student(String name, Integer rollNo, char grade) {
-        this.name = name;
-        this.rollNo = rollNo;
-        this.grade = grade;
-    }
-
-    public void  displayDetails(){
-        System.out.println(this.name+"-"+this.rollNo+"-"+this.grade);
-    }
-}
+//class Student{
+//    String name;
+//    Integer rollNo;
+//    char grade;
+//
+//    public Student(String name, Integer rollNo, char grade) {
+//        this.name = name;
+//        this.rollNo = rollNo;
+//        this.grade = grade;
+//    }
+//
+//    public void  displayDetails(){
+//        System.out.println(this.name+"-"+this.rollNo+"-"+this.grade);
+//    }
+//}

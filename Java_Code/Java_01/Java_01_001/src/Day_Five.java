@@ -53,18 +53,18 @@ class SuperAdmin extends Admin{
     }
 }
 
-class Book{
-    Book(String title){
-        System.out.println("Book "+title);
-    }
-}
+//class Book{
+//    Book(String title){
+//        System.out.println("Book "+title);
+//    }
+//}
 
-class Ebook extends Book{
-    Ebook(String title, String format){
-        super(title);
-        System.out.println("Formate "+format);
-    }
-}
+//class Ebook extends Book{
+//    Ebook(String title, String format){
+//        super(title);
+//        System.out.println("Formate "+format);
+//    }
+//}
 
 class Transport {
     int capacity = 100;
@@ -146,35 +146,35 @@ class Laptop extends Device {
 }
 
 
-class Employee {
-    Integer salary = 50000;
+//class Employee {
+//    Integer salary = 50000;
+//
+//    Employee() {
+//        System.out.println("Employee Salary is " + salary);
+//    }
+//}
+//
+//class Manager extends Employee {
+//    Integer bonus = 10000;
+//
+//    Manager() {
+//        super();
+//        System.out.println("bonus is " + bonus);
+//    }
+//}
+//
+//
+//class Car extends Vehicle {
+//    void start() {
+//        super.start();
+//        System.out.println("Car started");
+//    }
+//
+//}
 
-    Employee() {
-        System.out.println("Employee Salary is " + salary);
-    }
-}
-
-class Manager extends Employee {
-    Integer bonus = 10000;
-
-    Manager() {
-        super();
-        System.out.println("bonus is " + bonus);
-    }
-}
-
-
-class Car extends Vehicle {
-    void start() {
-        super.start();
-        System.out.println("Car started");
-    }
-
-}
-
-class Vehicle {
-
-    void start() {
-        System.out.println("Vehicle is stared");
-    }
-}
+//class Vehicle {
+//
+//    void start() {
+//        System.out.println("Vehicle is stared");
+//    }
+//}
