@@ -14,53 +14,53 @@ public class Day_Four {
 //        bankAccount.printDetails();
 
         //Answer 3
-        Rectangle rectangle=new Rectangle(10,5);
-        Rectangle rectangle2=new Rectangle(20,5);
+//        Rectangle rectangle=new Rectangle(10,5);
+//        Rectangle rectangle2=new Rectangle(20,5);
 
 
     }
 
 }
 
-class Rectangle{
-    Integer length;
-    Integer breadth;
-
-    public Rectangle(Integer length, Integer breadth) {
-        this.length = length;
-        this.breadth = breadth;
-        calculateArea(length,breadth);
-    }
-
-    public void calculateArea(Integer length,Integer breadth){
-        System.out.println("Area of"+length+"-"+breadth+"is:"+length*breadth);
-
-    }
-}
-
-
-class BankAccount{
-    Integer accountNumber;
-    Integer balance;
-
-    public BankAccount(Integer accountNumber, Integer balance) {
-        this.accountNumber = accountNumber;
-        this.balance = balance;
-    }
-
-    public void deposit(double amount){
-        this.balance= (int) (balance-amount);
-
-    }
-
-    public void withdraw(double amount){
-        this.balance=(int) (balance-amount);
-    }
-
-    public  void printDetails(){
-        System.out.println("Account Number-"+this.accountNumber+"- Balance"+this.balance);
-    }
-}
+//class Rectangle{
+//    Integer length;
+//    Integer breadth;
+//
+//    public Rectangle(Integer length, Integer breadth) {
+//        this.length = length;
+//        this.breadth = breadth;
+//        calculateArea(length,breadth);
+//    }
+//
+//    public void calculateArea(Integer length,Integer breadth){
+//        System.out.println("Area of"+length+"-"+breadth+"is:"+length*breadth);
+//
+//    }
+//}
+//
+//
+//class BankAccount{
+//    Integer accountNumber;
+//    Integer balance;
+//
+//    public BankAccount(Integer accountNumber, Integer balance) {
+//        this.accountNumber = accountNumber;
+//        this.balance = balance;
+//    }
+//
+//    public void deposit(double amount){
+//        this.balance= (int) (balance-amount);
+//
+//    }
+//
+//    public void withdraw(double amount){
+//        this.balance=(int) (balance-amount);
+//    }
+//
+//    public  void printDetails(){
+//        System.out.println("Account Number-"+this.accountNumber+"- Balance"+this.balance);
+//    }
+//}
 
 //class Student{
 //    String name;

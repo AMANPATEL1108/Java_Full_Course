@@ -32,12 +32,12 @@ public class Day_Seven {
     }
 }
 
-public class Laptop {
-    private String model;  //In this code getModel change to a return type here get Model is print not a return then here access all model of all users
-    public void getModel() {
-        System.out.println(model);
-    }
-}
+//public class Laptop {
+//    private String model;  //In this code getModel change to a return type here get Model is print not a return then here access all model of all users
+//    public void getModel() {
+//        System.out.println(model);
+//    }
+//}
 
 
 //class Product{
