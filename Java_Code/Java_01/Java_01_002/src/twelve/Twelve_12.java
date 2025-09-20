@@ -96,9 +96,8 @@ public class Twelve_12 {
             int complement = target - num;
 
             if (seen.contains(complement)) {
-                // Sort the pair to avoid duplicates like (2,3) and (3,2)
                 List<Integer> pair = Arrays.asList(Math.min(num, complement), Math.max(num, complement));
-                result.add(pair); // HashSet will avoid duplicate pairs
+                result.add(pair);
             }
 
             seen.add(num);
