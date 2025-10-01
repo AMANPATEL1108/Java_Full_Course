@@ -1,6 +1,5 @@
-package weentyfour;
+package twentyfour;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class TwentyFour_24 {
