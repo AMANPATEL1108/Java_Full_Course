@@ -9,11 +9,11 @@ import java.util.stream.Collectors;
 public class ThirtyEight_38 {
     public static void main(String[] args) {
         List<String> words = Arrays.asList("apple", "cat", "banana", "dog", "elephant");
-        int s=words.stream().filter(n->n.length()>=4).mapToInt(String::length).sum();
+        int s = words.stream().filter(n -> n.length() >= 4).mapToInt(String::length).sum();
         System.out.println(s);
 
         List<Integer> numbers = Arrays.asList(2, -3, 4, -5, 6, 7);
-        int num=numbers.stream().filter(n->n>0).reduce(1, (a, b) -> a * b);
+        int num = numbers.stream().filter(n -> n > 0).reduce(1, (a, b) -> a * b);
         System.out.println(num);
 
         List<String> names = Arrays.asList("Alice", "Bob", "Ana", "Charlie", "Adam", "Bob");
