@@ -1,8 +1,8 @@
-package dayEightyTwo;
+package daySeventyTwo;
 
 import java.util.*;
 
-public class EightyTwo_82 {
+public class SeventyTwo_72 {
     public static void main(String[] args) {
         List<List<String>> lista1 = Arrays.asList(
                 Arrays.asList("John", "johnsmith@mail.com", "john_newyork@mail.com"),

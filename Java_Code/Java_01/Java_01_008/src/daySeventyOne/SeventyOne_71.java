@@ -1,8 +1,8 @@
-package dayEightyOne;
+package daySeventyOne;
 
 import java.util.*;
 
-public class EightyOne_81 {
+public class SeventyOne_71 {
     public static void main(String[] args) {
 
         Integer[] arr = {3, 5, 1, 6, 2, 0, 8, null, null, 7, 4};
@@ -11,7 +11,7 @@ public class EightyOne_81 {
         TreeNode target = findNode(root, 5);
         int k = 2;
 
-        EightyOne_81 obj = new EightyOne_81();
+        SeventyOne_71 obj = new SeventyOne_71();
         System.out.println(obj.distanceK(root, target, k));
         int[][] a2 = {{2, 1, 1}, {2, 3, 1}, {3, 4, 1}};
         int n2 = 4, k2 = 2;
