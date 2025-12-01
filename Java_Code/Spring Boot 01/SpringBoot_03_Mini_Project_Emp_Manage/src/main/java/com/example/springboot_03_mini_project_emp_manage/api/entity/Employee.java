@@ -1,11 +1,17 @@
 package com.example.springboot_03_mini_project_emp_manage.api.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "employee")
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Employee {
 
     @Id
@@ -24,7 +30,6 @@ public class Employee {
     @Temporal(TemporalType.DATE)
     private Date dateOfJoining;
 
-    private String status;  // Active or Inactive
+    private String status;
 
-    // Getters and setters
 }
