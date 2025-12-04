@@ -81,4 +81,35 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (existing != null) employeeRepository.delete(existing);
         return existing;
     }
+
+    public List<Employee> searchByName(String name) {
+        return employeeRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name);
+    }
+
+    public List<Employee> filterByDepartment(String department) {
+        return employeeRepository.findByDepartmentIgnoreCase(department);
+    }
+
+    public List<Employee> filterByDesignation(String designation) {
+        return employeeRepository.findByDesignationIgnoreCase(designation);
+    }
+
+    public List<Employee> filterByStatus(String status) {
+        return employeeRepository.findByStatusIgnoreCase(status);
+    }
+
+    public List<Employee> filterBySalaryRange(Double minSalary, Double maxSalary) {
+        return employeeRepository.findBySalaryBetween(minSalary, maxSalary);
+    }
+
+    public Long getTotalEmployees() {
+        return employeeRepository.getTotalEmployees();
+    }
+
+    public List<Object[]> getDepartmentWiseCount() {
+        return employeeRepository.getEmployeeCountByDepartment();
+    }
+
+
+
 }
