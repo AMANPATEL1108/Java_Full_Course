@@ -30,5 +30,8 @@ public interface EmployeeService {
 
     List<Object[]> getDepartmentWiseCount();
 
+    Employee getHighestSalaryEmployee();
+
+    Double getAverageSalary(String department);
 
 }

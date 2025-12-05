@@ -95,5 +95,13 @@ public class EmployeeController {
         return ResponseEntity.ok(data);
     }
 
+    @GetMapping("/report/highest-salary")
+    public ResponseEntity<?> getHighestSalaryEmployee() {
+        return ResponseEntity.ok(employeeService.getHighestSalaryEmployee());
+    }
 
+    @GetMapping("/report/average-salary")
+    public ResponseEntity<?> getAverageSalary(@RequestParam String department) {
+        return ResponseEntity.ok(employeeService.getAverageSalary(department));
+    }
 }

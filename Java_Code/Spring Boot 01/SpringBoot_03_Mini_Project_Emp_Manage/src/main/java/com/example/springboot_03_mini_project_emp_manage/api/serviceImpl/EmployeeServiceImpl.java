@@ -110,6 +110,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRepository.getEmployeeCountByDepartment();
     }
 
+    public Employee getHighestSalaryEmployee() {
+        return employeeRepository.findTopByOrderBySalaryDesc();
+    }
 
+    public Double getAverageSalary(String department) {
+        return employeeRepository.getAverageSalaryByDepartment(department);
+    }
 
 }

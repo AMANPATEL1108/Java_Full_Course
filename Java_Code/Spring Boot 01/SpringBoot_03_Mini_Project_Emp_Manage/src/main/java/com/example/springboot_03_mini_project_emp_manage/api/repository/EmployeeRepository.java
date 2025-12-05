@@ -24,4 +24,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT e.department, COUNT(e) FROM Employee e GROUP BY e.department")
     List<Object[]> getEmployeeCountByDepartment();
 
+    Employee findTopByOrderBySalaryDesc();
+
+    @Query("SELECT AVG(e.salary) FROM Employee e WHERE e.department = :department")
+    Double getAverageSalaryByDepartment(@Param("department") String department);
+
 }
