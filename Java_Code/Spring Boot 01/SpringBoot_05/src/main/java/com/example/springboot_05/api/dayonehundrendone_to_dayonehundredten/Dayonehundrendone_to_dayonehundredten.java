@@ -403,7 +403,7 @@ Pagination queries
 Performance tuning concepts
 
 
-Day 1----------------------------------------------------
+Day 101----------------------------------------------------
 
 USE classicmodels;
 
@@ -463,8 +463,40 @@ WHERE customerName = 'Signal Gift Stores' AND buyPrice > 60
 LIMIT 5;
 
 
-Day 2---------------------------------------------------------------------
+Day 102---------------------------------------------------------------------
 
+USE classicmodels;
+
+SELECT COUNT(*) FROM customers;
+
+SELECT COUNT(*) FROM customers WHERE country="USA";
+
+SELECT SUM(creditLimit) FROM customers ;
+
+SELECT AVG(creditLimit) FROM customers ;
+
+SELECT MIN(creditLimit), MAX(creditLimit)FROM customers;
+
+
+SELECT customerNumber, COUNT(*) AS customers
+FROM customers
+GROUP BY customerNumber;
+
+
+SELECT customerNumber
+FROM orders
+GROUP BY customerNumber
+HAVING COUNT(*) > 5;
+
+
+SELECT customerNumber, COUNT(*) AS total_orders
+FROM orders
+WHERE orderDate >= '2003-04-28'
+GROUP BY customerNumber
+HAVING COUNT(*) > 5;
+
+
+ Day 103 ------------------------------------------------------------------------------------------------
 
 
   */
