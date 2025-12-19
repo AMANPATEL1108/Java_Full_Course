@@ -1,0 +1,46 @@
+Day 103-----------------------------------------------
+
+
+SELECT customers.customerName, orders.comments
+FROM customers
+INNER JOIN orders
+ON customers.customerNumber = orders.customerNumber;
+
+SELECT customers.customerName, orders.comments
+FROM customers
+LEFT JOIN orders
+ON customers.customerNumber = orders.customerNumber;
+
+
+SELECT customers.customerName, orders.comments
+FROM customers
+RIGHT JOIN orders
+ON customers.customerNumber = orders.customerNumber;
+
+
+SELECT *
+FROM customers
+JOIN orders
+ON customers.customerNumber = orders.customerNumber;
+
+
+SELECT c.customerName, o.orderNumber, p.paymentDate
+FROM customers c
+JOIN orders o
+ON c.customerNumber = o.customerNumber
+LEFT JOIN payments p
+ON o.customerNumber = p.customerNumber;
+
+SELECT c.customerName, o.orderNumber
+FROM customers AS c
+JOIN orders AS o
+ON c.customerNumber = o.customerNumber;
+
+
+
+Basic -------------------------------
+INNER JOIN  → Only matching rows
+LEFT JOIN   → All left + matching right
+RIGHT JOIN  → All right + matching left
+
+

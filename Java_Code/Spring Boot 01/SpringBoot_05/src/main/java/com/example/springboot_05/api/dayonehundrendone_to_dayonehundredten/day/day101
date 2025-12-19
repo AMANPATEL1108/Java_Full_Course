@@ -1,0 +1,59 @@
+
+Day 101----------------------------------------------------
+
+USE classicmodels;
+
+SELECT customerName
+FROM customers;
+
+
+SELECT DISTINCT customerName
+FROM customers;
+
+SELECT *
+FROM customers
+WHERE customerName="Signal Gift Stores";
+
+
+SELECT customerName
+FROM customers
+WHERE NOT customerName="Signal Gift Stores";
+
+
+
+SELECT *
+FROM customers
+WHERE customerName="Signal Gift Stores" AND customerName="Australian Collectors, Co.";
+
+SELECT *
+FROM customers
+WHERE customerName="Signal Gift Stores" OR customerName="Australian Collectors, Co.";
+
+
+SELECT *
+FROM customers
+ORDER BY customerName;
+
+SELECT *
+FROM customers
+ORDER BY customerName DESC;
+
+SELECT *
+FROM customers
+ORDER BY customerName ASC;
+
+SELECT *
+FROM customers
+LIMIT 5;
+
+SELECT *
+FROM customers
+LIMIT 5 OFFSET 10;
+
+SELECT TOP 5 *
+FROM customers;
+
+SELECT DISTINCT name
+FROM customers
+WHERE customerName = 'Signal Gift Stores' AND buyPrice > 60
+LIMIT 5;
