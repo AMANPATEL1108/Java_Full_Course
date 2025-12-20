@@ -1,0 +1,36 @@
+SELECT *
+FROM customers
+LEFT JOIN orders
+ON customers.customerNumber = orders.customerNumber
+
+UNION
+
+SELECT *
+FROM customers
+RIGHT JOIN orders
+ON customers.customerNumber = orders.customerNumber;
+
+
+SELECT a.customerName, b.comments
+FROM customers a, orders b
+WHERE a.customerNumber = b.customerNumber;
+
+
+SELECT a.customerName, b.comments
+FROM customers AS a
+CROSS JOIN orders AS b;
+
+
+SELECT  a.customerName,b.customerNumber
+FROM customers AS a
+JOIN orders AS b
+ON a.customerNumber = b.customerNumber
+GROUP BY a.customerNumber;
+
+
+SELECT a.customerName,b.customerNumber
+FROM customers AS a
+JOIN orders AS b
+ON a.customerNumber = b.customerNumber
+WHERE customerName="Atelier graphique";
+
