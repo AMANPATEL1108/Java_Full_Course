@@ -1,0 +1,26 @@
+
+SELECT customerName, creditLimit
+FROM customers
+WHERE creditLimit > (SELECT AVG(creditLimit) FROM customers);
+
+
+SELECT customerName, creditLimit,
+       (SELECT AVG(creditLimit) FROM customers) AS avg_salary
+FROM customers;
+
+SELECT customerName, creditLimit
+FROM customers
+WHERE creditLimit > (
+    SELECT AVG(creditLimit)
+    FROM customers
+);
+
+SELECT o.orderNumber, o.orderDate, o.customerNumber
+FROM orders o
+WHERE o.orderDate > (
+    SELECT AVG(orderDate)
+    FROM orders
+    WHERE customerNumber = o.customerNumber
+);
+
+

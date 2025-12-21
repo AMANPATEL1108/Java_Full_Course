@@ -32,7 +32,7 @@ Example of INNER JOIN:
 
 SELECT u.name, o.order_id
 FROM users u
-INNER JOIN orders o ON u.user_id = o.user_id;
+INNER JOIN orders o ON u.user_id = 5o.user_id;
 
 
 Example of LEFT JOIN:
