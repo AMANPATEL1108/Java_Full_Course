@@ -1,0 +1,17 @@
+        SELECT customerNumber FROM customers
+        UNION
+        SELECT customerNumber FROM orders;
+
+
+
+        SELECT customerNumber FROM customers
+        UNION All
+        SELECT customerNumber FROM orders;
+
+        SELECT customerNumber FROM customers
+        INTERSECT
+        SELECT customerNumber FROM orders;
+
+        SELECT customerNumber FROM customers
+        EXCEPT
+        SELECT customerNumber FROM orders;
