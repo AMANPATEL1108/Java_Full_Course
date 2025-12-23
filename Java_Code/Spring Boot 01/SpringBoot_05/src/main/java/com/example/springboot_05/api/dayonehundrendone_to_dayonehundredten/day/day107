@@ -1,0 +1,41 @@
+SELECT CONCAT('Hello', ' ', 'World'); -- Output: 'Hello World'
+SELECT LENGTH('Hello World'); -- Output: 11
+SELECT UPPER('hello'); -- Output: 'HELLO'
+SELECT LOWER('HELLO'); -- Output: 'hello'
+SELECT SUBSTRING('Hello World', 1, 5); -- Output: 'Hello'
+SELECT TRIM('  Hello World  '); -- Output: 'Hello World'
+
+SELECT NOW(); -- Output: '2025-12-23 15:20:30' (example)
+SELECT CURDATE(); -- Output: '2025-12-23'
+SELECT CURTIME(); -- Output: '15:20:30'
+SELECT DATE_FORMAT('2025-12-23', '%Y-%m-%d'); -- Output: '2025-12-23'
+SELECT DATE_ADD('2025-12-23', INTERVAL 5 DAY); -- Output: '2025-12-28'
+SELECT YEAR('2025-12-23'); -- Output: 2025
+SELECT DATEDIFF('2025-12-23', '2025-12-20'); -- Output: 3
+
+SELECT ROUND(15.6789, 2); -- Output: 15.68
+SELECT FLOOR(15.6789); -- Output: 15
+SELECT CEIL(15.123); -- Output: 16
+SELECT ABS(-10); -- Output: 10
+SELECT POW(2, 3); -- Output: 8
+SELECT MOD(10, 3); -- Output: 1
+
+
+
+SELECT * FROM customers WHERE customerName IS NULL;
+
+SELECT * FROM customers WHERE customerName IS NOT NULL;
+
+SELECT COALESCE(NULL, NULL, 'Hello'); -- Output: 'Hello'
+
+SELECT IFNULL(NULL, 'Default Value'); -- Output: 'Default Value'
+
+SELECT
+  creditLimit,
+  CASE
+    WHEN creditLimit >= 100000 THEN 'R1'
+    WHEN creditLimit >= 50000 THEN 'R2'
+    ELSE 'R3'
+  END AS age_group
+FROM customers;
+
