@@ -1,0 +1,12 @@
+CREATE INDEX idx_name ON customers(customerName);
+
+CREATE INDEX idx_data ON customers(contactFirstName,contactLastName);
+
+EXPLAIN SELECT * FROM customers WHERE customerName = 'Warburg Exchange';
+
+
+
+//slow
+SELECT * FROM orders WHERE YEAR(orderDate) = 2005;
+//fast
+SELECT * FROM orders WHERE orderDate >= '2003-01-01' AND orderDate < '2004-01-01';
