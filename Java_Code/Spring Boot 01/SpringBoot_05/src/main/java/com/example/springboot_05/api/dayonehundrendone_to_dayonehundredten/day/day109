@@ -1,0 +1,33 @@
+BEGIN;
+
+UPDATE customers SET creditLimit = creditLimit + 1000 WHERE creditLimit = 0;
+
+-- If no error occurs:
+COMMIT;
+
+-- If something goes wrong:
+ROLLBACK;
+
+
+CREATE TABLE students (
+    student_id INT PRIMARY KEY,
+    name VARCHAR(100)
+);
+
+CREATE TABLE enrollments (
+    enrollment_id INT PRIMARY KEY,
+    student_id INT,
+    course_name VARCHAR(100),
+    FOREIGN KEY (student_id) REFERENCES students(student_id)
+);
+
+
+------------------------------------summary-------------------------------
+
+CREATE TABLE employees (
+Constraint	Description	Example
+Primary Key	Uniquely identifies each row; no duplicates and no NULL values.	student_id INT PRIMARY KEY
+Foreign Key	Links two tables together; ensures referential integrity.	FOREIGN KEY (student_id) REFERENCES students(student_id)
+Unique	Ensures uniqueness in a column or set of columns.	email VARCHAR(100) UNIQUE
+Check	Ensures values meet a specific condition.	age INT CHECK (age >= 18)
+
