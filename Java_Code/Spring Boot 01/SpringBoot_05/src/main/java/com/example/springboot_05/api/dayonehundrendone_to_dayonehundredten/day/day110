@@ -1,0 +1,86 @@
+CREATE VIEW active_users AS
+SELECT customerNumber,creditLimit
+FROM customers
+WHERE creditLimit>0;
+
+
+SELECT customerNumber,creditLimit,
+       ROW_NUMBER() OVER (ORDER BY creditLimit DESC) AS rn
+FROM customers;
+
+
+SELECT customerNumber,creditLimit,
+       RANK() OVER (ORDER BY creditLimit DESC) AS rnk
+FROM customers;
+
+
+SELECT customerNumber,creditLimit,
+       DENSE_RANK() OVER (ORDER BY creditLimit DESC) AS rnk
+FROM customers;
+
+
+SELECT customerNumber,creditLimit,
+       RANK() OVER (PARTITION BY creditLimit ORDER BY customerNumber DESC) AS dept_rank
+FROM customers;
+
+WITH high_salary AS (
+    SELECT * FROM customers WHERE creditLimit > 80000
+)
+SELECT * FROM customers;
+
+
+
+WITH dept_avg AS (
+    SELECT creditLimit, AVG(creditLimit) avg_sal
+    FROM customers
+    GROUP BY creditLimit
+)
+SELECT e.customerName, e.creditLimit
+FROM customers e
+JOIN dept_avg d ON e.creditLimit = d.creditLimit
+WHERE e.creditLimit > d.avg_sal;
+
+
+WITH RECURSIVE order_chain AS (
+    SELECT
+        o.orderNumber,
+        o.customerNumber,
+        o.orderDate,
+        1 AS step
+    FROM orders o
+    WHERE o.orderDate = (
+        SELECT MIN(o2.orderDate)
+        FROM orders o2
+        WHERE o2.customerNumber = o.customerNumber
+    )
+
+    UNION ALL
+
+    SELECT
+        o.orderNumber,
+        o.customerNumber,
+        o.orderDate,
+        oc.step + 1
+    FROM order_chain oc
+    JOIN orders o
+        ON o.customerNumber = oc.customerNumber
+       AND o.orderDate > oc.orderDate
+)
+SELECT *
+FROM order_chain
+ORDER BY customerNumber, step;
+
+
+SELECT *
+FROM orders
+WHERE shippedDate < '2024-01-10 10:00:00'
+ORDER BY shippedDate DESC
+LIMIT 10;
+
+
+CREATE INDEX idx_user_status_created
+ON users(status, shippedDate);
+
+
+
+
