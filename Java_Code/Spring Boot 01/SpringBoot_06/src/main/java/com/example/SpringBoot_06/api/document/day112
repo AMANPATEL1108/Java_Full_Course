@@ -1,0 +1,120 @@
+  1. Authentication (Who are you?)
+
+  Authentication is the process of verifying the identity of a user.
+
+  👉 It answers:
+
+  “Are you really who you claim to be?”
+
+  Examples
+
+  Logging in with username & password
+
+  Using JWT token
+
+  OAuth2 login (Google, GitHub)
+
+  API key authentication
+
+  In Spring Boot
+
+  Spring Security handles authentication using:
+
+  AuthenticationManager
+
+  AuthenticationProvider
+
+  UserDetailsService
+
+  Authentication object
+
+  Example
+  @Autowired
+  AuthenticationManager authenticationManager;
+
+  public void login(String username, String password) {
+      Authentication auth = authenticationManager.authenticate(
+          new UsernamePasswordAuthenticationToken(username, password)
+      );
+  }
+
+
+  If credentials are valid, authentication succeeds.
+  If invalid, Spring throws an exception (BadCredentialsException).
+
+  2. Authorization (What are you allowed to do?)
+
+  Authorization happens after authentication.
+
+  👉 It answers:
+
+  “What actions or resources can you access?”
+
+  Examples
+
+  User can access /profile
+
+  Admin can access /admin
+
+  Only users with ROLE_MANAGER can delete records
+
+  In Spring Boot
+
+  Authorization is done using:
+
+  Roles (ROLE_ADMIN, ROLE_USER)
+
+  Authorities / Permissions (READ, WRITE)
+
+  Annotations like:
+
+  @PreAuthorize
+
+  @Secured
+
+  @RolesAllowed
+
+  Example
+  @PreAuthorize("hasRole('ADMIN')")
+  @GetMapping("/admin")
+  public String adminPage() {
+      return "Admin Access";
+  }
+
+  3. Key Differences
+  Authentication	Authorization
+  Verifies identity	Verifies permissions
+  Happens first	Happens after authentication
+  Login process	Access control
+  Example: Login	Example: Access /admin
+  4. Authentication vs Authorization Flow in Spring Boot
+
+  User sends login request
+
+  Authentication
+
+  Username & password checked
+
+  JWT validated (if token-based)
+
+  User is authenticated
+
+  Authorization
+
+  Spring checks roles/permissions
+
+  Access granted or denied
+
+  5. Real-World Analogy 🚪
+
+  Authentication → Showing your ID card
+
+  Authorization → Being allowed into specific rooms
+
+  6. Summary
+
+  ✅ Authentication = Identity verification
+
+  ✅ Authorization = Permission check
+
+  🔐 Both are essential for secure Spring Boot applications
