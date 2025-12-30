@@ -1,0 +1,36 @@
+JWT (JSON Web Token) is a popular method for securely transmitting information between parties as a JSON object. It’s often used in modern web applications for handling authentication and authorization.
+
+In Java, especially when using Spring Boot, JWT is typically used for authenticating and securing APIs. Here's a simple breakdown of the basics of JWT and how to integrate it into a Spring Boot application.
+
+JWT Structure
+
+A JWT is made up of three parts:
+
+Header: Contains the type of the token (JWT) and the signing algorithm (e.g., HMAC SHA256, RSA).
+
+Payload: Contains the claims, which are the statements about an entity (typically the user) and additional data. Claims can be public or private.
+
+Signature: The header and payload are Base64Url encoded and then signed using a secret key or a private key (depending on the algorithm). This ensures the token’s integrity and authenticity.
+
+Here’s a sample JWT:
+
+xxxxx.yyyyy.zzzzz
+
+
+xxxxx: Encoded header.
+
+yyyyy: Encoded payload.
+
+zzzzz: Encoded signature.
+
+JWT Flow in Spring Boot
+
+User Login: User provides their credentials (like username and password) to the server.
+
+Generate JWT: If the credentials are valid, the server generates a JWT and sends it back to the client.
+
+Client Stores JWT: The client stores the JWT (usually in local storage or as a cookie).
+
+API Calls: For subsequent requests, the client includes the JWT in the HTTP Authorization header (Bearer <JWT>).
+
+Server Validates JWT: The server checks if the JWT is valid and grants access to the requested resource.
