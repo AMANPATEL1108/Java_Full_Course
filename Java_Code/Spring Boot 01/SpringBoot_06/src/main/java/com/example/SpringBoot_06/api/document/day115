@@ -1,0 +1,208 @@
+Dependencies
+
+First, add the required dependencies to your pom.xml (if you're using Maven):
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>0.11.5</version> <!-- Latest version at the time of writing -->
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+</dependencies>
+
+Step 1: Create JWT Utility Class
+
+This class will handle the generation and validation of JWT tokens.
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Date;
+
+public class JwtUtil {
+
+    private String secretKey = "mySecretKey";  // You should store this securely
+
+    // Generate token
+    public String generateToken(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))  // 1 hour expiry
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    // Validate token
+    public boolean validateToken(String token, String username) {
+        String extractedUsername = extractUsername(token);
+        return (extractedUsername.equals(username) && !isTokenExpired(token));
+    }
+
+    // Extract username from token
+    public String extractUsername(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    // Extract claims from token
+    private Claims extractClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    // Check if the token is expired
+    private boolean isTokenExpired(String token) {
+        return extractClaims(token).getExpiration().before(new Date());
+    }
+
+    // Extract expiration date from token
+    public Date extractExpiration(String token) {
+        return extractClaims(token).getExpiration();
+    }
+}
+
+Step 2: Create a Filter for JWT Authentication
+
+This filter will intercept the HTTP requests and check for the presence of a JWT token in the request headers.
+
+import io.jsonwebtoken.ExpiredJwtException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+@WebFilter("/api/*")
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private JwtUtil jwtUtil = new JwtUtil();
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        final String authorizationHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String jwt = null;
+
+        // If Authorization header is present
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            jwt = authorizationHeader.substring(7); // Remove "Bearer "
+            try {
+                username = jwtUtil.extractUsername(jwt);
+            } catch (ExpiredJwtException e) {
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token has expired");
+            }
+        }
+
+        // If we have a valid JWT token, set the authentication in the context
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (jwtUtil.validateToken(jwt, username)) {
+                // You can also set roles or authorities if needed
+                SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>()));
+            }
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
+
+Step 3: Create a Controller for Authentication and Accessing Protected Resources
+
+This is a basic controller that authenticates users and returns a JWT token.
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+@RestController
+public class AuthController {
+
+    private JwtUtil jwtUtil = new JwtUtil();
+    private BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @PostMapping("/authenticate")
+    public String createJwtToken(@RequestParam String username, @RequestParam String password) {
+        // In a real application, validate the credentials from the database
+        // Here we are just validating with a simple hardcoded password
+        if ("testuser".equals(username) && passwordEncoder.matches(password, "$2a$10$wWzvAFZtVb1nTlbGsGpDquFVpChnVRI2H9nT4wv0xxmTgP6qjOG5C")) { // bcrypt hashed password for "password"
+            return jwtUtil.generateToken(username);
+        } else {
+            throw new RuntimeException("Invalid credentials");
+        }
+    }
+
+    @GetMapping("/protected")
+    public String getProtectedResource() {
+        return "This is a protected resource!";
+    }
+}
+
+Step 4: Configure Spring Security
+
+You need to configure Spring Security to apply the JWT authentication filter and disable CSRF for simplicity.
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeRequests()
+            .antMatchers("/authenticate").permitAll()  // Allow authentication endpoint without token
+            .antMatchers("/protected").authenticated()  // Protect the /protected endpoint
+            .anyRequest().authenticated()
+            .and()
+            .addFilter(new JwtAuthenticationFilter());  // Add the JWT filter
+    }
+}
+
+Step 5: Run the Application
+
+Start your Spring Boot application.
+
+Use a tool like Postman or curl to test the authentication:
+
+Step 1: Authenticate and get the JWT Token:
+
+POST /authenticate?username=testuser&password=password
+
+You will receive a JWT token.
+
+Step 2: Access Protected Resource:
+
+GET /protected with the Authorization header: Bearer <your-jwt-token>
+
+If the token is valid, you will get a response like: "This is a protected resource!"
+
+Explanation:
+
+The JwtUtil class handles generating and validating the JWT tokens.
+
+The JwtAuthenticationFilter intercepts each incoming request to check if a valid token is present in the Authorization header.
+
+The SecurityConfig class configures Spring Security to apply the authentication filter and allow access to the /authenticate endpoint without a token, while protecting the /protected endpoint.
