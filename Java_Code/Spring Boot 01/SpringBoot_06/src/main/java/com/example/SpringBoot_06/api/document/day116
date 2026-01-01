@@ -1,0 +1,261 @@
+In a Java Spring Boot application using JWT (JSON Web Tokens), role-based access control (RBAC) is a common way to manage different levels of permissions and restrict access to certain parts of the application based on user roles. The idea is to use the information in the JWT to enforce security policies, such as who can access specific endpoints based on roles like ADMIN, USER, or others.
+
+To implement role-based access control in a Spring Boot application with JWT, you'll typically need to do the following:
+
+1. Set up Spring Security and JWT dependencies
+
+In your pom.xml, include the necessary dependencies:
+
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>io.jsonwebtoken</groupId>
+        <artifactId>jjwt</artifactId>
+        <version>0.11.5</version> <!-- Make sure to use a valid version -->
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+</dependencies>
+
+2. Create JWT Utility Classes
+
+You'll need utility classes for generating and validating JWTs. For instance:
+
+JwtTokenUtil.java
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Date;
+import java.util.List;
+
+public class JwtTokenUtil {
+
+    private String secretKey = "yourSecretKey"; // Use a better secret key, ideally from a config
+
+    public String generateToken(String username, List<String> roles) {
+        Claims claims = Jwts.claims().setSubject(username);
+        claims.put("roles", roles);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))  // Expire in 10 hours
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+    }
+
+    public Claims extractClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    public String extractUsername(String token) {
+        return extractClaims(token).getSubject();
+    }
+
+    public List<String> extractRoles(String token) {
+        return (List<String>) extractClaims(token).get("roles");
+    }
+
+    public boolean isTokenExpired(String token) {
+        return extractClaims(token).getExpiration().before(new Date());
+    }
+
+    public boolean validateToken(String token, String username) {
+        return (username.equals(extractUsername(token)) && !isTokenExpired(token));
+    }
+}
+
+3. Set up Spring Security
+
+Now, you need to configure Spring Security to handle JWT authentication.
+
+SecurityConfig.java
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    private final JwtRequestFilter jwtRequestFilter;
+
+    public SecurityConfig(JwtRequestFilter jwtRequestFilter) {
+        this.jwtRequestFilter = jwtRequestFilter;
+    }
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeRequests()
+            .antMatchers("/auth/**").permitAll()  // Permit auth endpoints for login
+            .antMatchers("/admin/**").hasRole("ADMIN")  // Only ADMIN role can access
+            .antMatchers("/user/**").hasRole("USER")  // Only USER role can access
+            .anyRequest().authenticated()
+            .and()
+            .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Override
+    @Bean
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+
+4. JWT Request Filter
+
+The JwtRequestFilter is responsible for intercepting incoming requests and validating the JWT token in the request headers.
+
+JwtRequestFilter.java
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import java.io.IOException;
+
+public class JwtRequestFilter extends OncePerRequestFilter {
+
+    private final JwtTokenUtil jwtTokenUtil;
+    private final CustomUserDetailsService userDetailsService;
+
+    public JwtRequestFilter(JwtTokenUtil jwtTokenUtil, CustomUserDetailsService userDetailsService) {
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.userDetailsService = userDetailsService;
+    }
+
+    @Override
+    protected void doFilterInternal(javax.servlet.http.HttpServletRequest request, javax.servlet.http.HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
+        final String authorizationHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String jwtToken = null;
+
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            jwtToken = authorizationHeader.substring(7);
+            username = jwtTokenUtil.extractUsername(jwtToken);
+        }
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            if (jwtTokenUtil.validateToken(jwtToken, username)) {
+                CustomUserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                // Add user roles
+                org.springframework.security.authentication.UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                        new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            }
+        }
+
+        chain.doFilter(request, response);
+    }
+}
+
+5. Create UserDetailsService for Custom User Details
+
+You need a service to load user details based on the JWT.
+
+CustomUserDetailsService.java
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        // Replace this with your own logic to get the user from the database or repository
+        if (username.equals("admin")) {
+            return new org.springframework.security.core.userdetails.User("admin", "",
+                Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN")));
+        } else if (username.equals("user")) {
+            return new org.springframework.security.core.userdetails.User("user", "",
+                Arrays.asList(new SimpleGrantedAuthority("ROLE_USER")));
+        } else {
+            throw new UsernameNotFoundException("User not found");
+        }
+    }
+}
+
+6. Creating Controllers with Role-based Access
+
+Now, you can create controllers and restrict access based on roles.
+
+UserController.java
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+
+    @GetMapping("/user/home")
+    public String userHome() {
+        return "Welcome User!";
+    }
+
+    @GetMapping("/admin/home")
+    public String adminHome() {
+        return "Welcome Admin!";
+    }
+}
+
+7. Login Endpoint to Issue JWT
+
+You would also need a login endpoint to authenticate the user and issue a JWT.
+
+AuthController.java
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AuthController {
+
+    private final JwtTokenUtil jwtTokenUtil;
+    private final CustomUserDetailsService userDetailsService;
+
+    public AuthController(JwtTokenUtil jwtTokenUtil, CustomUserDetailsService userDetailsService) {
+        this.jwtTokenUtil = jwtTokenUtil;
+        this.userDetailsService = userDetailsService;
+    }
+
+    @PostMapping("/auth/login")
+    public String login(@RequestBody UserCredentials credentials) {
+        // Authenticate user (you can integrate DB logic here)
+        if ("admin".equals(credentials.getUsername()) && "password".equals(credentials.getPassword())) {
+            return jwtTokenUtil.generateToken(credentials.getUsername(), Arrays.asList("ROLE_ADMIN"));
+        } else if ("user".equals(credentials.getUsername()) && "password".equals(credentials.getPassword())) {
+            return jwtTokenUtil.generateToken(credentials.getUsername(), Arrays.asList("ROLE_USER"));
+        } else {
+            throw new RuntimeException("Invalid credentials");
+        }
+    }
+}
+
+Conclusion
+
+With this setup, you're able to restrict access to different endpoints in your Spring Boot application using roles that are encoded in a JWT. You can further enhance this by integrating database-driven user authentication and authorization mechanisms, but this example gives you the core setup needed for role-based access control with JWT.
