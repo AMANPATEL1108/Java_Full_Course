@@ -10,19 +10,14 @@ import java.util.HashMap;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/user")
+@RequestMapping("/api/user")
 public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
 
-    @PostMapping
-    public ResponseEntity<?> createEmployee(@RequestBody EmployeeCreateDto user) {
-        employeeService.createEmployee(user);
-        return ResponseEntity.ok("User Created");
-    }
 
-    @GetMapping
+    @GetMapping("/get-all")
     public ResponseEntity<?> getEmployee(EmployeeCreateDto user) {
         HashMap<String, Object> response = new HashMap<>();
         List<Employee> e = employeeService.getEmployee(user);
@@ -38,21 +33,6 @@ public class EmployeeController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateByEmployeeId(@PathVariable Long id, @RequestBody Employee employee) {
-        HashMap<String, Object> response = new HashMap<>();
-        Employee e = employeeService.updatedByEmployee(id, employee);
-        response.put("employee", e);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteByEmployeeId(@PathVariable Long id) {
-        HashMap<String, Object> response = new HashMap<>();
-        Employee e = employeeService.employeeDeleteByID(id);
-        response.put("employee", e);
-        return ResponseEntity.ok(response);
-    }
 
     @GetMapping("/search")
     public ResponseEntity<?> searchByName(@RequestParam String name) {

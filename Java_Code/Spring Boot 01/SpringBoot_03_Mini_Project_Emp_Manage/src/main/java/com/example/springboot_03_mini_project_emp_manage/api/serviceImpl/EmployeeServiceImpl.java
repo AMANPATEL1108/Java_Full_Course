@@ -5,6 +5,7 @@ import com.example.springboot_03_mini_project_emp_manage.api.entity.Employee;
 import com.example.springboot_03_mini_project_emp_manage.api.repository.EmployeeRepository;
 import com.example.springboot_03_mini_project_emp_manage.api.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,11 +35,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (user.getDateOfJoining() == null) throw new IllegalArgumentException("Date of joining is required.");
         if (user.getStatus() == null || user.getStatus().isEmpty())
             throw new IllegalArgumentException("Status is required.");
+        if (user.getRole() == null || user.getRole().isEmpty()) {
+            throw new IllegalArgumentException("Role is Required");
+        }
 
         Employee employee = new Employee();
         employee.setFirstName(user.getFirstName());
         employee.setLastName(user.getLastName());
         employee.setEmail(user.getEmail());
+        employee.setRole(user.getRole());
         employee.setPhoneNumber(user.getPhoneNumber());
         employee.setAddress(user.getAddress());
         employee.setDesignation(user.getDesignation());
@@ -68,6 +73,7 @@ public class EmployeeServiceImpl implements EmployeeService {
         existing.setPhoneNumber(employee.getPhoneNumber());
         existing.setAddress(employee.getAddress());
         existing.setDesignation(employee.getDesignation());
+        existing.setRole(employee.getRole());
         existing.setSalary(employee.getSalary());
         existing.setDepartment(employee.getDepartment());
         existing.setDateOfJoining(employee.getDateOfJoining());
@@ -116,6 +122,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     public Double getAverageSalary(String department) {
         return employeeRepository.getAverageSalaryByDepartment(department);
+    }
+
+    @Override
+    public UserDetails loadUserByEmail(String username) {
+        try {
+            return employeeRepository.findByEmail(username);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
 }
