@@ -6,6 +6,8 @@ import com.example.springboot_03_mini_project_emp_manage.api.repository.Employee
 import com.example.springboot_03_mini_project_emp_manage.api.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +17,9 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     public void createEmployee(EmployeeCreateDto user) {
         if (user.getFirstName() == null || user.getFirstName().isEmpty())
@@ -43,7 +48,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setFirstName(user.getFirstName());
         employee.setLastName(user.getLastName());
         employee.setEmail(user.getEmail());
-        employee.setRole(user.getRole());
+
+        if (!user.getRole().startsWith("ROLE_")) {
+            employee.setRole("ROLE_" + user.getRole());
+        } else {
+            employee.setRole(user.getRole());
+        }
+
+        employee.setPassword(passwordEncoder.encode(user.getAddress()));
         employee.setPhoneNumber(user.getPhoneNumber());
         employee.setAddress(user.getAddress());
         employee.setDesignation(user.getDesignation());
@@ -73,7 +85,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         existing.setPhoneNumber(employee.getPhoneNumber());
         existing.setAddress(employee.getAddress());
         existing.setDesignation(employee.getDesignation());
-        existing.setRole(employee.getRole());
+
+        if (!employee.getRole().startsWith("ROLE_")) {
+            existing.setRole("ROLE_" + employee.getRole());
+        } else {
+            existing.setRole(employee.getRole());
+        }
+
+        existing.setPassword(passwordEncoder.encode(employee.getAddress()));
         existing.setSalary(employee.getSalary());
         existing.setDepartment(employee.getDepartment());
         existing.setDateOfJoining(employee.getDateOfJoining());
@@ -126,11 +145,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public UserDetails loadUserByEmail(String username) {
-        try {
-            return employeeRepository.findByEmail(username);
-        } catch (Exception e) {
-            throw e;
-        }
+        return employeeRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
     }
-
 }

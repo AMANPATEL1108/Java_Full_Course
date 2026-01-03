@@ -1,11 +1,12 @@
 package com.example.springboot_03_mini_project_emp_manage.api.controller;
 
-import com.example.springboot_03_mini_project_emp_manage.api.service.EmployeeService;
 import com.example.springboot_03_mini_project_emp_manage.api.dto.EmployeeCreateDto;
 import com.example.springboot_03_mini_project_emp_manage.api.entity.Employee;
+import com.example.springboot_03_mini_project_emp_manage.api.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,11 +17,10 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
-
     @GetMapping("/get-all")
-    public ResponseEntity<?> getEmployee(EmployeeCreateDto user) {
+    public ResponseEntity<?> getEmployee() {
         HashMap<String, Object> response = new HashMap<>();
-        List<Employee> e = employeeService.getEmployee(user);
+        List<Employee> e = employeeService.getEmployee(new EmployeeCreateDto());
         response.put("employees", e);
         return ResponseEntity.ok(response);
     }
@@ -29,10 +29,13 @@ public class EmployeeController {
     public ResponseEntity<?> getByEmployeeId(@PathVariable Long id) {
         HashMap<String, Object> response = new HashMap<>();
         Employee e = employeeService.getEmployeeById(id);
+        if (e == null) {
+            response.put("message", "Employee not found");
+            return ResponseEntity.badRequest().body(response);
+        }
         response.put("employee", e);
         return ResponseEntity.ok(response);
     }
-
 
     @GetMapping("/search")
     public ResponseEntity<?> searchByName(@RequestParam String name) {
@@ -44,7 +47,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.filterByDepartment(department));
     }
 
-        @GetMapping("/filter/designation")
+    @GetMapping("/filter/designation")
     public ResponseEntity<?> filterByDesignation(@RequestParam String designation) {
         return ResponseEntity.ok(employeeService.filterByDesignation(designation));
     }
@@ -58,7 +61,6 @@ public class EmployeeController {
     public ResponseEntity<?> filterBySalary(
             @RequestParam Double minSalary,
             @RequestParam Double maxSalary) {
-
         return ResponseEntity.ok(employeeService.filterBySalaryRange(minSalary, maxSalary));
     }
 

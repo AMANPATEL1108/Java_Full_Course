@@ -27,9 +27,9 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()  // Public access to auth endpoints
-                        .requestMatchers("/admin/**").hasRole("ADMIN")  // Only accessible by users with ROLE_ADMIN
-                        .requestMatchers("/user/**").hasRole("USER")  // Only accessible by users with ROLE_USER
+                        .requestMatchers("api/auth/**").permitAll()  // Public access to auth endpoints
+                        .requestMatchers("api/admin/**").hasRole("ADMIN")  // Only accessible by users with ROLE_ADMIN
+                        .requestMatchers("api/user/**").hasRole("USER")  // Only accessible by users with ROLE_USER
                         .anyRequest().authenticated())  // Any other request requires authentication
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)  // JWT filter before authentication filter
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless session

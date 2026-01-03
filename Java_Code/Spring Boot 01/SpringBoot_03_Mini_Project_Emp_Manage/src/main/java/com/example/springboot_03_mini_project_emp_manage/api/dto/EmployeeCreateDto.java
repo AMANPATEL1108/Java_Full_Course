@@ -9,14 +9,11 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Data
 public class EmployeeCreateDto {
-
-
     private String firstName;
     private String lastName;
     private String role;

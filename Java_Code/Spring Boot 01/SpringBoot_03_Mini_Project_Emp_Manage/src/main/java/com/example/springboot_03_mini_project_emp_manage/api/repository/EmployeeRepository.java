@@ -7,7 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.List;
-
+import java.util.Optional;
 
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
@@ -19,6 +19,7 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     List<Employee> findByStatusIgnoreCase(String status);
 
     List<Employee> findBySalaryBetween(Double minSalary, Double maxSalary);
+
     @Query("SELECT COUNT(e) FROM Employee e")
     Long getTotalEmployees();
 
@@ -30,5 +31,5 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     @Query("SELECT AVG(e.salary) FROM Employee e WHERE e.department = :department")
     Double getAverageSalaryByDepartment(@Param("department") String department);
 
-    UserDetails findByEmail(String username);
+    Optional<Employee> findByEmail(String email);
 }

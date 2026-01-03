@@ -1,6 +1,5 @@
 package com.example.springboot_03_mini_project_emp_manage.api.filter;
 
-
 import com.example.springboot_03_mini_project_emp_manage.api.service.EmployeeService;
 import com.example.springboot_03_mini_project_emp_manage.api.service.JwtService;
 import jakarta.servlet.FilterChain;
@@ -18,16 +17,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-public class JwtAuthFilter extends OncePerRequestFilter
-{
+public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     private JwtService jwtService;
-    @Autowired private EmployeeService employeeService;
+
+    @Autowired
+    private EmployeeService employeeService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException
-            , IOException {
+            throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);

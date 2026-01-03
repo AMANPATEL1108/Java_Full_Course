@@ -4,13 +4,12 @@ import com.example.springboot_03_mini_project_emp_manage.api.entity.Employee;
 import com.example.springboot_03_mini_project_emp_manage.api.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 
+@RestController
+@RequestMapping("/api/admin")
 public class AdminController {
 
     @Autowired
@@ -20,6 +19,10 @@ public class AdminController {
     public ResponseEntity<?> updateByEmployeeId(@PathVariable Long id, @RequestBody Employee employee) {
         HashMap<String, Object> response = new HashMap<>();
         Employee e = employeeService.updatedByEmployee(id, employee);
+        if (e == null) {
+            response.put("message", "Employee not found");
+            return ResponseEntity.badRequest().body(response);
+        }
         response.put("employee", e);
         return ResponseEntity.ok(response);
     }
@@ -28,8 +31,12 @@ public class AdminController {
     public ResponseEntity<?> deleteByEmployeeId(@PathVariable Long id) {
         HashMap<String, Object> response = new HashMap<>();
         Employee e = employeeService.employeeDeleteByID(id);
+        if (e == null) {
+            response.put("message", "Employee not found");
+            return ResponseEntity.badRequest().body(response);
+        }
         response.put("employee", e);
+        response.put("message", "Employee deleted successfully");
         return ResponseEntity.ok(response);
     }
-
 }
