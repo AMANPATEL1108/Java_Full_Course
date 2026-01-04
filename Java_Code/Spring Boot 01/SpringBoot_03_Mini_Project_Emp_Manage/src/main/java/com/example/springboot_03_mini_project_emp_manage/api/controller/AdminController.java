@@ -1,5 +1,6 @@
 package com.example.springboot_03_mini_project_emp_manage.api.controller;
 
+import com.example.springboot_03_mini_project_emp_manage.api.dto.EmployeeCreateDto;
 import com.example.springboot_03_mini_project_emp_manage.api.entity.Employee;
 import com.example.springboot_03_mini_project_emp_manage.api.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -39,4 +41,13 @@ public class AdminController {
         response.put("message", "Employee deleted successfully");
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/get-all")
+    public ResponseEntity<?> getEmployee() {
+        HashMap<String, Object> response = new HashMap<>();
+        List<Employee> e = employeeService.getEmployee(new EmployeeCreateDto());
+        response.put("employees", e);
+        return ResponseEntity.ok(response);
+    }
+
 }

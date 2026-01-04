@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,11 +45,23 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody AuthRequest request) {
         try {
             Authentication auth = authManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(request.username(), request.password()));
+                    new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+
+            // Get the authenticated user
             Employee user = (Employee) auth.getPrincipal();
-            return ResponseEntity.ok(Map.of("token", jwtService.generateToken(user)));
+
+            // Generate token
+            String token = jwtService.generateToken(user);
+
+            return ResponseEntity.ok(Map.of(
+                    "token", token,
+                    "email", user.getEmail(),
+                    "role", user.getRole()
+            ));
+        } catch (AuthenticationException e) {
+            return ResponseEntity.badRequest().body("Invalid email or password");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Invalid credentials");
+            return ResponseEntity.badRequest().body("Login failed: " + e.getMessage());
         }
     }
 }

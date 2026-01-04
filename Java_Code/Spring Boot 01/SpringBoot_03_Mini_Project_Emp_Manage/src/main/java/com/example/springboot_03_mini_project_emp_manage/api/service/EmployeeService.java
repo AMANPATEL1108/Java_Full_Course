@@ -3,10 +3,11 @@ package com.example.springboot_03_mini_project_emp_manage.api.service;
 import com.example.springboot_03_mini_project_emp_manage.api.dto.EmployeeCreateDto;
 import com.example.springboot_03_mini_project_emp_manage.api.entity.Employee;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
 
-public interface EmployeeService {
+public interface EmployeeService extends UserDetailsService {
     void createEmployee(EmployeeCreateDto user);
 
     List<Employee> getEmployee(EmployeeCreateDto user);

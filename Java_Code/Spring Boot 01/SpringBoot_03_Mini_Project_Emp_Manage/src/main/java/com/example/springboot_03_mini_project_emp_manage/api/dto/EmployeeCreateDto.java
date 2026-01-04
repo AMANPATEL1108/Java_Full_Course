@@ -23,6 +23,7 @@ public class EmployeeCreateDto {
     private String designation;
     private Double salary;
     private String department;
+    private String password;
 
     @Temporal(TemporalType.DATE)
     private Date dateOfJoining;

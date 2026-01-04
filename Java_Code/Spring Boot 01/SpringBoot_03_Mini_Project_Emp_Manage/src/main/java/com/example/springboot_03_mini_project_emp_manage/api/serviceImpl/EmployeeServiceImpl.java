@@ -21,6 +21,17 @@ public class EmployeeServiceImpl implements EmployeeService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return loadUserByEmail(email);
+    }
+
+    @Override
+    public UserDetails loadUserByEmail(String email) {
+        return employeeRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    }
+
     public void createEmployee(EmployeeCreateDto user) {
         if (user.getFirstName() == null || user.getFirstName().isEmpty())
             throw new IllegalArgumentException("First name is required.");
@@ -43,6 +54,9 @@ public class EmployeeServiceImpl implements EmployeeService {
         if (user.getRole() == null || user.getRole().isEmpty()) {
             throw new IllegalArgumentException("Role is Required");
         }
+        if (user.getPassword() == null || user.getPassword().isEmpty()) {
+            throw new IllegalArgumentException("Password is Required");
+        }
 
         Employee employee = new Employee();
         employee.setFirstName(user.getFirstName());
@@ -55,7 +69,7 @@ public class EmployeeServiceImpl implements EmployeeService {
             employee.setRole(user.getRole());
         }
 
-        employee.setPassword(passwordEncoder.encode(user.getAddress()));
+        employee.setPassword(passwordEncoder.encode(user.getPassword()));
         employee.setPhoneNumber(user.getPhoneNumber());
         employee.setAddress(user.getAddress());
         employee.setDesignation(user.getDesignation());
@@ -92,7 +106,10 @@ public class EmployeeServiceImpl implements EmployeeService {
             existing.setRole(employee.getRole());
         }
 
-        existing.setPassword(passwordEncoder.encode(employee.getAddress()));
+        if (employee.getPassword() != null && !employee.getPassword().isEmpty()) {
+            existing.setPassword(passwordEncoder.encode(employee.getPassword()));
+        }
+
         existing.setSalary(employee.getSalary());
         existing.setDepartment(employee.getDepartment());
         existing.setDateOfJoining(employee.getDateOfJoining());
@@ -141,11 +158,5 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     public Double getAverageSalary(String department) {
         return employeeRepository.getAverageSalaryByDepartment(department);
-    }
-
-    @Override
-    public UserDetails loadUserByEmail(String username) {
-        return employeeRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
     }
 }
