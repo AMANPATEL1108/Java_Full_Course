@@ -1,3 +1,5 @@
+
+----------------register---------------
 {
   "firstName": "John",
   "lastName": "Doe",
@@ -27,4 +29,30 @@
   "dateOfJoining": "2023-03-20",
   "status": "Active"
 }
+
+-----------------login-------------------------
+
+{
+  "email": "user@gmail.com",
+  "password": "user@123"
+}
+
+{
+  "email": "admin@gmail.com",
+  "password": "admin@123"
+}
+--------------response--------------------------------
+
+{
+    "email": "user@gmail.com",
+    "token": "eyJhbGciOiJIUzI1NiJ9.ehjzdjIiOiJ1c2VyTYuIUWlsLmNvbSIsInJvbGUiOiJST0xFX1VTRVIiLCJpYXQiOjE3Njc1MDA2MDAsImV4cCI6MTc2NzUwNDIwMH0.fIJhPwu3fMqZob8WiUNzCYqE26alNTGT5K0U8_fmaa0",
+    "role": "ROLE_USER"
+}
+
+{
+    "email": "admin@gmail.com",
+    "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbkBnbWFpbC5jvbjbJVYChhbsdjcbhjdvcsdfsdfSDiIsImlhdCI6MTc2NzUwMDg0NiwiZXhwIjoxNzY3NTA0NDQ2fQ.1YXB7yiGaAfPjpS58DhHFQTeOKNhaOgN-uY7Mra6014",
+    "role": "ROLE_ADMIN"
+}
+------------------------------------------------------
 
