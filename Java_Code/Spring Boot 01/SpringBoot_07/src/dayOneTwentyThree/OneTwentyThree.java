@@ -18,7 +18,7 @@ public class OneTwentyThree {
         while (i < len) {
             for (int idx = 0; idx < numRows && i < len; idx++)
                 sb[idx].append(c[i++]);
-            for (int idx = numRows-2; idx >= 1 && i < len; idx--) 
+            for (int idx = numRows-2; idx >= 1 && i < len; idx--)
                 sb[idx].append(c[i++]);
         }
         for (int idx = 1; idx < sb.length; idx++)
