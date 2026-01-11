@@ -1,0 +1,182 @@
+What Are Microservices?
+
+Microservices is an architectural style where an application is built as a collection of small, independent services, each responsible for a specific business capability. These services communicate over the network (usually HTTP/REST or messaging) and can be developed, deployed, and scaled independently.
+
+Why Microservices in Java?
+
+Java is widely used for microservices because it offers:
+
+Mature ecosystem and tooling
+
+Strong support for enterprise-grade systems
+
+Excellent frameworks for building cloud-native services
+
+Robust performance and scalability
+
+Core Characteristics of Java Microservices
+1. Independent Services
+
+Each service runs in its own JVM
+
+Owns its own data (separate database per service)
+
+Can be deployed independently
+
+2. Lightweight Communication
+
+REST APIs (HTTP/JSON)
+
+Messaging (Kafka, RabbitMQ, ActiveMQ)
+
+gRPC (for high-performance communication)
+
+3. Decentralized Data Management
+
+Each microservice manages its own database
+
+Avoids shared schemas
+
+Supports polyglot persistence (SQL, NoSQL, etc.)
+
+Common Java Microservices Frameworks
+Spring Boot
+
+Most popular choice for Java microservices.
+
+Auto-configuration
+
+Embedded servers (Tomcat, Jetty, Netty)
+
+Easy REST API development
+
+Spring Cloud
+
+Adds microservices infrastructure support:
+
+Service discovery (Eureka, Consul)
+
+Configuration management (Spring Cloud Config)
+
+Load balancing (Spring Cloud LoadBalancer)
+
+Circuit breakers (Resilience4j)
+
+Jakarta EE / MicroProfile
+
+Enterprise-standard alternative:
+
+MicroProfile Config
+
+MicroProfile Fault Tolerance
+
+MicroProfile Health
+
+Lightweight compared to traditional Java EE
+
+Quarkus & Micronaut
+
+Modern, cloud-native frameworks:
+
+Fast startup
+
+Low memory footprint
+
+Ideal for containers and serverless
+
+Typical Java Microservices Architecture
+Client
+  |
+API Gateway (Spring Cloud Gateway)
+  |
+-------------------------------
+| Service A | Service B | Service C |
+-------------------------------
+     |          |          |
+   DB A       DB B       DB C
+
+Key Components in Java Microservices
+API Gateway
+
+Single entry point
+
+Handles authentication, routing, rate limiting
+
+Example: Spring Cloud Gateway
+
+Service Discovery
+
+Services register and discover each other dynamically
+
+Example: Netflix Eureka, Consul
+
+Configuration Management
+
+Externalized configuration
+
+Example: Spring Cloud Config, Kubernetes ConfigMaps
+
+Fault Tolerance
+
+Circuit breakers
+
+Retries and timeouts
+
+Example: Resilience4j
+
+Security
+
+OAuth2 / OpenID Connect
+
+JWT tokens
+
+Spring Security
+
+Observability
+
+Logging (Logback, Log4j2)
+
+Metrics (Micrometer + Prometheus)
+
+Tracing (OpenTelemetry, Zipkin, Jaeger)
+
+Deployment in Java Microservices
+Containerization
+
+Docker for packaging services
+
+Each service has its own Docker image
+
+Orchestration
+
+Kubernetes (most common)
+
+Handles scaling, health checks, service discovery
+
+Advantages
+
+Independent deployment
+
+Scalability per service
+
+Technology flexibility
+
+Better fault isolation
+
+Challenges
+
+Increased complexity
+
+Network latency
+
+Distributed transactions
+
+Monitoring and debugging are harder
+
+When to Use Java Microservices
+
+✔ Large, complex applications
+✔ Multiple teams working independently
+✔ Need for high scalability and resilience
+
+❌ Small applications or simple CRUD systems
