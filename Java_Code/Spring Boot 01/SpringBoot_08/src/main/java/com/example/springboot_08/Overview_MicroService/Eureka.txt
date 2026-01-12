@@ -1,0 +1,150 @@
+📌 What is Eureka in Spring Boot
+
+Eureka is a service registry server and discovery tool originally from Netflix.
+In a microservices system, services register themselves with Eureka and discover other services dynamically — no hard-coded IPs or ports.
+
+🚀 Step 1 — Create a Eureka Server
+
+Generate a Spring Boot project
+Use Spring Initializr (start.spring.io) with:
+
+Spring Cloud Netflix Eureka Server
+
+(Optional) Spring Web
+You can choose Maven or Gradle.
+
+Main Application Class
+
+package com.example.eurekaserver;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaServerApplication.class, args);
+    }
+}
+
+
+The @EnableEurekaServer annotation makes this app the Eureka service registry.
+
+Configure the Server (application.yml or application.properties)
+
+Example application.yml:
+
+spring:
+  application:
+    name: eureka-server
+server:
+  port: 8761
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+
+Port is usually 8761 (default Eureka port).
+
+The server does not register with itself (register-with-eureka=false).
+
+Run the Server
+
+Start with:
+
+mvn spring-boot:run
+
+
+Then open the Eureka dashboard at:
+
+http://localhost:8761
+
+
+You should see the registry UI.
+
+🌐 Step 2 — Create Eureka Clients (Your Services)
+
+Each microservice that should register itself does the following:
+
+Add Dependencies
+
+In pom.xml:
+
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+</dependency>
+
+
+(Make sure Spring Cloud dependencies are aligned to compatible versions.)
+
+Main Application Class
+
+package com.example.myservice;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+@EnableDiscoveryClient
+public class MyServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(MyServiceApplication.class, args);
+    }
+}
+
+
+@EnableDiscoveryClient (or @EnableEurekaClient) tells Spring Boot to register with Eureka at startup.
+
+Client Configuration
+
+In application.yml:
+
+spring:
+  application:
+    name: my-service
+server:
+  port: 8081
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+
+spring.application.name is the unique service ID shown in Eureka.
+
+defaultZone must point to your Eureka Server URL.
+
+Run Your Service
+
+When it starts, it registers itself with the Eureka server — visible in the dashboard.
+
+🧠 What Happens Under the Hood
+📌 Service Registration
+
+Each microservice registers itself with the Eureka server with metadata like:
+
+Service name
+
+IP / port
+
+Status & heartbeat
+
+The Eureka dashboard shows all registered instances.
+
+📌 Discovery
+
+Other microservices can look up registered services dynamically, removing the need to hard-code service URLs.
+
+🧩 Eureka with Spring Boot – Useful Tips
+
+✅ Dependencies versioning: Use a proper Spring Cloud BOM (spring-cloud-dependencies) that matches your Spring Boot version.
+✅ Dashboard: Eureka UI is at http://localhost:8761.
+✅ Client vs. Server: Server should not register with itself (register-with-eureka=false).
+✅ Client property: defaultZone must correctly point to your Eureka Server.
