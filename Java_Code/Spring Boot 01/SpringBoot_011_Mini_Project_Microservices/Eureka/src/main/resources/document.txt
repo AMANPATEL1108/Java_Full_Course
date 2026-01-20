@@ -1,0 +1,254 @@
+# Mini Project Documentation
+
+## Project Title
+
+**2-Microservice Application using Spring Boot, Eureka Service Registry, and Spring Cloud API Gateway**
+
+---
+
+## 1. Introduction
+
+This mini project demonstrates a basic microservices architecture using **Spring Boot** and **Spring Cloud**. The system consists of:
+
+* A **Service Registry (Eureka Server)**
+* An **API Gateway**
+* Two independent **microservices (Service A and Service B)**
+
+The API Gateway routes client requests to appropriate microservices using **Eureka service discovery**.
+
+---
+
+## 2. Architecture Overview
+
+```
+Client
+   |
+   v
+API Gateway (8080)
+   |
+   |---> Service A (8081)
+   |
+   |---> Service B (8082)
+   |
+Eureka Server (8761)
+```
+
+### Components Role
+
+* **Eureka Server**: Maintains a registry of all microservices
+* **API Gateway**: Single entry point for clients, routes requests
+* **Service A & B**: Business services providing REST APIs
+
+---
+
+## 3. Technology Stack
+
+* Java 17
+* Spring Boot 3.2.2
+* Spring Cloud 2023.0.1
+* Netflix Eureka
+* Spring Cloud Gateway
+* Maven
+
+---
+
+## 4. Eureka Server
+
+### Purpose
+
+Acts as a service registry where all microservices register themselves.
+
+### application.properties
+
+```properties
+spring.application.name=Eureka
+server.port=8761
+
+eureka.client.register-with-eureka=false
+eureka.client.fetch-registry=false
+```
+
+### Main Class Annotation
+
+```java
+@EnableEurekaServer
+```
+
+### Access
+
+```
+http://localhost:8761
+```
+
+---
+
+## 5. Service A
+
+### Purpose
+
+Provides a REST API endpoint `/hello`.
+
+### application.properties
+
+```properties
+spring.application.name=SERVICE-A
+server.port=8081
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka
+```
+
+### Controller
+
+```java
+@RestController
+public class HelloController {
+
+    @GetMapping("/hello")
+    public String helloServiceA() {
+        return "Hello from Service A";
+    }
+}
+```
+
+### Direct Access
+
+```
+http://localhost:8081/hello
+```
+
+---
+
+## 6. Service B
+
+### Purpose
+
+Provides a REST API endpoint `/hello`.
+
+### application.properties
+
+```properties
+spring.application.name=SERVICE-B
+server.port=8082
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka
+```
+
+### Controller
+
+```java
+@RestController
+public class HelloController {
+
+    @GetMapping("/hello")
+    public String helloServiceB() {
+        return "Hello from Service B";
+    }
+}
+```
+
+### Direct Access
+
+```
+http://localhost:8082/hello
+```
+
+---
+
+## 7. API Gateway
+
+### Purpose
+
+Acts as a single entry point and routes requests to services using Eureka.
+
+### application.properties
+
+```properties
+spring.application.name=API-GATEWAY
+server.port=8080
+spring.main.web-application-type=reactive
+
+spring.cloud.gateway.routes[0].id=service-a
+spring.cloud.gateway.routes[0].uri=lb://SERVICE-A
+spring.cloud.gateway.routes[0].predicates[0]=Path=/service-a/**
+spring.cloud.gateway.routes[0].filters[0]=StripPrefix=1
+
+spring.cloud.gateway.routes[1].id=service-b
+spring.cloud.gateway.routes[1].uri=lb://SERVICE-B
+spring.cloud.gateway.routes[1].predicates[0]=Path=/service-b/**
+spring.cloud.gateway.routes[1].filters[0]=StripPrefix=1
+
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka
+```
+
+### Why StripPrefix is Required
+
+Removes `/service-a` or `/service-b` from the request path before forwarding it to the service.
+
+Example:
+
+```
+/service-a/hello → /hello
+```
+
+---
+
+## 8. Running Order
+
+1. Start **Eureka Server**
+2. Start **Service A**
+3. Start **Service B**
+4. Start **API Gateway**
+
+---
+
+## 9. Testing the Application
+
+### Via API Gateway
+
+```
+http://localhost:8080/service-a/hello
+http://localhost:8080/service-b/hello
+```
+
+### Expected Output
+
+```
+Hello from Service A
+Hello from Service B
+```
+
+---
+
+## 10. Common Issues & Fixes
+
+### Whitelabel Error Page
+
+**Cause**: Missing `StripPrefix` in gateway configuration
+
+**Fix**:
+
+```properties
+spring.cloud.gateway.routes[x].filters[0]=StripPrefix=1
+```
+
+---
+
+## 11. Advantages of This Architecture
+
+* Loose coupling between services
+* Centralized routing
+* Easy scalability
+* Service discovery using Eureka
+
+---
+
+## 12. Conclusion
+
+This project demonstrates a basic but complete microservices architecture using Spring Boot and Spring Cloud. It is suitable for academic mini-projects and beginner-level microservices learning.
+
+---
+
+## 13. Future Enhancements
+
+* JWT authentication at API Gateway
+* Docker & Docker Compose
+* Centralized logging
+* Circuit breaker (Resilience4j)
