@@ -1,0 +1,105 @@
+🗓️ DAY 1 — SQL Basics + Table Relationships (Foundation)
+
+1️⃣ What is SQL?
+SQL (Structured Query Language) is used to:
+Store data
+Retrieve data
+Update data
+Delete data
+
+2️⃣ Tables, Rows, Columns
+A database stores data in tables.
+📊 Table
+Like an Excel sheet.
+➡️ Columns
+Define what kind of data
+Example: id, name, salary
+➡️ Rows
+Actual data records
+One row = one entity (one employee)
+Example table employees:
+id	name	salary
+1	John	60000
+2	Sara	45000
+
+3️⃣ Primary Key (PK)
+A Primary Key:
+Uniquely identifies each row
+Cannot be NULL
+Cannot repeat
+Example:
+id INT PRIMARY KEY ->👉 Think of it as a unique ID (like Aadhaar / Employee ID).
+
+4️⃣ Foreign Key (FK)
+
+A Foreign Key:
+Creates a link between two tables
+References a Primary Key in another table
+Example:
+department_id INT,
+FOREIGN KEY (department_id) REFERENCES departments(id)->👉 FK = relationship builder
+
+5️⃣ Table Relationships
+🔹 One-to-One (1–1)
+One record in Table A matches one in Table B
+Example:
+users → user_profiles
+🔹 One-to-Many (1–Many)
+One record in Table A matches many in Table B
+Example:
+One department
+Many employees
+departments (id) → employees (department_id)
+
+6️⃣ Why Joins Are Needed
+Databases split data into multiple tables to:
+Avoid duplication
+Improve performance
+Keep data clean
+Problem without JOIN:
+Employee table:
+employee_name | department_name | department_location
+(Repeated department data many times ❌)
+Solution:
+Separate tables + JOIN them when needed ✔️
+
+7️⃣ SQL Core Concepts
+🔹 SELECT
+Used to fetch data
+SELECT name, salary
+🔹 FROM
+Specifies the table
+FROM employees
+🔹 WHERE
+Filters rows
+WHERE salary > 50000
+
+8️⃣ Practice Queries (VERY IMPORTANT ✅)
+1️⃣ Get all columns
+SELECT * FROM employees;
+2️⃣ Get specific columns with condition
+SELECT name, salary
+FROM employees
+WHERE salary > 50000;
+
+9️⃣ Simple JOIN Example (Why FK Exists)
+Tables:
+employees
+id	name	department_id
+departments
+| id | dept_name |
+Query:
+SELECT employees.name, departments.dept_name
+FROM employees
+JOIN departments
+ON employees.department_id = departments.id;
+
+
+
+--------------------------------Practice Basic Level Queries---------------------------------------
+
+SELECT * FROM customers;
+
+SELECT * FROM customers WHERE creditLimit>50000;
+
+SELECT customerName,phone FROM customers JOIN orders on customers.customerNumber=orders.customerNumber;
