@@ -1,0 +1,121 @@
+🔹 What is a JOIN? (Big Picture)
+
+A JOIN combines rows from two tables using a related column.
+
+📌 Example relationship
+
+employees.dept_id → departments.id
+
+🔹 Common JOIN Syntax
+SELECT columns
+FROM table1
+JOIN table2
+ON table1.column = table2.column;
+
+The ON condition tells SQL how the tables are connected.
+
+🟢 INNER JOIN (Most Important)
+✅ What it does
+
+Returns only matching rows from both tables.
+
+📌 If there is no match, the row is excluded.
+
+📊 Visual
+Table A ∩ Table B
+
+🧠 Example
+SELECT e.name, d.department_name
+FROM employees e
+INNER JOIN departments d
+ON e.dept_id = d.id;
+
+✔ Result
+
+Only employees who have a department.
+
+🔵 LEFT JOIN
+✅ What it does
+
+Returns:
+
+ALL rows from LEFT table
+
+Matching rows from RIGHT table
+
+If no match → NULL
+
+📊 Visual
+
+ALL Table A + matching Table B
+
+🧠 Example
+SELECT e.name, d.department_name
+FROM employees e
+LEFT JOIN departments d
+ON e.dept_id = d.id;
+
+✔ Result
+
+Employees with OR without a department.
+
+🟠 RIGHT JOIN
+✅ What it does
+
+Returns:
+
+ALL rows from RIGHT table
+
+Matching rows from LEFT table
+
+If no match → NULL
+
+📌 Less commonly used (LEFT JOIN is preferred)
+
+SELECT e.name, d.department_name
+FROM employees e
+RIGHT JOIN departments d
+ON e.dept_id = d.id;
+
+🔴 FULL JOIN
+✅ What it does
+
+Returns:
+
+All rows from both tables
+
+Matched where possible
+
+NULL where no match
+
+SELECT e.name, d.department_name
+FROM employees e
+FULL JOIN departments d
+ON e.dept_id = d.id;
+
+
+--------------------------------Practice Basic Level Queries---------------------------------------
+#Inner Join
+SELECT * FROM students INNER JOIN courses ON students.StudentID=courses.StudentID ;
+
+#Left Join
+SELECT * FROM students LEFT JOIN courses ON students.StudentID=courses.StudentID ;
+
+#Right Join
+SELECT * FROM students RIGHT JOIN courses ON students.StudentID=courses.StudentID ;
+
+#MySql Not Supported Full Join
+#SELECT * FROM students FULL JOIN courses ON students.StudentID=courses.StudentID ;
+#We Can Write Like this For that
+SELECT * FROM Students
+LEFT JOIN Courses ON Students.StudentID = Courses.StudentID
+UNION
+SELECT * FROM Students
+RIGHT JOIN Courses ON Students.StudentID = Courses.StudentID;
+
+#ONLY COMMON THINGS RETURN
+SELECT * FROM Students
+LEFT JOIN Courses ON Students.StudentID = Courses.StudentID
+INTERSECT
+SELECT * FROM Students
+RIGHT JOIN Courses ON Students.StudentID = Courses.StudentID;
