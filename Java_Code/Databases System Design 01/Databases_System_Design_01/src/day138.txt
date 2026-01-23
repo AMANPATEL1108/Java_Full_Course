@@ -1,0 +1,132 @@
+1. Multiple JOINs (what you already wrote – ✅ correct)
+
+Used when data is spread across more than two tables.
+
+SELECT o.id, c.name, p.product_name
+FROM orders o
+JOIN customers c ON o.customer_id = c.id
+JOIN products p ON o.product_id = p.id;
+
+
+What’s happening
+
+orders is the base table
+
+Join customers to get customer info
+
+Join products to get product info
+
+Each JOIN adds more columns, not more filters
+
+2. Self JOIN (table joins to itself)
+
+Used when rows in a table relate to other rows in the same table.
+
+SELECT e1.name AS employee, e2.name AS manager
+FROM employees e1
+JOIN employees e2
+  ON e1.manager_id = e2.id;
+
+
+Key idea
+
+e1 = employee
+
+e2 = manager
+
+Aliases are mandatory or SQL gets confused
+
+3. JOIN vs WHERE condition (important distinction)
+JOIN → defines relationships
+WHERE → defines filters
+❌ Bad / old-style (don’t do this)
+SELECT *
+FROM orders o, customers c
+WHERE o.customer_id = c.id;
+
+✅ Proper JOIN
+SELECT *
+FROM orders o
+JOIN customers c
+  ON o.customer_id = c.id;
+
+JOIN + WHERE together (very common)
+SELECT o.id, c.name
+FROM orders o
+JOIN customers c
+  ON o.customer_id = c.id
+WHERE c.country = 'USA';
+
+
+Rule of thumb
+
+ON → how tables connect
+
+WHERE → which rows you want
+
+4. Practice Examples (answers)
+🧩 Practice 1: Employee → Manager
+
+Requirement:
+Show employee name and manager name.
+
+SELECT
+  e.name AS employee,
+  m.name AS manager
+FROM employees e
+LEFT JOIN employees m
+  ON e.manager_id = m.id;
+
+
+Why LEFT JOIN?
+
+Employees without managers (e.g. CEO) still appear
+
+Manager column will be NULL
+
+🧩 Practice 2: Order → Customer → Product
+
+Requirement:
+Show order id, customer name, and product name.
+
+SELECT
+  o.id AS order_id,
+  c.name AS customer,
+  p.product_name
+FROM orders o
+JOIN customers c
+  ON o.customer_id = c.id
+JOIN products p
+  ON o.product_id = p.id;
+
+5. Mental Model (super useful)
+
+Think of JOINs like this:
+
+“Start with this table → attach related data → then filter”
+
+FROM A
+JOIN B ON relationship
+JOIN C ON relationship
+WHERE conditions
+
+
+--------------------------------Practice Basic Level Queries---------------------------------------
+
+
+SELECT *
+FROM customers o
+JOIN orders c ON o.customerNumber = c.customerNumber
+JOIN payments p ON o.customerNumber = p.customerNumber;
+
+SELECT e1.phone AS employee, e2.customerName AS manager
+FROM customers e1
+JOIN customers e2
+  ON e1.customerNumber = e2.customerNumber;
+
+
+SELECT o.customerNumber, c.customerName
+FROM orders o
+JOIN customers c
+  ON o.customerNumber = c.customerNumber
+WHERE c.country = 'USA';
