@@ -1,0 +1,190 @@
+1️⃣ What is an Index? (Think logically)
+
+👉 An index is like the index of a book.
+
+Without index → database reads every row
+
+With index → database jumps directly to matching rows
+
+📚 Book example
+If a book has 1,000 pages and you want “SQL Index”, would you:
+
+Read every page? ❌
+
+Use the index page? ✅
+
+Same idea in databases.
+
+2️⃣ Why Indexes Are Used
+
+Indexes are used to:
+
+✅ Speed up SELECT queries
+✅ Reduce full table scans
+✅ Improve performance on large tables
+
+Without index:
+Database checks rows one by one
+
+With index:
+Database uses a sorted structure (B-tree) to find data fast
+
+3️⃣ How Indexes Improve Performance
+
+Let’s say we have this table 👇
+
+employees table
+id	name	salary	department_id
+1	John	50000	1
+2	Sarah	60000	2
+3	Mike	55000	1
+...	...	...	...
+❌ Query WITHOUT index
+SELECT *
+FROM employees
+WHERE salary = 60000;
+
+
+👉 Database scans every row
+⏱️ Slow when table is big
+
+✅ Add Index
+CREATE INDEX idx_employee_salary
+ON employees(salary);
+
+
+Now run the same query again.
+
+👉 Database uses the index
+⚡ Much faster
+
+4️⃣ When NOT to Use Indexes (VERY IMPORTANT)
+
+Indexes are not free.
+
+❌ Avoid index when:
+
+Table is small
+
+Column changes frequently
+
+Column has few unique values (e.g., gender: M/F)
+
+Why?
+
+Because every time you:
+
+INSERT
+UPDATE
+DELETE
+
+
+👉 Database must also update the index
+👉 That makes writes slower
+
+📌 Rule:
+
+Indexes speed up reads but slow down writes
+
+5️⃣ Index Syntax (Simple)
+Create Index
+CREATE INDEX idx_employee_salary
+ON employees(salary);
+
+Drop Index
+DROP INDEX idx_employee_salary;
+
+6️⃣ Best Places to Use Indexes ✅
+
+Indexes work BEST on:
+
+✔ WHERE
+✔ JOIN
+✔ ORDER BY
+
+Let’s see each with examples 👇
+
+7️⃣ JOIN Example (Very Important)
+departments table
+id	department_name
+1	IT
+2	HR
+JOIN Query
+SELECT e.name, d.department_name
+FROM employees e
+JOIN departments d
+ON e.department_id = d.id;
+
+
+👉 This join compares:
+
+employees.department_id
+
+departments.id
+
+✅ Add Index for Faster JOIN
+CREATE INDEX idx_emp_dept
+ON employees(department_id);
+
+CREATE INDEX idx_dept_id
+ON departments(id);
+
+
+Now JOIN becomes much faster 🚀
+
+8️⃣ ORDER BY Example
+SELECT *
+FROM employees
+ORDER BY salary;
+
+
+If salary is indexed 👉 database can sort faster
+
+9️⃣ Final Practice (Your Task)
+🔹 Step 1: Write JOIN query
+SELECT e.name, d.department_name
+FROM employees e
+JOIN departments d
+ON e.department_id = d.id;
+
+🔹 Step 2: Add index to JOIN column
+CREATE INDEX idx_emp_dept
+ON employees(department_id);
+
+🔹 Step 3: Understand performance impact
+Action	Speed
+SELECT with index	⚡ Fast
+INSERT	🐢 Slower
+UPDATE	🐢 Slower
+DELETE	🐢 Slower
+🔟 Simple Golden Rules (Remember This)
+
+⭐ Index columns used in WHERE, JOIN, ORDER BY
+⭐ Don’t over-index
+⭐ More indexes ≠ faster database
+⭐ Always index foreign keys
+
+
+--------------------------------Practice Basic Level Queries---------------------------------------
+
+
+CREATE INDEX idx_orders_customer
+ON orders(customerNumber);
+
+CREATE INDEX idx_payments_customer
+ON payments(customerNumber);
+
+CREATE INDEX idx_customers_customer
+ON customers(customerNumber);
+
+//created index check yes i have then directly index threw that was a get value not check each row for that
+SELECT o.customerName, p.amount
+FROM customers o
+JOIN payments p ON o.customerNumber = p.customerNumber
+WHERE p.amount < 1000;
+
+DROP INDEX idx_orders_customer ON orders;
+DROP INDEX idx_payments_customer ON payments;
+DROP INDEX idx_customers_customer ON customers;
+
+
