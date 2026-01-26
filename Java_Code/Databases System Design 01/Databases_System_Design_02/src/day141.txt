@@ -1,0 +1,229 @@
+1️⃣ What is a Transaction? (System Design View)
+
+In system design, a transaction is:
+
+A sequence of operations that the system treats as one single unit of work.
+
+Key idea
+
+👉 Either everything succeeds, or nothing does
+
+If any step fails, the system must undo everything done so far.
+
+Simple example (bank)
+1. Debit $100 from Alice
+2. Credit $100 to Bob
+
+
+If step 2 fails → step 1 must be rolled back
+Otherwise → money disappears 😱
+
+2️⃣ Why Transactions Exist (Real-World Problems)
+
+Without transactions, systems break in ugly ways.
+
+Problem 1: Partial Failure
+Payment succeeded
+Inventory update failed
+
+
+User paid but product never ships ❌
+
+Problem 2: Crashes
+Server crashes after payment
+Before inventory update
+
+Problem 3: Concurrency
+
+Two users buy the last item at the same time.
+
+Transactions exist to protect data correctness in all these cases.
+
+3️⃣ ACID Properties (Core Contract of Transactions)
+
+ACID describes what a good transaction guarantees.
+
+Let’s break them down with meaning, not textbook fluff.
+
+A — Atomicity (“All or Nothing”)
+
+Either every operation succeeds, or none of them do.
+
+In your order system:
+Order Created
+Payment Charged
+Inventory Reduced
+
+
+If inventory update fails:
+
+Payment must be refunded
+
+Order must be canceled
+
+Atomicity prevents half-finished work.
+
+C — Consistency (“Rules Are Never Broken”)
+
+The database moves from one valid state to another valid state.
+
+Business rules examples:
+
+Inventory ≥ 0
+
+User balance ≥ 0
+
+Order status must match payment status
+
+Example:
+
+❌ Inventory goes from 0 → -1
+That violates consistency → transaction must fail.
+
+I — Isolation (“Transactions Don’t See Each Other’s Mess”)
+
+Multiple transactions running at the same time should not interfere.
+
+Problem example:
+
+Two users try to buy 1 remaining item:
+
+Without isolation:
+
+User A reads inventory = 1
+User B reads inventory = 1
+Both buy → inventory becomes -1
+
+
+With isolation:
+
+One transaction locks the inventory
+
+The other waits or fails
+
+Isolation prevents race conditions.
+
+D — Durability (“Once Done, It Stays Done”)
+
+Once a transaction is committed, it will survive crashes.
+
+Example:
+
+User payment is confirmed
+
+Server crashes immediately
+
+System restarts
+✔ Payment is still recorded
+
+Databases achieve this using:
+
+Logs
+
+Disk persistence
+
+Replication
+
+4️⃣ Full Example: Order → Payment → Inventory
+
+Let’s walk through a real transaction.
+
+Step-by-step transaction
+BEGIN TRANSACTION
+
+1. Create Order (status = PENDING)
+2. Charge Payment
+3. Reduce Inventory
+4. Update Order (status = CONFIRMED)
+
+COMMIT
+
+If any step fails:
+ROLLBACK
+
+5️⃣ Where ACID Applies in This Flow
+Atomicity
+
+If payment fails → order is not created
+
+If inventory fails → payment is refunded
+
+Consistency
+
+Inventory never goes below zero
+
+Paid orders always have stock reserved
+
+Isolation
+
+Two users cannot buy the same last item
+
+Inventory row is locked during update
+
+Durability
+
+Once order is confirmed → crash doesn’t undo it
+
+6️⃣ How This Appears in System Design Interviews
+
+Interviewers love asking:
+
+“What happens if payment succeeds but inventory update fails?”
+
+Correct answer:
+
+Use transactions (single DB)
+
+Or distributed transactions / compensating actions (microservices)
+
+7️⃣ Important System Design Insight 🔥
+Single Database?
+
+✔ Easy ACID using DB transactions
+
+Multiple Services (Payment + Inventory)?
+
+❌ ACID across services is hard
+
+You then use:
+
+Saga Pattern
+
+Eventual Consistency
+
+Compensating transactions
+
+(We’ll get there after this foundation.)
+
+8️⃣ Mental Model to Remember
+
+Think of a transaction like:
+
+A safe box that either locks perfectly or doesn’t close at all
+
+If it closes → data is correct
+If it fails → nothing changed
+
+
+
+------------------------------------Basic Level of Practice Queries---------------------------------
+
+
+START TRANSACTION;
+
+INSERT INTO orders (id, status) VALUES (101, 'PENDING');
+
+UPDATE users
+SET balance = balance - 500
+WHERE id = 1;
+
+UPDATE inventory
+SET stock = stock - 1
+WHERE product_id = 10;
+
+UPDATE orders
+SET status = 'CONFIRMED'
+WHERE id = 101;
+
+COMMIT;
+
