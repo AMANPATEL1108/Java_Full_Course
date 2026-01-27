@@ -1,0 +1,347 @@
+First: What is a transaction? (very important)
+
+A transaction is a group of database operations that should behave like one single action.
+
+Example:
+
+Withdraw money
+
+Update balance
+
+Save transaction record
+
+All of that = one transaction
+
+While a transaction is running:
+
+Other transactions may also be running
+
+This causes conflicts
+
+To manage conflicts, databases use isolation levels.
+When isolation is weak → weird things happen.
+
+The “weird things” are exactly these problems 👇
+
+1️⃣ Dirty Read
+“Reading uncommitted data”
+Plain English:
+
+You read data that might never become real.
+
+Story Example (Bank)
+
+Initial balance = $100
+
+Transaction T1 (not finished yet)
+T1: UPDATE account SET balance = 50
+
+
+(T1 has NOT committed yet)
+
+Transaction T2 reads:
+T2: SELECT balance FROM account → 50
+
+
+💥 Problem
+
+T2 sees balance = 50
+
+But then…
+
+T1 rolls back
+T1: ROLLBACK
+
+
+Balance goes back to $100
+
+❌ Why this is bad
+
+T2 acted on fake data
+
+That data never officially existed
+
+📌 Dirty Read = reading someone else’s unfinished work
+
+2️⃣ Non-Repeatable Read
+“Same query → different result in the same transaction”
+Plain English:
+
+You read a value twice, but it changes while you’re still working.
+
+Story Example (Bank again)
+
+Initial balance = $100
+
+Transaction T1
+T1: SELECT balance → 100
+
+Transaction T2 runs and commits
+T2: UPDATE account SET balance = 200
+T2: COMMIT
+
+T1 reads again
+T1: SELECT balance → 200
+
+
+😵 Same transaction, same query, different result
+
+❌ Why this is bad
+
+T1 expects data to be stable
+
+Logic breaks (calculations, validations, etc.)
+
+📌 Non-repeatable read = value changes under your feet
+
+3️⃣ Phantom Read
+“New rows appear between queries”
+Plain English:
+
+Rows magically appear or disappear when you run the same query again.
+
+Story Example (Orders)
+
+Orders table:
+
+OrderID | Status
+1       | PENDING
+2       | PENDING
+
+Transaction T1
+T1: SELECT * FROM orders WHERE status = 'PENDING'
+→ 2 rows
+
+Transaction T2 inserts new row
+T2: INSERT INTO orders VALUES (3, 'PENDING')
+T2: COMMIT
+
+T1 runs same query again
+T1: SELECT * FROM orders WHERE status = 'PENDING'
+→ 3 rows
+
+
+👻 A phantom appeared
+
+❌ Why this is bad
+
+Reports become inconsistent
+
+Batch processing breaks
+
+📌 Phantom read = rows appear/disappear unexpectedly
+
+🔥 Summary Table (Super Important)
+Problem	What changes?	What’s weird?
+Dirty Read	Uncommitted data	Data never existed
+Non-Repeatable Read	Row value	Same row changes
+Phantom Read	Number of rows	New rows appear
+Practice Time (15 min)
+
+Let’s draw two transactions clearly 👇
+
+🧪 Dirty Read (Practice)
+T1
+BEGIN
+UPDATE account SET balance = 0
+
+T2
+BEGIN
+SELECT balance → 0   ❌
+
+T1
+ROLLBACK
+
+
+💥 T2 used fake data
+
+🧪 Non-Repeatable Read (Practice)
+T1
+BEGIN
+SELECT balance → 100
+
+T2
+UPDATE account SET balance = 150
+COMMIT
+
+T1
+SELECT balance → 150 ❌
+
+🧪 Phantom Read (Practice)
+T1
+BEGIN
+SELECT COUNT(*) WHERE status='PENDING' → 5
+
+T2
+INSERT new PENDING order
+COMMIT
+
+T1
+SELECT COUNT(*) → 6 ❌
+
+
+------------------------------------Basic Level of Practice Queries---------------------------------
+
+
+1️⃣ Prevent DIRTY READS
+
+👉 Use READ COMMITTED (default in most DBs)
+
+✅ Transaction isolation level
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;
+
+Example
+BEGIN;
+
+SELECT balance
+FROM accounts
+WHERE id = 1;
+
+COMMIT;
+
+
+🔒 What happens:
+
+SELECT waits if another transaction has an X (exclusive) lock
+
+You never read uncommitted data
+
+📌 Dirty reads are not possible above READ COMMITTED
+
+2️⃣ Prevent NON-REPEATABLE READS
+
+👉 Use REPEATABLE READ or explicit locks
+
+✅ Option A: Isolation level
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+
+BEGIN;
+
+SELECT balance
+FROM accounts
+WHERE id = 1;
+
+-- same value guaranteed
+SELECT balance
+FROM accounts
+WHERE id = 1;
+
+COMMIT;
+
+
+🔒 What happens:
+
+Shared lock (or MVCC snapshot) is held
+
+Other transactions cannot change that row
+
+✅ Option B: Explicit row lock (FOR SHARE)
+BEGIN;
+
+SELECT balance
+FROM accounts
+WHERE id = 1
+FOR SHARE;
+
+-- other transactions can read
+-- but cannot update this row
+
+COMMIT;
+
+
+📌 FOR SHARE = shared lock
+
+3️⃣ Prevent PHANTOM READS
+
+👉 Use SERIALIZABLE or range locks
+
+✅ Option A: SERIALIZABLE (recommended)
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+
+BEGIN;
+
+SELECT *
+FROM orders
+WHERE status = 'PENDING';
+
+COMMIT;
+
+
+🔒 What happens:
+
+Range / predicate lock
+
+No new PENDING rows can be inserted
+
+✅ Option B: Explicit locking with FOR UPDATE
+BEGIN;
+
+SELECT *
+FROM orders
+WHERE status = 'PENDING'
+FOR UPDATE;
+
+COMMIT;
+
+
+⚠️ Note:
+
+Locks all matching rows
+
+Still may not block new inserts in some DBs
+
+SERIALIZABLE is safer
+
+4️⃣ Explicit WRITE lock (very common)
+BEGIN;
+
+SELECT *
+FROM accounts
+WHERE id = 1
+FOR UPDATE;
+
+UPDATE accounts
+SET balance = balance - 100
+WHERE id = 1;
+
+COMMIT;
+
+
+🔒 What happens:
+
+Other transactions block
+
+No dirty or non-repeatable reads
+
+🔥 Quick Lock Syntax Cheat Sheet
+Goal	SQL Syntax
+Prevent dirty reads	READ COMMITTED
+Prevent non-repeatable reads	REPEATABLE READ
+Prevent phantom reads	SERIALIZABLE
+Lock row for update	SELECT ... FOR UPDATE
+Shared lock (read only)	SELECT ... FOR SHARE
+🧠 Database-Specific Notes (Important)
+PostgreSQL
+
+Uses MVCC
+
+READ UNCOMMITTED behaves like READ COMMITTED
+
+Supports:
+
+FOR SHARE
+FOR UPDATE
+
+MySQL (InnoDB)
+
+Default isolation: REPEATABLE READ
+
+Supports gap locks (for phantom prevention)
+
+SQL Server
+
+Uses locking heavily
+
+Syntax:
+
+SELECT * FROM accounts WITH (UPDLOCK);
