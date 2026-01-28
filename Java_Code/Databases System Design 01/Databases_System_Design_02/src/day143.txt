@@ -1,0 +1,173 @@
+Big Picture (2 minutes)
+
+Isolation levels control how much one transaction can “see” of another transaction.
+
+Think of multiple people editing the same Google Doc:
+
+Low isolation → everyone sees half-typed sentences
+
+High isolation → people wait their turn, slower but safer
+
+Rule to remember forever:
+
+🔼 Higher isolation = 🔒 more safety = 🐢 less performance
+
+The 3 Classic Problems (Know These First)
+
+Before levels, memorize the problems:
+
+1️⃣ Dirty Read
+
+Reading uncommitted data
+
+Example:
+
+T1 updates salary to 100k (not committed)
+
+T2 reads 100k
+
+T1 rolls back
+❌ T2 read fake data
+
+2️⃣ Non-Repeatable Read
+
+Reading the same row twice, getting different values
+
+Example:
+
+T1 reads balance = 500
+
+T2 updates balance to 300 and commits
+
+T1 reads again → 300
+❌ Value changed mid-transaction
+
+3️⃣ Phantom Read
+
+Rows appear or disappear
+
+Example:
+
+T1: SELECT * FROM orders WHERE amount > 100
+
+T2 inserts a new order (amount = 150)
+
+T1 runs same query again → extra row
+❌ “Phantom” row appears
+
+Isolation Levels (IN ORDER — VERY IMPORTANT)
+🟢 1. Read Uncommitted (Lowest)
+
+Prevents: ❌ Nothing
+
+Can read uncommitted data
+
+Dirty reads allowed
+
+Almost never used in real systems
+
+🧠 Interview line:
+
+“Read Uncommitted allows dirty reads and is rarely used.”
+
+🔵 2. Read Committed (Most Common)
+
+Prevents: ✅ Dirty Reads
+Allows: ❌ Non-repeatable reads, ❌ Phantom reads
+
+Only reads committed data
+
+Each query sees latest committed value
+
+Example:
+
+First read = 500
+
+Second read = 300 (if someone committed in between)
+
+🧠 Interview line:
+
+“Read Committed prevents dirty reads but allows non-repeatable reads.”
+
+🟠 3. Repeatable Read
+
+Prevents:
+✅ Dirty Reads
+✅ Non-Repeatable Reads
+Allows: ❌ Phantom Reads (in theory)
+
+Rows you read cannot change
+
+Same row → same value every time
+
+Example:
+
+Balance read twice → always 500
+
+🧠 Interview line:
+
+“Repeatable Read guarantees stable row values but may allow phantom reads.”
+
+👉 MySQL (InnoDB) actually prevents phantoms too — bonus interview point 😉
+
+🔴 4. Serializable (Highest)
+
+Prevents: ✅ All problems
+
+Transactions behave as if they run one by one
+
+Uses locks or transaction ordering
+
+Safest but slowest
+
+🧠 Interview line:
+
+“Serializable provides full isolation at the cost of performance.”
+
+🔥 SUPER IMPORTANT MAP (Memorize This)
+Problem ↓      Isolation Level →
+------------------------------------------
+Dirty Read        Read Committed+
+Non-repeatable    Repeatable Read+
+Phantom           Serializable
+
+
+OR another way:
+
+Read Uncommitted  → nothing
+Read Committed    → dirty reads
+Repeatable Read   → dirty + non-repeatable
+Serializable      → everything
+
+How to Explain in an Interview (Say This Out Loud)
+
+“Isolation levels control how transactions see each other’s data.
+Read Uncommitted allows dirty reads.
+Read Committed prevents dirty reads but allows non-repeatable reads.
+Repeatable Read ensures rows don’t change within a transaction.
+Serializable is the highest level and prevents all anomalies but impacts performance.
+Most systems use Read Committed or Repeatable Read for balance.”
+
+------------------------------------Basic Level of Practice Queries---------------------------------
+
+
+Read Uncommitted
+✔ Dirty Read
+✔ Non-repeatable
+✔ Phantom
+❌ Prevents nothing
+
+Read Committed
+❌ Dirty Read
+✔ Non-repeatable
+✔ Phantom
+
+Repeatable Read
+❌ Dirty Read
+❌ Non-repeatable
+✔ Phantom (theoretical)
+
+Serializable
+❌ Dirty Read
+❌ Non-repeatable
+❌ Phantom
