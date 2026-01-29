@@ -1,0 +1,205 @@
+1️⃣ What is a Deadlock?
+
+A deadlock is a situation where two or more transactions are stuck forever, because each one is waiting for the other to release a resource.
+
+Classic definition
+
+A deadlock occurs when:
+
+T1 holds Resource A and waits for Resource B
+
+T2 holds Resource B and waits for Resource A
+
+Neither can continue
+
+Neither will release what they already hold
+
+So the system is frozen 😵‍💫
+
+Simple wait graph
+T1 → waiting for → T2
+T2 → waiting for → T1
+
+
+This forms a cycle, and that’s the key signal of a deadlock.
+
+2️⃣ Why Deadlocks Happen
+
+Deadlocks don’t happen randomly. They happen when all these conditions exist at the same time:
+
+1. Mutual exclusion
+
+Some resources cannot be shared
+
+Database rows
+
+Tables
+
+Files
+
+Seats in a booking system
+
+👉 Only one transaction can lock them at a time.
+
+2. Hold and wait
+
+A transaction:
+
+Holds one resource
+
+While waiting for another
+
+3. No preemption
+
+The system cannot forcefully take a lock away
+
+A lock is released only when the transaction finishes (commit/rollback)
+
+4. Circular wait (MOST IMPORTANT)
+
+A cycle of waiting exists:
+
+T1 → T2 → T1
+
+
+If this cycle exists → deadlock guaranteed
+
+3️⃣ Role of Locks (Very Important)
+
+Locks are used to protect data consistency.
+
+Common database locks
+
+Shared lock (S) → Read only
+
+Exclusive lock (X) → Read + Write
+
+Deadlocks usually involve exclusive locks.
+
+4️⃣ Simple Database Example (Two Tables)
+Tables
+
+Accounts
+
+Orders
+
+Transactions
+Transaction T1
+BEGIN;
+UPDATE Accounts SET balance = balance - 100 WHERE id = 1; -- locks Accounts
+UPDATE Orders SET status = 'PAID' WHERE id = 10;           -- waits for Orders
+COMMIT;
+
+Transaction T2
+BEGIN;
+UPDATE Orders SET status = 'CANCELLED' WHERE id = 10; -- locks Orders
+UPDATE Accounts SET balance = balance + 100 WHERE id = 1; -- waits for Accounts
+COMMIT;
+
+What happens internally
+Step	T1	T2
+1	Locks Accounts
+2		Locks Orders
+3	Waits for Orders
+4		Waits for Accounts
+
+💥 Deadlock occurs
+
+Both are waiting forever.
+
+5️⃣ Two Users Booking Seats (Very Clear Example)
+Resources
+
+Seat A
+
+Seat B
+
+User 1 (T1)
+
+Locks Seat A
+
+Tries to lock Seat B
+
+User 2 (T2)
+
+Locks Seat B
+
+Tries to lock Seat A
+
+Visualization
+User 1 holds Seat A → waiting for Seat B
+User 2 holds Seat B → waiting for Seat A
+
+
+🚫 No one gets a seat. System is stuck.
+
+6️⃣ Two Tables Locked in Reverse Order (Common Mistake)
+Bad practice ❌
+
+Different transactions lock tables in different orders
+
+Transaction	Lock Order
+T1	Table A → Table B
+T2	Table B → Table A
+
+This almost guarantees deadlocks under load.
+
+7️⃣ Deadlock Handling Methods
+1️⃣ Deadlock Detection (Most DBs do this)
+
+The database:
+
+Builds a wait-for graph
+
+Detects a cycle
+
+Chooses a victim transaction
+
+Rolls it back ❌
+
+Example message:
+
+ERROR: deadlock detected
+Transaction rolled back
+
+
+✔ System survives
+❌ One transaction fails
+
+2️⃣ Deadlock Prevention (Best design approach)
+Lock ordering ✅
+
+Always acquire locks in the same order
+
+Example:
+
+ALWAYS lock Accounts first
+THEN lock Orders
+
+
+Now cycles cannot form.
+
+3️⃣ Timeout
+
+If a transaction:
+
+Waits longer than a threshold (e.g., 5 seconds)
+
+DB assumes something is wrong
+
+Aborts it
+
+✔ Simple
+❌ Might kill slow but valid transactions
+
+8️⃣ How to Avoid Deadlocks in Real Systems
+
+✔ Always lock resources in the same order
+✔ Keep transactions short
+✔ Avoid user interaction inside transactions
+✔ Access fewer rows/tables
+✔ Use proper indexes (reduces lock scope)
+
+9️⃣ One-Line Summary
+
+Deadlock = circular waiting caused by inconsistent lock ordering
