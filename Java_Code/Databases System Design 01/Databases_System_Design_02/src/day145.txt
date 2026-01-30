@@ -1,0 +1,245 @@
+How Real Systems Use Transactions
+
+Transactions exist to guarantee ACID properties—but in production, systems rarely use full ACID everywhere. They mix and match depending on scale, latency, and failure tolerance.
+
+Payments Systems 💳
+
+Typical goals
+
+No double charges
+
+No lost money
+
+Auditable history
+
+How transactions are used
+
+Strong consistency required
+
+Usually wrap:
+
+Balance deduction
+
+Ledger entry
+
+Payment status update
+
+Often use Serializable or Repeatable Read
+
+Real-world patterns
+
+Idempotency keys (retry-safe payments)
+
+Ledger-based design (append-only, immutable)
+
+Two-phase commit avoided across services → use sagas
+
+Example
+
+BEGIN;
+  deduct_balance(user);
+  insert_ledger_entry();
+  mark_payment_complete();
+COMMIT;
+
+
+Why?
+Money systems optimize for correctness > latency
+
+Order Systems 🛒
+
+Typical goals
+
+Place orders reliably
+
+Don’t oversell
+
+Allow eventual fixes
+
+How transactions are used
+
+Transaction per order:
+
+Create order
+
+Reserve inventory
+
+Create payment intent
+
+Common approach
+
+Local transactions only
+
+Cross-service consistency handled via events
+
+Example
+
+BEGIN;
+  create_order();
+  reserve_inventory();
+COMMIT;
+
+
+Payment confirmation happens asynchronously
+
+Inventory Systems 📦
+
+Typical goals
+
+High throughput
+
+Avoid hot locks
+
+Accept slight staleness
+
+How transactions are used
+
+Often weaker isolation
+
+Atomic counters or conditional updates
+
+Example
+
+UPDATE inventory
+SET stock = stock - 1
+WHERE product_id = X AND stock > 0;
+
+
+No explicit transaction needed—relies on atomic update
+
+Why?
+Inventory is often eventually consistent
+Oversells can be compensated later.
+
+Trade-offs: Strong Consistency vs Performance
+Strong Consistency	High Performance
+Serializable isolation	Read Committed / Eventual
+Lock contention	Lock-free reads
+Lower throughput	Horizontal scaling
+Simpler reasoning	More complex logic
+
+Rule of thumb:
+
+The closer you are to money or legality, the stronger consistency you need.
+
+When NOT to Use Transactions ❌
+
+Avoid transactions when:
+
+Operations are idempotent
+
+You’re doing log ingestion
+
+Metrics, analytics, telemetry
+
+Append-only workloads
+
+You can tolerate eventual consistency
+
+Examples:
+
+Page view counters
+
+Recommendation tracking
+
+Activity feeds
+
+Common Interview Questions
+Why not always use Serializable?
+
+Short answer: It kills scalability.
+
+Long answer
+
+Serializable requires:
+
+More locks
+
+More conflicts
+
+More rollbacks
+
+Causes:
+
+Reduced concurrency
+
+Higher latency
+
+Deadlocks under load
+
+Most apps don’t need perfect isolation, just correct outcomes
+
+How do databases handle deadlocks?
+
+Typical strategies
+
+Deadlock detection
+
+Build wait-for graph
+
+Kill one transaction
+
+Timeouts
+
+If waiting too long → abort
+
+Ordering locks
+
+Reduce chance of cycles
+
+What happens
+
+One transaction is rolled back
+
+App must retry
+
+Interview tip
+
+Retrying transactions is not optional—it’s mandatory.
+
+How Isolation Levels Affect Scalability
+Isolation Level	Scalability
+Serializable	❌ Poor
+Repeatable Read	⚠️ Medium
+Read Committed	✅ Good
+Read Uncommitted	🚀 High (rarely used)
+
+Higher isolation =
+
+More locking
+
+Fewer concurrent writers
+
+Lower throughput
+
+Lower isolation =
+
+Requires app-level correctness
+
+Better horizontal scaling
+
+Final Mental Model 🧠
+
+Transactions are surgical tools, not hammers
+
+Use them:
+
+Around critical invariants
+
+For short durations
+
+Design systems assuming:
+
+Retries will happen
+
+Failures are normal
+
+Perfect consistency is expensive
+
+If you want, I can:
+
+Map this to Postgres/MySQL specifics
+
+Walk through a saga vs 2PC example
+
+Give system design interview answers using these concepts
