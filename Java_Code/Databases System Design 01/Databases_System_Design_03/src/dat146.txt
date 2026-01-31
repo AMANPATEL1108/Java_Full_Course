@@ -1,0 +1,221 @@
+1️⃣ What is a CTE? (Simple explanation)
+
+CTE = Common Table Expression
+
+Think of it as:
+
+“Let me create a temporary named result that I can reuse right away.”
+
+It exists only for that query.
+It’s not stored, not permanent, and disappears after execution.
+
+🧠 Mental model:
+
+Subquery → anonymous, hard to read
+
+CTE → named, readable, reusable
+
+2️⃣ Why use CTEs?
+✅ Benefits
+
+Makes queries cleaner
+
+Improves readability
+
+Easier to debug
+
+Lets you break complex logic into steps
+
+❌ What it’s NOT:
+
+Not faster by default
+
+Not a replacement for indexes or tables
+
+3️⃣ Basic CTE Syntax (must-know)
+WITH cte_name AS (
+    SELECT ...
+)
+SELECT *
+FROM cte_name;
+
+Rules:
+
+WITH comes before the main SELECT
+
+CTE name acts like a temporary table
+
+You can reference it once or many times
+
+4️⃣ Your First CTE (Simple)
+Without CTE (inline query)
+SELECT employee_id, SUM(amount) AS total_sales
+FROM sales
+GROUP BY employee_id;
+
+With CTE
+WITH sales_cte AS (
+    SELECT employee_id, SUM(amount) AS total_sales
+    FROM sales
+    GROUP BY employee_id
+)
+SELECT *
+FROM sales_cte;
+
+
+👀 Same result, but now it’s named and reusable.
+
+5️⃣ Filtering Using a CTE
+Problem:
+
+“Show employees with sales > 10,000”
+
+WITH sales_cte AS (
+    SELECT employee_id, SUM(amount) AS total_sales
+    FROM sales
+    GROUP BY employee_id
+)
+SELECT *
+FROM sales_cte
+WHERE total_sales > 10000;
+
+
+🔥 This is where CTEs already beat subqueries.
+
+6️⃣ Practice 1 — Convert Subquery → CTE
+❌ Subquery version
+SELECT *
+FROM (
+    SELECT employee_id, SUM(amount) AS total_sales
+    FROM sales
+    GROUP BY employee_id
+) s
+WHERE total_sales > 10000;
+
+✅ CTE version
+WITH sales_cte AS (
+    SELECT employee_id, SUM(amount) AS total_sales
+    FROM sales
+    GROUP BY employee_id
+)
+SELECT *
+FROM sales_cte
+WHERE total_sales > 10000;
+
+
+🧠 Key win: You can read it top → bottom like a story.
+
+7️⃣ Practice 2 — Write 2 Simple CTEs
+Scenario:
+
+Tables:
+
+orders(order_id, customer_id, amount)
+
+customers(customer_id, name)
+
+Goal:
+
+Total spent per customer
+
+Show only customers who spent > 500
+
+WITH customer_totals AS (
+    SELECT customer_id, SUM(amount) AS total_spent
+    FROM orders
+    GROUP BY customer_id
+)
+SELECT c.name, ct.total_spent
+FROM customer_totals ct
+JOIN customers c
+ON ct.customer_id = c.customer_id
+WHERE ct.total_spent > 500;
+
+8️⃣ Multiple CTEs (Very common)
+
+You can chain them:
+
+WITH customer_totals AS (
+    SELECT customer_id, SUM(amount) AS total_spent
+    FROM orders
+    GROUP BY customer_id
+),
+high_value_customers AS (
+    SELECT *
+    FROM customer_totals
+    WHERE total_spent > 500
+)
+SELECT *
+FROM high_value_customers;
+
+
+🔥 This is professional-level SQL style.
+
+9️⃣ When SHOULD you use CTEs?
+
+✅ Use CTEs when:
+
+Query is long or complex
+
+Logic has multiple steps
+
+You want readable, maintainable SQL
+
+❌ Avoid when:
+
+Query is tiny
+
+Performance tuning needs temp tables (advanced topic)
+
+
+------------------------------------------------Basic Simple Practice Query --------------------------------
+
+
+WITH name_user AS (
+	SELECT * FROM customers
+)
+
+SELECT * FROM name_user;
+
+WITH name_user AS (
+	SELECT * FROM customers
+)
+
+SELECT * FROM name_user WHERE customerNumber < 200;
+
+
+WITH users_u AS (
+    SELECT customerNumber, SUM(amount) AS total
+    FROM payments
+    GROUP BY customerNumber
+)
+SELECT *
+FROM users_u
+WHERE total > 10000;
+
+
+WITH users_u AS (
+    SELECT customerNumber, SUM(amount) AS total
+    FROM payments
+    GROUP BY customerNumber
+)
+SELECT c.customerName, ct.total
+FROM users_u ct
+JOIN customers c
+ON ct.customerNumber = c.customerNumber
+WHERE ct.total > 500;
+
+
+WITH customer_totals AS (
+    SELECT customerNumber, SUM(amount) AS total_spent
+    FROM payments
+    GROUP BY customerNumber
+),
+high_value_customers AS (
+    SELECT *
+    FROM customer_totals
+    WHERE total_spent > 50000
+)
+SELECT *
+FROM high_value_customers;
+
