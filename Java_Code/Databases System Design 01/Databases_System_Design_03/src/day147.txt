@@ -1,0 +1,279 @@
+1️⃣ What is a CTE (Common Table Expression)?
+
+Think of a CTE as a temporary named result set that exists only for one query.
+
+WITH cte_name AS (
+    SELECT ...
+)
+SELECT * FROM cte_name;
+
+
+🧠 Mental model:
+
+“Run this subquery first, give it a name, then I’ll query it like a table.”
+
+Why we use CTEs:
+
+Cleaner than nested subqueries
+
+Easier to debug
+
+Reusable inside the same query
+
+Required for recursion
+
+2️⃣ Multiple (Non-Recursive) CTEs — Your First Example
+
+Your query:
+
+WITH dept_sales AS (
+    SELECT department, SUM(salary) total_salary
+    FROM employees
+    GROUP BY department
+),
+avg_salary AS (
+    SELECT AVG(total_salary) avg_sal
+    FROM dept_sales
+)
+SELECT *
+FROM dept_sales
+WHERE total_salary > (SELECT avg_sal FROM avg_salary);
+
+What’s happening step by step:
+
+1️⃣ dept_sales
+
+SELECT department, SUM(salary)
+FROM employees
+GROUP BY department;
+
+
+➡️ Creates one row per department.
+
+2️⃣ avg_salary
+
+SELECT AVG(total_salary)
+FROM dept_sales;
+
+
+➡️ Uses the first CTE (important!)
+➡️ Calculates the average department salary
+
+3️⃣ Final SELECT
+
+SELECT *
+FROM dept_sales
+WHERE total_salary > avg_sal;
+
+
+➡️ Shows departments that pay above average
+
+💡 Key idea:
+
+CTEs can build on each other, top to bottom.
+
+3️⃣ When SHOULD you use multiple CTEs?
+
+Use them when:
+
+Each step answers a different question
+
+You want readable “logic blocks”
+
+You’d otherwise have nested subqueries
+
+Bad:
+
+SELECT *
+FROM (
+    SELECT department, SUM(salary)
+    FROM employees
+    GROUP BY department
+) t
+WHERE ...
+
+
+Good (CTE):
+
+WITH dept_sales AS (...)
+SELECT ...
+
+4️⃣ Recursive CTEs (This is the 🔥 part)
+
+Recursive CTEs are for data that refers to itself.
+
+Examples:
+
+Employees → Managers
+
+Categories → Parent categories
+
+Folder structures
+
+Comments / replies
+
+5️⃣ Structure of a Recursive CTE (Very Important)
+WITH RECURSIVE cte_name AS (
+
+    -- 1️⃣ Anchor query (starting point)
+    SELECT ...
+
+    UNION ALL
+
+    -- 2️⃣ Recursive query (repeats)
+    SELECT ...
+    FROM table
+    JOIN cte_name ON condition
+)
+SELECT * FROM cte_name;
+
+
+🧠 Think:
+
+Anchor = root
+
+Recursive = “find the next level”
+
+Stops automatically when no new rows are found
+
+6️⃣ Understanding Your Recursive Example
+WITH RECURSIVE emp_hierarchy AS (
+    SELECT id, name, manager_id
+    FROM employees
+    WHERE manager_id IS NULL   -- 👈 CEO / top boss
+
+    UNION ALL
+
+    SELECT e.id, e.name, e.manager_id
+    FROM employees e
+    JOIN emp_hierarchy eh ON e.manager_id = eh.id
+)
+SELECT * FROM emp_hierarchy;
+
+Step-by-step:
+1️⃣ Anchor Query
+WHERE manager_id IS NULL
+
+
+➡️ Finds top-level employees (CEO)
+
+2️⃣ Recursive Query
+JOIN emp_hierarchy eh ON e.manager_id = eh.id
+
+
+➡️ Finds employees whose manager is already in the result
+➡️ Repeats until no more matches
+
+📌 Final result:
+
+CEO
+ ├── Manager A
+ │    ├── Employee 1
+ │    └── Employee 2
+ └── Manager B
+      └── Employee 3
+
+7️⃣ Add LEVEL / DEPTH (Very Common Interview Question)
+WITH RECURSIVE emp_hierarchy AS (
+    SELECT id, name, manager_id, 1 AS level
+    FROM employees
+    WHERE manager_id IS NULL
+
+    UNION ALL
+
+    SELECT e.id, e.name, e.manager_id, eh.level + 1
+    FROM employees e
+    JOIN emp_hierarchy eh ON e.manager_id = eh.id
+)
+SELECT * FROM emp_hierarchy;
+
+
+Now you can:
+
+Indent hierarchy
+
+Filter by level
+
+Sort properly
+
+8️⃣ Practice Tasks (Do These 👇)
+🧪 Task 1 (Easy)
+
+List departments whose total salary is below average.
+
+🧪 Task 2 (Medium)
+
+Show employee name + manager name using a recursive CTE.
+
+🧪 Task 3 (Hard / Interview)
+
+Find the full reporting chain for one employee (employee → CEO).
+
+9️⃣ Databases That Support Recursive CTEs
+
+✅ PostgreSQL
+✅ MySQL 8+
+✅ SQL Server
+✅ Oracle
+
+
+------------------------------------------------Basic Simple Practice Query --------------------------------
+
+
+WITH RECURSIVE cte_name AS (
+
+    SELECT
+        customerNumber,
+        customerName
+    FROM customers
+    WHERE customerNumber = (
+        SELECT MIN(customerNumber) FROM customers
+    )
+
+    UNION ALL
+
+    SELECT
+        c.customerNumber,
+        c.customerName
+    FROM customers c
+    JOIN cte_name r
+        ON c.customerNumber = r.customerNumber + 1
+    WHERE c.customerNumber < 500
+)
+
+SELECT *
+FROM cte_name;
+
+
+
+
+//Example of Level
+
+WITH RECURSIVE customer_hierarchy AS (
+
+    SELECT
+        customerNumber,
+        customerName,
+        parentCustomerNumber,
+        1 AS level
+    FROM customers
+    WHERE parentCustomerNumber IS NULL
+
+    UNION ALL
+
+    SELECT
+        c.customerNumber,
+        c.customerName,
+        c.parentCustomerNumber,
+        ch.level + 1 AS level
+    FROM customers c
+    JOIN customer_hierarchy ch
+        ON c.parentCustomerNumber = ch.customerNumber
+)
+
+SELECT *
+FROM customer_hierarchy
+ORDER BY level, customerNumber;
+
+
+
