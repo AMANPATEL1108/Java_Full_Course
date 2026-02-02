@@ -1,0 +1,159 @@
+What are Window Functions? (Plain English)
+
+Window functions calculate something across a group of rows
+➡️ without collapsing rows like GROUP BY does.
+
+So you still see every row, but with extra insights added.
+
+Think of it as:
+
+“Look around this row at related rows, and compute something.”
+
+Core Syntax (This part matters)
+function() OVER (
+  PARTITION BY column
+  ORDER BY column
+)
+
+Breakdown:
+
+function() → what you calculate (ROW_NUMBER, RANK, etc.)
+
+PARTITION BY → how rows are grouped (like GROUP BY, but no collapsing)
+
+ORDER BY → how rows are ranked or ordered inside each group
+
+Example Table: employees
+employee_id	department	salary
+1	HR	60000
+2	HR	70000
+3	HR	70000
+4	IT	80000
+5	IT	75000
+1️⃣ ROW_NUMBER()
+What it does:
+
+Gives a unique number
+
+Always increases by 1
+
+No ties (even if values are equal)
+
+SELECT employee_id, department, salary,
+       ROW_NUMBER() OVER (
+         PARTITION BY department
+         ORDER BY salary DESC
+       ) AS row_num
+FROM employees;
+
+Result (HR only):
+salary	row_num
+70000	1
+70000	2
+60000	3
+
+✅ Use when you need:
+
+“Top N rows per group”
+
+De-duplication
+
+Pagination
+
+2️⃣ RANK()
+What it does:
+
+Same values → same rank
+
+Skips numbers after ties
+
+RANK() OVER (
+  PARTITION BY department
+  ORDER BY salary DESC
+)
+
+Result (HR):
+salary	rank
+70000	1
+70000	1
+60000	3
+
+❗ Notice: rank 2 is skipped
+
+✅ Use when:
+
+Ranking matters
+
+You want ties to share rank
+
+3️⃣ DENSE_RANK()
+What it does:
+
+Same values → same rank
+
+No gaps in ranking
+
+DENSE_RANK() OVER (
+  PARTITION BY department
+  ORDER BY salary DESC
+)
+
+Result (HR):
+salary	dense_rank
+70000	1
+70000	1
+60000	2
+
+✅ Use when:
+
+You want clean consecutive ranks
+
+🔥 Key Differences (Memorize This)
+Function	Ties	Skips Numbers?
+ROW_NUMBER	❌ No	❌ No
+RANK	✅ Yes	✅ Yes
+DENSE_RANK	✅ Yes	❌ No
+Your Example Explained
+SELECT employee_id, department, salary,
+       RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS rank_in_dept
+FROM employees;
+
+
+This means:
+
+Split employees by department
+
+Order salaries highest first
+
+Rank employees inside each department
+
+Keep all rows
+
+
+------------------------------------------------Basic Simple Practice Query --------------------------------
+
+
+
+	SELECT orderNumber, status, comments,
+	       ROW_NUMBER() OVER (
+	         PARTITION BY status
+	         ORDER BY orderNumber DESC
+	       ) AS row_num
+	FROM orders;
+
+
+
+    SELECT  * ,
+    RANK() OVER (
+      PARTITION BY status
+      ORDER BY orderNumber DESC
+    ) AS ordersDetails
+    FROM orders
+
+
+    SELECT  * ,
+    DENSE_RANK() OVER (
+      PARTITION BY status
+      ORDER BY orderNumber DESC
+    )
+    FROM orders
