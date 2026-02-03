@@ -1,0 +1,195 @@
+1️⃣ Aggregate Window Functions
+
+Key idea:
+A window function lets you calculate aggregates without collapsing rows.
+
+SELECT employee_id,
+       department,
+       salary,
+       AVG(salary) OVER (PARTITION BY department) AS avg_dept_salary
+FROM employees;
+
+What’s happening:
+
+AVG(salary) → normal aggregate
+
+OVER() → turns it into a window function
+
+PARTITION BY department → restart the average for each department
+
+🧠 Mental model:
+
+“Show me each employee, plus the department average next to them.”
+
+Try this:
+-- Highest salary per department (without GROUP BY)
+SELECT employee_id, department, salary,
+       MAX(salary) OVER (PARTITION BY department) AS max_dept_salary
+FROM employees;
+
+2️⃣ OFFSET Functions: LAG & LEAD
+
+These are 🔥 for analytics.
+
+LAG → look back
+LEAD → look ahead
+SELECT date,
+       sales,
+       sales - LAG(sales) OVER (ORDER BY date) AS daily_change
+FROM sales;
+
+What’s happening:
+
+LAG(sales) → yesterday’s sales
+
+ORDER BY date → defines “previous”
+
+Subtract → daily difference
+
+🧠 Mental model:
+
+“Compare this row to the previous row.”
+
+More examples:
+-- Tomorrow's sales
+SELECT date, sales,
+       LEAD(sales) OVER (ORDER BY date) AS next_day_sales
+FROM sales;
+
+-- % change day over day
+SELECT date,
+       sales,
+       (sales - LAG(sales) OVER (ORDER BY date))
+       / LAG(sales) OVER (ORDER BY date) * 100 AS pct_change
+FROM sales;
+
+3️⃣ Practice
+✔ Running total
+SELECT date,
+       sales,
+       SUM(sales) OVER (ORDER BY date) AS running_total
+FROM sales;
+
+✔ Month-over-month growth
+SELECT month,
+       revenue,
+       revenue - LAG(revenue) OVER (ORDER BY month) AS mom_growth
+FROM monthly_sales;
+
+PART 2: Day 5 — CTEs + Window Functions (Pro Level)
+
+Now we organize logic + analyze data.
+
+What is a CTE?
+
+A temporary named result you can reuse.
+
+WITH ranked_sales AS (
+    SELECT employee_id,
+           department,
+           salary,
+           RANK() OVER (
+               PARTITION BY department
+               ORDER BY salary DESC
+           ) AS rnk
+    FROM employees
+)
+SELECT *
+FROM ranked_sales
+WHERE rnk = 1;
+
+Why this is powerful:
+
+Window function does ranking
+
+CTE keeps query readable
+
+Outer query filters results
+
+🧠 Mental model:
+
+“First calculate everything → then query the results.”
+
+More Pro-Level Examples
+Top 3 salaries per department
+WITH ranked_employees AS (
+    SELECT employee_id, department, salary,
+           DENSE_RANK() OVER (
+               PARTITION BY department
+               ORDER BY salary DESC
+           ) AS rnk
+    FROM employees
+)
+SELECT *
+FROM ranked_employees
+WHERE rnk <= 3;
+
+Running total per department
+WITH dept_sales AS (
+    SELECT department, date, sales,
+           SUM(sales) OVER (
+               PARTITION BY department
+               ORDER BY date
+           ) AS running_total
+    FROM sales
+)
+SELECT *
+FROM dept_sales;
+
+How I Suggest You Learn This (Best Method)
+🔹 Step 1: Read → Understand
+
+Don’t memorize syntax. Ask:
+
+What does PARTITION do?
+
+What does ORDER BY control?
+
+🔹 Step 2: Modify
+
+Change:
+
+AVG → SUM
+
+RANK → DENSE_RANK
+
+ORDER BY ASC / DESC
+
+🔹 Step 3: Practice Real Questions
+
+Examples:
+
+“Top N per group”
+
+“Growth over time”
+
+“Compare rows”
+
+------------------------------------------------Basic Simple Practice Query --------------------------------
+
+
+SELECT
+    orderNumber,
+    quantityOrdered,
+    AVG(quantityOrdered) OVER (PARTITION BY quantityOrdered) AS avg_dept_salary
+FROM orderdetails;
+
+SELECT
+    quantityOrdered,
+    LEAD(orderLineNumber) OVER (ORDER BY orderLineNumber) AS next_day_sales
+FROM orderdetails;
+
+SELECT
+    customerNumber,
+    SUM(customerNumber) OVER (ORDER BY shippedDate) AS running_total
+FROM orders;
+
+SELECT
+    LAG(orderLineNumber) OVER (ORDER BY orderLineNumber) AS daily_change
+FROM orderdetails;
+
+SELECT
+    orderLineNumber - LAG(orderLineNumber) OVER (ORDER BY orderLineNumber) AS daily_change
+FROM orderdetails;
+
+
