@@ -1,0 +1,41 @@
+Query 1 - Problem-584:
+
+select name from Customer where referee_id is null OR referee_id != 2;
+
+
+Query 2 - Problem-620:
+
+SELECT *
+FROM Cinema
+WHERE id % 2 = 1
+  AND description <> 'boring'
+ORDER BY rating DESC;
+
+
+Query 3 - Problem-1581:
+
+SELECT v.customer_id,
+       COUNT(*) AS count_no_trans
+FROM Visits v
+LEFT JOIN Transactions t
+  ON v.visit_id = t.visit_id
+WHERE t.transaction_id IS NULL
+GROUP BY v.customer_id;
+
+
+Query 4 - Problem-586:
+
+SELECT customer_number
+FROM Orders
+GROUP BY customer_number
+ORDER BY COUNT(*) DESC
+LIMIT 1;
+
+
+Query 5 - Problem-627:
+
+UPDATE salary SET sex =
+CASE sex
+    WHEN 'm' THEN 'f'
+    ELSE 'm'
+END;
