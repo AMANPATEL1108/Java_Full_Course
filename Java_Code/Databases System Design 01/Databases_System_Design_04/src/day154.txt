@@ -1,0 +1,38 @@
+Query 1 - Problem-511:
+
+SELECT t.player_id, t.first_login
+FROM (
+    SELECT player_id, MIN(event_date) AS first_login
+    FROM activity
+    GROUP BY player_id
+) AS t;
+
+
+Query 2 - Problem-610:
+
+select *, if(x+y>z and y+z>x and x+z>y, "Yes","No") as triangle from triangle
+
+
+Query 3 - Problem-1068:
+
+SELECT P.product_name ,S.year  ,S.price
+FROM Sales  S
+LEFT JOIN Product P
+ON S.product_id =P.product_id
+
+
+Query 4 - Problem-1527:
+
+SELECT patient_id, patient_name, conditions
+FROM patients
+WHERE conditions LIKE 'DIAB1%'
+   OR conditions LIKE '% DIAB1%';
+
+
+Query 5 - Problem-1587:
+
+select u.name, sum(t.amount) as balance
+from users as u join transactions as t on u.account = t.account group by u.account having balance > 10000;
+
+
+
