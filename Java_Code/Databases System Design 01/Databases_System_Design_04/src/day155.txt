@@ -1,0 +1,76 @@
+Query 1 - Problem-176:
+
+select
+(select distinct Salary
+from Employee order by salary desc
+limit 1 offset 1)
+as SecondHighestSalary;
+
+
+Query 2 - Problem-178:
+
+SELECT S.score ,COUNT(S2.SCORE) as `rank` FROM SCORES S,
+(SELECT DISTINCT SCORE FROM SCORES)  S2
+WHERE S.SCORE<=S2.SCORE
+GROUP BY S.ID
+ORDER BY S.SCORE DESC;
+
+
+Query 3 - Problem-180:
+
+with cte as (
+    select num,
+    lead(num,1) over() num1,
+    lead(num,2) over() num2
+    from logs
+
+)
+select distinct num ConsecutiveNums from cte where (num=num1) and (num=num2)
+
+
+Query 4 - Problem-184:
+
+with cte as(
+    select
+        e.name as emp,
+        e.salary as esalary,
+        d.name as dname,
+        d.id as dep_id
+    from employee e
+    join department d
+    on e.departmentId = d.id
+), max_salary as(
+    select
+        dep_id as dep,
+        dname as dep_name,
+        max(esalary) as max_sal
+    from cte
+    group by dep_name
+)
+select
+    dname as Department,
+    emp as Employee,
+    esalary as Salary
+from cte c
+join max_salary m
+on c.esalary = m.max_sal
+and c.dep_id = m.dep;
+
+
+Query 5 - Problem-185:
+
+SELECT Department, Employee, Salary
+FROM (
+    SELECT
+        d.name AS Department,
+        e.name AS Employee,
+        e.salary AS Salary,
+        DENSE_RANK() OVER (PARTITION BY departmentId ORDER BY salary DESC) AS rnk
+    FROM Employee e
+    JOIN Department d ON e.departmentId = d.id
+) AS temp
+WHERE rnk <= 3;
+
+
+
+
