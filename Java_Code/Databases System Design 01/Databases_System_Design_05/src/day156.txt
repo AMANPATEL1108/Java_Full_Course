@@ -1,0 +1,80 @@
+What is MongoDB?
+
+MongoDB is a NoSQL database designed to store data in a flexible, JSON-like format instead of traditional tables and rows.
+
+It’s great for apps that need to scale fast, handle large amounts of data, or work with changing data structures.
+
+Key Concepts
+1. Documents
+
+Data is stored as documents (similar to JSON)
+
+Uses BSON (Binary JSON) internally
+
+Example document:
+
+{
+  "name": "Alice",
+  "age": 25,
+  "skills": ["JavaScript", "MongoDB"]
+}
+
+2. Collections
+
+Documents live inside collections
+
+A collection is like a table, but documents don’t need the same structure
+
+3. Database
+
+A database holds multiple collections
+
+Hierarchy:
+
+Database → Collections → Documents
+
+Why Use MongoDB?
+
+✅ Schema-less – easy to change data structure
+✅ Scalable – built for horizontal scaling
+✅ Fast – optimized for read/write operations
+✅ Developer-friendly – works naturally with JavaScript & APIs
+
+Common use cases:
+
+Web & mobile apps
+
+Real-time analytics
+
+Content management systems
+
+IoT applications
+
+MongoDB vs SQL (Quick Compare)
+SQL Database	MongoDB
+Tables	Collections
+Rows	Documents
+Columns	Fields
+Fixed schema	Flexible schema
+Basic MongoDB Operations
+// Insert
+db.users.insertOne({ name: "John", age: 30 })
+
+// Find
+db.users.find({ age: { $gt: 25 } })
+
+// Update
+db.users.updateOne({ name: "John" }, { $set: { age: 31 } })
+
+// Delete
+db.users.deleteOne({ name: "John" })
+
+Tools & Ecosystem
+
+MongoDB Atlas – cloud database
+
+MongoDB Compass – GUI
+
+Mongoose – ODM for Node.js
+
+Shell (mongosh) – command line
