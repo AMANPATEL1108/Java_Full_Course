@@ -1,0 +1,97 @@
+What is CRUD?
+
+CRUD = the four basic database operations:
+
+Letter	Meaning	MongoDB method
+C	Create	insertOne, insertMany
+R	Read	find, findOne
+U	Update	updateOne, updateMany
+D	Delete	deleteOne, deleteMany
+MongoDB CRUD (mongosh)
+
+Assume:
+
+use school
+db.students
+
+CREATE
+Insert one document
+db.students.insertOne({
+  name: "Alice",
+  age: 22,
+  course: "CS"
+})
+
+Insert many documents
+db.students.insertMany([
+  { name: "Bob", age: 21, course: "Math" },
+  { name: "Charlie", age: 23, course: "Physics" }
+])
+
+READ
+Find all documents
+db.students.find()
+
+Find with condition
+db.students.find({ course: "CS" })
+
+Find one document
+db.students.findOne({ name: "Alice" })
+
+Projection (show only certain fields)
+db.students.find(
+  { course: "CS" },
+  { name: 1, _id: 0 }
+)
+
+UPDATE
+Update one document
+db.students.updateOne(
+  { name: "Alice" },
+  { $set: { age: 23 } }
+)
+
+Update many documents
+db.students.updateMany(
+  { course: "CS" },
+  { $set: { department: "Engineering" } }
+)
+
+Increment a value
+db.students.updateOne(
+  { name: "Bob" },
+  { $inc: { age: 1 } }
+)
+
+DELETE
+Delete one document
+db.students.deleteOne({ name: "Charlie" })
+
+Delete many documents
+db.students.deleteMany({ course: "Math" })
+
+Delete all documents (careful 😅)
+db.students.deleteMany({})
+
+CRUD using Node.js + Mongoose
+Model
+const Student = mongoose.model("Student", {
+  name: String,
+  age: Number,
+  course: String
+});
+
+CREATE
+await Student.create({ name: "Alice", age: 22, course: "CS" });
+
+READ
+const students = await Student.find({ course: "CS" });
+
+UPDATE
+await Student.updateOne(
+  { name: "Alice" },
+  { age: 23 }
+);
+
+DELETE
+await Student.deleteOne({ name: "Alice" });
