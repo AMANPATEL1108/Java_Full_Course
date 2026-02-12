@@ -1,0 +1,181 @@
+What is indexing in MongoDB?
+
+An index is a data structure (B-tree by default) that MongoDB uses to quickly locate documents without scanning the entire collection.
+
+Think:
+
+Without index → MongoDB reads every document 😬
+
+With index → MongoDB jumps straight to the matching docs ⚡
+
+Why indexing matters
+
+Indexes dramatically improve:
+
+find()
+
+sort()
+
+aggregate() (some stages)
+
+update() and delete() with filters
+
+But they also:
+
+Use extra disk space
+
+Slow down writes (because indexes must be updated)
+
+So: index what you query, not everything.
+
+Default index
+
+Every collection automatically gets:
+
+{ _id: 1 }
+
+
+You don’t need to create this—it’s always there.
+
+Common types of MongoDB indexes
+1. Single Field Index
+
+Index on one field.
+
+db.users.createIndex({ email: 1 })
+
+
+1 → ascending
+
+-1 → descending
+
+Used for:
+
+db.users.find({ email: "test@example.com" })
+
+2. Compound Index
+
+Index on multiple fields (order matters!).
+
+db.orders.createIndex({ userId: 1, createdAt: -1 })
+
+
+Works for:
+
+{ userId: 123 }
+{ userId: 123, createdAt: { $gt: ISODate(...) } }
+
+
+❌ Does not work efficiently for:
+
+{ createdAt: ... } // missing first field
+
+
+👉 Rule of thumb: put the most selective field first.
+
+3. Multikey Index (Arrays)
+
+Automatically created when indexing an array field.
+
+db.posts.createIndex({ tags: 1 })
+
+
+If tags: ["mongodb", "database"], MongoDB indexes each value.
+
+4. Text Index
+
+For full-text search.
+
+db.articles.createIndex({ title: "text", body: "text" })
+
+
+Query:
+
+db.articles.find({ $text: { $search: "indexing mongodb" } })
+
+
+⚠️ Only one text index per collection.
+
+5. Hashed Index
+
+Good for equality checks and sharding.
+
+db.users.createIndex({ userId: "hashed" })
+
+
+❌ Not good for range queries.
+
+6. Unique Index
+
+Prevents duplicate values.
+
+db.users.createIndex({ email: 1 }, { unique: true })
+
+
+MongoDB will reject inserts with duplicate emails.
+
+7. Partial Index
+
+Indexes only documents matching a condition.
+
+db.orders.createIndex(
+  { status: 1 },
+  { partialFilterExpression: { status: "ACTIVE" } }
+)
+
+
+Smaller + faster than full indexes.
+
+8. TTL Index (Time To Live)
+
+Auto-delete documents after a certain time.
+
+db.sessions.createIndex(
+  { createdAt: 1 },
+  { expireAfterSeconds: 3600 }
+)
+
+
+Perfect for:
+
+Sessions
+
+Logs
+
+Temporary data
+
+Checking index usage
+Explain a query
+db.users.find({ email: "a@b.com" }).explain("executionStats")
+
+
+Look for:
+
+"IXSCAN" → index used ✅
+
+"COLLSCAN" → full collection scan ❌
+
+List indexes
+db.users.getIndexes()
+
+Best practices
+
+✔ Index fields used in:
+
+where filters
+
+sort
+
+join ($lookup) conditions
+
+❌ Avoid indexing:
+
+Low-cardinality fields (isActive: true/false)
+
+Fields never used in queries
+
+✔ Monitor with:
+
+explain()
+
+MongoDB Atlas Performance Advisor
