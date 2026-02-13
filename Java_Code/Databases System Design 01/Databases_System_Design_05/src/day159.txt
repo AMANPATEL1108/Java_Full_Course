@@ -1,0 +1,423 @@
+0️⃣ What is Aggregation?
+
+In simple words:
+
+Aggregation = Processing data in MongoDB to compute results.
+
+It is used to:
+
+Filter data
+
+Transform documents
+
+Group data
+
+Calculate totals / averages
+
+Join collections
+
+Build reports
+
+Perform analytics
+
+Think of it like:
+
+SQL GROUP BY + WHERE + JOIN + Calculations
+
+But more powerful and flexible
+
+1️⃣ Why Do We Need Aggregation?
+
+Normal queries (find()) can:
+
+Filter documents
+
+Project fields
+
+But they cannot:
+
+Group documents
+
+Calculate totals
+
+Perform complex transformations
+
+Join collections (properly)
+
+Create multi-step data pipelines
+
+For that → we use Aggregation Pipeline
+
+2️⃣ What is Aggregation Pipeline?
+
+Aggregation works using a pipeline of stages.
+
+Each stage:
+
+Takes input documents
+
+Processes them
+
+Passes results to the next stage
+
+Like a factory assembly line 🏭
+
+Collection → Stage 1 → Stage 2 → Stage 3 → Final Result
+
+
+Basic syntax:
+
+db.collection.aggregate([
+   { stage1 },
+   { stage2 },
+   { stage3 }
+])
+
+3️⃣ Core Aggregation Stages (Most Important)
+
+Let’s learn the most used stages.
+
+🔹 1. $match (Filtering)
+
+Same as SQL WHERE.
+
+db.orders.aggregate([
+   { $match: { status: "completed" } }
+])
+
+
+✔ Filters documents
+✔ Should be used early for performance
+
+🔹 2. $project (Select / Transform Fields)
+
+Select specific fields or modify them.
+
+db.users.aggregate([
+   {
+     $project: {
+       name: 1,
+       age: 1,
+       isAdult: { $gte: ["$age", 18] }
+     }
+   }
+])
+
+
+✔ Include/exclude fields
+✔ Create new computed fields
+
+🔹 3. $group (Most Important Stage)
+
+Equivalent to SQL GROUP BY.
+
+Example:
+
+db.orders.aggregate([
+   {
+     $group: {
+       _id: "$customerId",
+       totalSpent: { $sum: "$amount" },
+       avgSpent: { $avg: "$amount" },
+       count: { $sum: 1 }
+     }
+   }
+])
+
+
+Common operators inside $group:
+
+$sum
+
+$avg
+
+$min
+
+$max
+
+$push
+
+$addToSet
+
+$first
+
+$last
+
+🔹 4. $sort
+
+Sort results.
+
+{ $sort: { totalSpent: -1 } }
+
+
+1 → ascending
+
+-1 → descending
+
+🔹 5. $limit
+
+Limit results.
+
+{ $limit: 5 }
+
+🔹 6. $skip
+
+Skip documents (used for pagination).
+
+{ $skip: 10 }
+
+4️⃣ Intermediate Level Stages
+
+Now let’s go deeper.
+
+🔹 $lookup (JOIN in MongoDB)
+
+Used to join collections.
+
+Example:
+
+db.orders.aggregate([
+   {
+     $lookup: {
+       from: "customers",
+       localField: "customerId",
+       foreignField: "_id",
+       as: "customerDetails"
+     }
+   }
+])
+
+
+Equivalent to SQL JOIN.
+
+🔹 $unwind (Explode Array)
+
+If a document has an array:
+
+{
+   name: "John",
+   items: ["pen", "book", "phone"]
+}
+
+
+After $unwind:
+
+{ name: "John", items: "pen" }
+{ name: "John", items: "book" }
+{ name: "John", items: "phone" }
+
+
+Example:
+
+{ $unwind: "$items" }
+
+🔹 $addFields
+
+Add new fields without removing old ones.
+
+{
+   $addFields: {
+     totalPrice: { $multiply: ["$price", "$quantity"] }
+   }
+}
+
+🔹 $count
+
+Count documents.
+
+{ $count: "totalDocuments" }
+
+5️⃣ Expression Operators (Inside Stages)
+
+Aggregation uses expressions like:
+
+Arithmetic
+
+$add
+
+$subtract
+
+$multiply
+
+$divide
+
+Comparison
+
+$eq
+
+$gt
+
+$gte
+
+$lt
+
+$lte
+
+Logical
+
+$and
+
+$or
+
+$not
+
+Conditional
+
+$cond
+
+$ifNull
+
+$switch
+
+Example:
+
+{
+   $project: {
+     status: {
+       $cond: {
+         if: { $gte: ["$score", 50] },
+         then: "Pass",
+         else: "Fail"
+       }
+     }
+   }
+}
+
+6️⃣ Advanced Aggregation Concepts
+
+Now we move to advanced topics.
+
+🔹 1. $facet (Multiple Pipelines at Once)
+
+Run multiple aggregations in parallel.
+
+{
+  $facet: {
+    highValue: [
+      { $match: { amount: { $gt: 1000 } } }
+    ],
+    lowValue: [
+      { $match: { amount: { $lte: 1000 } } }
+    ]
+  }
+}
+
+🔹 2. $bucket (Grouping into Ranges)
+
+Group values into ranges.
+
+{
+  $bucket: {
+    groupBy: "$age",
+    boundaries: [0, 18, 30, 50, 100],
+    default: "Other",
+    output: {
+      count: { $sum: 1 }
+    }
+  }
+}
+
+🔹 3. $merge
+
+Write aggregation results into another collection.
+
+{
+   $merge: "summaryCollection"
+}
+
+🔹 4. $out
+
+Output results to a collection (replaces it).
+
+{
+   $out: "newCollection"
+}
+
+7️⃣ Real-World Example (Full Pipeline)
+
+Let’s say:
+
+We want:
+
+Total sales per customer
+
+Only for completed orders
+
+Sorted by highest spender
+
+Top 3 customers
+
+db.orders.aggregate([
+   { $match: { status: "completed" } },
+   {
+     $group: {
+       _id: "$customerId",
+       totalSpent: { $sum: "$amount" }
+     }
+   },
+   { $sort: { totalSpent: -1 } },
+   { $limit: 3 }
+])
+
+
+That’s a real production-level pipeline.
+
+8️⃣ Performance Tips (Very Important)
+
+✅ Always use $match early
+✅ Use indexes on filtered fields
+✅ Avoid unnecessary $project large fields
+✅ Limit array unwinding if possible
+✅ Use $facet carefully (can be heavy)
+
+9️⃣ Aggregation vs MapReduce
+
+Old method: MapReduce
+Modern & better: Aggregation Framework
+
+✔ Faster
+✔ Easier
+✔ More readable
+✔ Native support
+
+MapReduce is mostly obsolete now.
+
+🔟 Interview-Level Knowledge
+
+If you're preparing for interviews, know:
+
+Difference between $project and $addFields
+
+Difference between $push and $addToSet
+
+How $lookup works
+
+When to use $unwind
+
+Pipeline optimization techniques
+
+Handling large datasets
+
+Using indexes in aggregation
+
+🎯 Final Summary
+
+Aggregation Framework is:
+
+A powerful data processing engine inside MongoDB that works using pipeline stages to transform and compute data.
+
+It allows you to:
+
+Filter
+
+Transform
+
+Group
+
+Join
+
+Analyze
+
+Store results
+
+It replaces complex backend logic with powerful database-side processing.
