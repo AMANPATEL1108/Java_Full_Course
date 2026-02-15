@@ -1,0 +1,274 @@
+🔥 PART 1 — Redis Caching in Spring Boot (Proper Way)
+
+In Spring Boot, we don’t manually call Redis for caching most of the time.
+
+We use:
+
+@Cacheable
+@CachePut
+@CacheEvict
+
+
+Spring handles Redis automatically.
+
+🧠 Step 1 — Enable Caching
+1️⃣ Add Dependency
+
+If using Maven:
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-data-redis</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-cache</artifactId>
+</dependency>
+
+2️⃣ Enable Caching
+@SpringBootApplication
+@EnableCaching
+public class MyApp {
+    public static void main(String[] args) {
+        SpringApplication.run(MyApp.class, args);
+    }
+}
+
+🧠 Step 2 — Use @Cacheable (Main Annotation)
+
+Example:
+
+@Service
+public class UserService {
+
+    @Cacheable(value = "users", key = "#id")
+    public User getUserById(Long id) {
+        System.out.println("Fetching from DB...");
+        return userRepository.findById(id).orElse(null);
+    }
+}
+
+🔎 What happens internally?
+
+First call:
+
+→ No cache
+→ DB called
+→ Result stored in Redis
+
+
+Second call:
+
+→ Returned from Redis
+→ DB NOT called
+
+
+🔥 Huge performance boost.
+
+🧠 Step 3 — Cache Expiration (TTL Configuration)
+
+By default, cache may not expire.
+
+Add configuration:
+
+@Configuration
+public class RedisConfig {
+
+    @Bean
+    public RedisCacheConfiguration cacheConfiguration() {
+        return RedisCacheConfiguration.defaultCacheConfig()
+                .entryTtl(Duration.ofMinutes(5));
+    }
+}
+
+
+Now:
+
+Every cached value expires in 5 minutes.
+
+Production tip:
+Different caches → different TTL.
+
+🧠 Step 4 — Updating Cache
+🔹 When Data Changes
+
+If you update user:
+
+@CachePut(value = "users", key = "#user.id")
+public User updateUser(User user) {
+    return userRepository.save(user);
+}
+
+
+@CachePut → updates cache immediately.
+
+🔹 Delete Cache
+@CacheEvict(value = "users", key = "#id")
+public void deleteUser(Long id) {
+    userRepository.deleteById(id);
+}
+
+
+Very important in real systems.
+
+🚀 PART 2 — Redis Pub/Sub in Spring Boot
+
+Now let’s move to real-time messaging.
+
+Spring uses:
+
+RedisTemplate
+
+RedisMessageListenerContainer
+
+MessageListenerAdapter
+
+🧠 Step 1 — Publisher
+@Autowired
+private StringRedisTemplate redisTemplate;
+
+public void sendMessage(String message) {
+    redisTemplate.convertAndSend("chat", message);
+}
+
+
+That publishes to channel "chat".
+
+🧠 Step 2 — Subscriber
+1️⃣ Create Listener
+@Component
+public class RedisSubscriber {
+
+    public void handleMessage(String message) {
+        System.out.println("Received message: " + message);
+    }
+}
+
+2️⃣ Configure Listener Container
+@Configuration
+public class RedisPubSubConfig {
+
+    @Bean
+    RedisMessageListenerContainer container(
+            RedisConnectionFactory connectionFactory,
+            MessageListenerAdapter listenerAdapter) {
+
+        RedisMessageListenerContainer container =
+                new RedisMessageListenerContainer();
+
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(listenerAdapter,
+                new PatternTopic("chat"));
+
+        return container;
+    }
+
+    @Bean
+    MessageListenerAdapter listenerAdapter(RedisSubscriber subscriber) {
+        return new MessageListenerAdapter(subscriber, "handleMessage");
+    }
+}
+
+
+Now whenever someone publishes to "chat" → subscriber receives it.
+
+🏗 Real Production Use Cases
+1️⃣ Distributed Cache
+
+In microservices:
+
+Service A
+Service B
+Service C
+
+All share same Redis.
+
+So cache is shared across instances.
+
+2️⃣ Distributed Locking
+
+Using Redis to prevent:
+
+Double payment
+
+Double order submission
+
+Race conditions
+
+(Advanced topic: Redisson library)
+
+3️⃣ Rate Limiting
+
+Example:
+User can only call API 10 times per minute.
+
+Store counter in Redis:
+
+INCR user:123
+EXPIRE user:123 60
+
+
+In Spring → use RedisTemplate.
+
+⚠️ Important Interview-Level Concepts
+🔥 Cache Aside Pattern (Most Important)
+
+Spring Boot uses:
+
+1. Check cache
+2. If missing → fetch DB
+3. Store in cache
+4. Return
+
+
+This is called:
+Cache-Aside Strategy.
+
+🔥 Redis Persistence Modes
+
+Redis supports:
+
+RDB (snapshot)
+
+AOF (append-only file)
+
+Even though it's in-memory → it can persist to disk.
+
+🔥 Difference: Pub/Sub vs Streams
+Feature	Pub/Sub	Streams
+Persistence	❌ No	✅ Yes
+Message history	❌ No	✅ Yes
+Use case	Real-time	Event processing
+
+For enterprise systems → Streams are more powerful.
+
+🧠 What You Should Practice Now
+
+Since you're already comfortable:
+
+✅ Practice 1
+
+Create:
+
+GET user API
+
+Use @Cacheable
+
+Add TTL
+
+✅ Practice 2
+
+Create:
+
+Update user API
+
+Use @CachePut
+
+Use @CacheEvict
+
+✅ Practice 3
+
+Build:
+
+Simple chat using Pub/Sub
