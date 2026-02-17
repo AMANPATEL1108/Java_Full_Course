@@ -14,21 +14,32 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    // READ
+    @Autowired
+    private UserPublisher userPublisher;
+
+    // READ (Cache)
     @Cacheable(value = "users", key = "#id")
     public User getUserById(Long id) {
         return userRepository.findById(id);
     }
 
-    // UPDATE
+    // UPDATE (Cache + Publish)
     @CachePut(value = "users", key = "#user.id")
     public User updateUser(User user) {
-        return userRepository.save(user);
+        User updatedUser = userRepository.save(user);
+
+        // Publish event
+        userPublisher.publish("User Updated: " + user.getId());
+
+        return updatedUser;
     }
 
-    // DELETE
+    // DELETE (Cache + Publish)
     @CacheEvict(value = "users", key = "#id")
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+
+        // Publish event
+        userPublisher.publish("User Deleted: " + id);
     }
 }

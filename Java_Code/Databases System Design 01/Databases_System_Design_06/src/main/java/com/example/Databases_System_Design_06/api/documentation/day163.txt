@@ -1,0 +1,195 @@
+🔹 What is Redis Pub/Sub?
+
+Redis Pub/Sub allows:
+
+📤 Publisher → sends message to a channel
+
+📥 Subscriber → listens to that channel and receives messages in real-time
+
+It is completely separate from caching.
+
+✅ Step 1: Create Redis Pub/Sub Configuration
+
+Create a new config class (DO NOT remove your existing RedisConfig).
+
+📌 RedisPubSubConfig.java
+package com.example.Databases_System_Design_06.api.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.data.redis.listener.RedisMessageListenerContainer;
+import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
+
+@Configuration
+public class RedisPubSubConfig {
+
+    @Bean
+    public ChannelTopic topic() {
+        return new ChannelTopic("user-updates");
+    }
+
+    @Bean
+    public MessageListenerAdapter messageListenerAdapter(UserSubscriber subscriber) {
+        return new MessageListenerAdapter(subscriber, "handleMessage");
+    }
+
+    @Bean
+    public RedisMessageListenerContainer redisContainer(
+            RedisConnectionFactory connectionFactory,
+            MessageListenerAdapter listenerAdapter,
+            ChannelTopic topic) {
+
+        RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.addMessageListener(listenerAdapter, topic);
+        return container;
+    }
+}
+
+✅ Step 2: Create Subscriber (Sub)
+📌 UserSubscriber.java
+package com.example.Databases_System_Design_06.api.config;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class UserSubscriber {
+
+    public void handleMessage(String message) {
+        System.out.println("📥 Message received: " + message);
+    }
+}
+
+
+This listens to the user-updates channel.
+
+✅ Step 3: Create Publisher (Pub)
+📌 UserPublisher.java
+package com.example.Databases_System_Design_06.api.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserPublisher {
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    private ChannelTopic topic;
+
+    public void publish(String message) {
+        redisTemplate.convertAndSend(topic.getTopic(), message);
+        System.out.println("📤 Message published: " + message);
+    }
+}
+
+✅ Step 4: Use Publisher in Your Existing Service
+
+Now we integrate Pub/Sub into your existing UserService without removing caching.
+
+🔥 Updated UserService.java
+@Service
+public class UserService {
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserPublisher userPublisher;
+
+    // READ (Cache)
+    @Cacheable(value = "users", key = "#id")
+    public User getUserById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    // UPDATE (Cache + Publish)
+    @CachePut(value = "users", key = "#user.id")
+    public User updateUser(User user) {
+        User updatedUser = userRepository.save(user);
+
+        // Publish event
+        userPublisher.publish("User Updated: " + user.getId());
+
+        return updatedUser;
+    }
+
+    // DELETE (Cache + Publish)
+    @CacheEvict(value = "users", key = "#id")
+    public void deleteUser(Long id) {
+        userRepository.deleteById(id);
+
+        // Publish event
+        userPublisher.publish("User Deleted: " + id);
+    }
+}
+
+🔥 What Happens Now?
+When you:
+➜ GET /users/1
+
+First call → Fetch from DB
+
+Second call → Fetch from Redis Cache
+
+➜ PUT /users
+
+Updates DB
+
+Updates Cache
+
+📤 Publishes message to Redis channel
+
+📥 Subscriber prints message
+
+➜ DELETE /users/1
+
+Removes from DB
+
+Evicts cache
+
+📤 Publishes message
+
+📥 Subscriber receives message
+
+🧪 Example Output in Console
+
+When you update a user:
+
+📤 Message published: User Updated: 1
+📥 Message received: User Updated: 1
+
+📌 Your Final Architecture
+Controller
+   ↓
+Service  → Cache (Redis)
+   ↓
+Repository
+
+Service → Redis Pub → Subscriber
+
+
+✔ Caching works
+✔ Pub/Sub works
+✔ Both use same Redis
+✔ No removal of existing caching
+
+🚀 Important Notes
+
+Make sure Redis server is running:
+
+redis-server
+
+
+Your existing configuration is correct:
+
+spring.cache.type=redis
+
+
+No change needed in pom.xml
