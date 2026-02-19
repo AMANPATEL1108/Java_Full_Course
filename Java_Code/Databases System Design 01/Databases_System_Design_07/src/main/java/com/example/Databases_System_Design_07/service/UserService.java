@@ -16,36 +16,41 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserPublisher userPublisher;
+
+    // CREATE
+    public User createUser(User user) {
+        User savedUser = userRepository.save(user);
+
+        // Publish event
+        userPublisher.publish("User Created: " + savedUser.getId());
+
+        return savedUser;
+    }
+
+    // READ (Cache)
     @Cacheable(value = "users", key = "#id")
     public User getUserById(Long id) {
-        Optional<User> user = userRepository.findById(id);
-        System.out.println("Calling From Database.........");
-        return user.get();
-    }
-
-    @CachePut(value = "users", key = "#id")
-    public User updateUser(User user, Long id) {
-
-        User existingUser = userRepository.findById(id)
+        return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
-
-        existingUser.setUserName(user.getUserName());
-        existingUser.setEmail(user.getEmail());
-        existingUser.setWork(user.getWork());
-        existingUser.setReward(user.getReward());
-        existingUser.setName(user.getName());
-
-        return userRepository.save(existingUser);
     }
 
-    public User createUser(User user) {
-        User created = userRepository.save(user);
-        return created;
+    // UPDATE (Cache + Publish)
+    @CachePut(value = "users", key = "#user.id")
+    public User updateUser(User user) {
+        User updatedUser = userRepository.save(user);
+
+        userPublisher.publish("User Updated: " + updatedUser.getId());
+
+        return updatedUser;
     }
 
+    // DELETE (Cache + Publish)
     @CacheEvict(value = "users", key = "#id")
-    public void deleteById(Long id) {
+    public void deleteUser(Long id) {
         userRepository.deleteById(id);
-    }
 
+        userPublisher.publish("User Deleted: " + id);
+    }
 }

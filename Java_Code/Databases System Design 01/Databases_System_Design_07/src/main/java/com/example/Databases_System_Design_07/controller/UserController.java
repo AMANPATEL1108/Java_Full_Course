@@ -5,6 +5,8 @@ import com.example.Databases_System_Design_07.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -12,20 +14,29 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    // CREATE
     @PostMapping
-    public User createUser(@RequestBody User user){return userService.createUser(user);}
+    public User createUser(@RequestBody User user) {
+        return userService.createUser(user);
+    }
 
+    // READ
     @GetMapping("/{id}")
     public User getUser(@PathVariable Long id) {
         return userService.getUserById(id);
     }
 
-    @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        userService.deleteById(id);
+    // UPDATE
+    @PutMapping("/{id}")
+    public User updateUser(@PathVariable Long id, @RequestBody User user) {
+        user.setId(id);
+        return userService.updateUser(user);
     }
 
-    @PutMapping("/{id}")
-    public User updateUser(@RequestBody User user,@PathVariable Long id) {return userService.updateUser(user,id);}
-
+    // DELETE
+    @DeleteMapping("/{id}")
+    public String deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return "Deleted Successfully";
+    }
 }

@@ -32,4 +32,14 @@ public class User implements Serializable {
     private String work;
 
     private Long reward;
+
+    private Long salary;
+
+    private String village;
+
+    private String city;
+
+    private String state;
+
+    private String country;
 }
