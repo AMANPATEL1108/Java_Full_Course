@@ -5,6 +5,7 @@ import com.example.Databases_System_Design_07.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -24,6 +25,12 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUser(@PathVariable Long id) {
         return userService.getUserById(id);
+    }
+
+    // READ ALL
+    @GetMapping("/all")
+    public List<User> getAllUser() {
+        return userService.getAllUsers();
     }
 
     // UPDATE
