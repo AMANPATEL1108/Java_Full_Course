@@ -1,0 +1,109 @@
+🎯 Your Goal
+Send 100,000 requests to:
+
+http://localhost:8080/user/getall
+
+using k6
+
+✅ STEP 1 — Make Sure k6 Is Installed
+
+Check:
+
+k6 version
+
+If it shows a version → ✅ Ready
+
+✅ STEP 2 — Create Load Test File
+
+Create a file named:
+
+loadtest.js
+
+Paste this inside:
+
+import http from 'k6/http';
+
+export const options = {
+  scenarios: {
+    exact_100k: {
+      executor: 'shared-iterations',
+      vus: 1000,        // virtual users
+      iterations: 100000,  // total requests
+    },
+  },
+};
+
+export default function () {
+  http.get('http://localhost:8080/user/getall');
+}
+What This Does:
+
+Creates 1000 virtual users
+
+Sends exactly 100,000 total requests
+
+Stops automatically
+
+✅ STEP 3 — Run the Test
+
+Open PowerShell in the folder where the file is saved:
+
+k6 run loadtest.js
+📊 What Happens Next
+
+k6 will:
+
+Start virtual users
+
+Send requests
+
+Show statistics:
+
+Total requests
+
+Response time
+
+Failed requests
+
+Throughput
+
+⚠️ Important Safety Notes
+
+If your API is:
+
+Spring Boot
+
+Using MySQL
+
+Running on localhost
+
+Then 100,000 requests may:
+
+Slow down system
+
+Crash app
+
+Exhaust DB connections
+
+👉 If testing first time, try smaller:
+
+vus: 200,
+iterations: 20000
+
+Then increase gradually.
+
+🐳 If Using Docker
+
+If your API runs inside Docker, use:
+
+http://host.docker.internal:8080/user/getall
+
+instead of localhost.
+
+🚀 Final Flow Summary
+
+1️⃣ Install k6
+2️⃣ Create loadtest.js
+3️⃣ Add 100k iteration script
+4️⃣ Run k6 run loadtest.js
+5️⃣ Check results

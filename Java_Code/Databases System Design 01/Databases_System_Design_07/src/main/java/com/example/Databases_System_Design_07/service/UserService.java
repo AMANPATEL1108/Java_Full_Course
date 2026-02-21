@@ -55,7 +55,7 @@ public class UserService {
         userPublisher.publish("User Deleted: " + id);
     }
 
-//    @Cacheable(value = "usersList", key = "'all'")
+    @Cacheable(value = "usersList", key = "'all'")
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
