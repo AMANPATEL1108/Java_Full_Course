@@ -1,0 +1,183 @@
+🚀 Load Testing Spring Boot + Redis with k6
+🎯 Goal
+
+Send 10,000 concurrent requests to:
+
+http://localhost:8080/user/getall
+
+Backend stack:
+
+Spring Boot
+
+Redis caching
+
+MySQL (assumed DB)
+
+🧠 Architecture Understanding (Important)
+
+When you hit:
+
+/user/getall
+
+Flow is typically:
+
+k6 → Spring Boot → Redis (cache)
+                 → MySQL (if cache miss)
+
+If Redis is properly configured:
+
+First request = DB hit
+
+Next requests = Redis hit
+
+Performance should improve significantly
+
+⚙️ STEP 1 — Optimize Spring Boot Before Testing
+✅ 1. Increase Server Threads
+
+Edit application.properties:
+
+server.tomcat.threads.max=500
+server.tomcat.accept-count=1000
+server.connection-timeout=20000
+
+Why?
+
+Default thread pool is too small for 10k concurrent requests.
+
+✅ 2. Tune HikariCP (DB Connection Pool)
+spring.datasource.hikari.maximum-pool-size=50
+spring.datasource.hikari.minimum-idle=10
+spring.datasource.hikari.connection-timeout=30000
+
+⚠️ Do NOT set this too high.
+DB connections are expensive.
+
+✅ 3. Redis Configuration
+
+Make sure caching is enabled:
+
+spring.cache.type=redis
+spring.redis.host=localhost
+spring.redis.port=6379
+spring.cache.redis.time-to-live=600000
+
+And your method:
+
+@Cacheable("users")
+public List<User> getAllUsers() {
+    return userRepository.findAll();
+}
+🧪 STEP 2 — Create k6 10K Concurrent Script
+
+Create:
+
+burst10k.js
+
+Paste:
+
+import http from 'k6/http';
+
+export const options = {
+  scenarios: {
+    burst_10k: {
+      executor: 'per-vu-iterations',
+      vus: 10000,
+      iterations: 1,
+      maxDuration: '30s',
+    },
+  },
+};
+
+export default function () {
+  http.get('http://localhost:8080/user/getall');
+}
+▶ STEP 3 — Run Test
+k6 run burst10k.js
+📊 What You Should Expect
+✅ If Redis Works Properly
+
+Very low response time after first hit
+
+Low DB usage
+
+CPU moderate
+
+Few failures
+
+❌ If Redis Not Working
+
+High DB usage
+
+Many slow responses
+
+Possible 500 errors
+
+Connection pool exhaustion
+
+🔥 Recommended Testing Strategy (VERY IMPORTANT)
+
+Do NOT start with 10k instantly.
+
+Follow this plan:
+
+🟢 Phase 1 — Warm Cache
+vus: 100,
+iterations: 1000
+
+This fills Redis cache.
+
+🟡 Phase 2 — Medium Load
+vus: 2000,
+iterations: 1
+
+Observe:
+
+CPU
+
+Memory
+
+DB connections
+
+🔴 Phase 3 — Full Burst
+vus: 10000,
+iterations: 1
+📈 How To Monitor During Test
+
+Watch:
+
+🖥 CPU & Memory
+
+Task Manager or:
+
+top
+🛢 MySQL Connections
+SHOW PROCESSLIST;
+🔴 Redis Monitoring
+redis-cli monitor
+
+Or:
+
+redis-cli info stats
+
+Look for:
+
+keyspace_hits
+
+keyspace_misses
+
+High hits = cache working ✅
+
+🧨 Common Problems & Fixes
+Problem	Cause	Fix
+500 errors	Thread pool full	Increase tomcat threads
+Timeout	DB slow	Use Redis properly
+Connection refused	OS limit	Increase file descriptors
+Redis not used	Cache not enabled	Add @EnableCaching
+🐳 If Running In Docker
+
+Use:
+
+http.get('http://host.docker.internal:8080/user/getall');
+
+NOT localhost
