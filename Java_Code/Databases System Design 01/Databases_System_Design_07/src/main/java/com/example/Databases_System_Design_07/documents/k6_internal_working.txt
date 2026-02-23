@@ -1,0 +1,337 @@
+🚀 Internal Working Documentation
+Load Testing: Spring Boot + Redis + MySQL using k6
+1️⃣ System Architecture Overview
+k6 Load Tool
+      │
+      ▼
+Spring Boot (Tomcat Thread Pool)
+      │
+      ▼
+Redis Cache  ───────► (Cache Hit ✅ → Return Response)
+      │
+      ▼
+MySQL Database (Only if Cache Miss ❌)
+2️⃣ What Happens When /user/getall is Called?
+
+Endpoint:
+
+GET http://localhost:8080/user/getall
+
+Method:
+
+@Cacheable("users")
+public List<User> getAllUsers() {
+    return userRepository.findAll();
+}
+🔎 Detailed Internal Flow
+Step 1 — k6 Sends 10,000 Requests
+
+Your k6 script:
+
+executor: 'per-vu-iterations',
+vus: 10000,
+iterations: 1
+
+This means:
+
+10,000 virtual users
+
+Each user sends 1 request
+
+All requests fire almost at the same time (burst)
+
+Step 2 — Spring Boot Receives Requests
+
+Spring Boot uses:
+
+Tomcat thread pool
+
+Max 500 threads (based on your config)
+
+If:
+
+Requests ≤ 500 → handled immediately
+
+Requests > 500 → queued (accept-count=1000)
+
+If queue full → connection refused / 500 errors
+
+Step 3 — Cache Interceptor Runs
+
+Because of:
+
+@Cacheable("users")
+
+Spring checks Redis BEFORE executing the method.
+
+Internally:
+
+Is key "users::SimpleKey[]" in Redis?
+
+If key exists → return cached value
+If key does NOT exist → execute method
+
+Step 4A — Cache MISS (First Request Only)
+
+Flow:
+
+Redis → MISS ❌
+Spring executes method
+→ userRepository.findAll()
+→ MySQL query runs
+→ Data returned
+→ Stored in Redis (TTL = 600000 ms)
+→ Response sent to client
+
+This is slower.
+
+Step 4B — Cache HIT (All Other Requests)
+
+Flow:
+
+Redis → HIT ✅
+Spring returns cached List<User>
+MySQL NOT touched
+Response sent immediately
+
+This is very fast.
+
+3️⃣ What Happens During Each Testing Phase
+🟢 Phase 1 — Warm Cache
+vus: 100
+iterations: 1000
+
+What happens:
+
+First request → DB hit
+
+Remaining 999 → Redis hit
+
+Cache gets populated
+
+Redis keyspace_hits increases
+
+Goal:
+✔ Fill cache
+✔ Stabilize system
+
+🟡 Phase 2 — Medium Load (2000 VUs)
+vus: 2000
+iterations: 1
+
+What happens internally:
+
+2000 concurrent requests
+
+All hit Redis
+
+Very few DB queries
+
+CPU moderate
+
+Thread pool stressed but manageable
+
+Check:
+
+CPU usage
+
+Redis keyspace_hits
+
+MySQL processlist (should be low)
+
+🔴 Phase 3 — Full Burst (10,000 VUs)
+vus: 10000
+iterations: 1
+
+Internal behavior:
+
+10k connections try to enter
+
+Only 500 handled immediately (Tomcat threads)
+
+1000 queued
+
+Others may wait or fail
+
+If Redis works:
+✔ Very fast responses
+✔ DB almost untouched
+
+If Redis fails:
+❌ Massive DB pressure
+❌ Hikari pool exhausted
+❌ 500 errors
+
+4️⃣ What Each Component Is Doing
+🔵 k6
+
+Creates virtual users
+
+Opens TCP connections
+
+Sends HTTP GET
+
+Measures:
+
+response time
+
+failures
+
+throughput
+
+🟢 Tomcat Thread Pool
+
+Handles request concurrency.
+
+Important settings:
+
+server.tomcat.threads.max=500
+server.tomcat.accept-count=1000
+
+Working:
+
+Each request → assigned a worker thread
+
+If no threads available → request waits in queue
+
+🔴 Redis
+
+Stores serialized List<User>
+
+Key format:
+
+users::SimpleKey[]
+
+Tracks:
+
+keyspace_hits
+keyspace_misses
+
+High hits = healthy cache
+
+🛢 MySQL
+
+Only used on:
+
+First request
+
+Cache expiration
+
+Cache failure
+
+HikariCP controls connection pool:
+
+maximum-pool-size=50
+
+If 50 connections busy → others wait
+
+5️⃣ How Each Scenario Sends Requests (Internally)
+
+Your k6 executor:
+
+executor: 'per-vu-iterations'
+
+This means:
+
+Each VU runs once
+
+All VUs start almost simultaneously
+
+It simulates burst traffic
+
+If you change executor to:
+
+constant-vus
+
+Keeps fixed number of users for duration.
+
+ramping-vus
+
+Gradually increases load.
+
+Example:
+
+stages: [
+  { duration: '30s', target: 1000 },
+  { duration: '30s', target: 5000 },
+]
+
+This simulates real-world scaling.
+
+6️⃣ How To Verify Everything Is Working
+✅ Check Redis
+redis-cli info stats
+
+Look for:
+
+keyspace_hits: HIGH
+keyspace_misses: LOW
+✅ Check MySQL
+SHOW PROCESSLIST;
+
+Should be low activity after warmup.
+
+✅ Check Application Logs
+
+You should NOT see:
+
+HikariPool exhausted
+
+Timeout exceptions
+
+Redis connection failures
+
+7️⃣ Expected Performance Behavior
+
+If optimized correctly:
+
+Phase	Response Time	DB Usage	Redis Usage
+Warmup	Medium	Medium	Low
+Medium	Fast	Low	High
+10k Burst	Fast (if threads enough)	Very Low	Very High
+8️⃣ Most Important Concept
+🔥 Without Redis:
+
+10,000 requests = 10,000 DB queries → Crash risk
+
+🔥 With Redis:
+
+10,000 requests = 1 DB query + 9,999 Redis reads → Stable system
+
+9️⃣ What You Are Actually Testing
+
+You are measuring:
+
+Thread pool capacity
+
+Redis cache efficiency
+
+DB connection pool limits
+
+OS file descriptor limits
+
+Network stack limits
+
+🔟 Final Internal Summary
+
+When you run:
+
+k6 run burst10k.js
+
+This happens:
+
+10k HTTP connections created
+
+Tomcat assigns threads
+
+Spring cache interceptor checks Redis
+
+First request hits DB
+
+Redis stores result
+
+Remaining requests served from cache
+
+k6 collects metrics
+
+You analyze CPU, DB, Redis stats
