@@ -1,0 +1,202 @@
+1️⃣ What is k6?
+
+k6 is an open-source load testing tool used to test APIs and microservices.
+
+It helps you:
+
+Simulate many virtual users (VUs)
+
+Test performance under load
+
+Measure response time, throughput, and failures
+
+Detect bottlenecks before production
+
+How k6 works
+
+You write a JavaScript test script
+
+It sends HTTP requests to your API
+
+It runs concurrent virtual users
+
+It collects metrics (latency, error rate, etc.)
+
+Example k6 test for Spring Boot API
+import http from 'k6/http';
+import { check } from 'k6';
+
+export default function () {
+  let res = http.get('http://localhost:8080/api/users/1');
+
+  check(res, {
+    'status is 200': (r) => r.status === 200,
+  });
+}
+
+Then run:
+
+k6 run script.js
+2️⃣ What is Spring Boot?
+
+Spring Boot is a Java framework used to build REST APIs and microservices easily.
+
+It provides:
+
+Embedded server (Tomcat)
+
+Auto-configuration
+
+Dependency injection
+
+Database integration (JPA, Hibernate)
+
+Caching support
+
+3️⃣ How Spring Boot API Flow Works
+
+Typical request flow:
+
+Client (k6)
+   ↓
+Controller
+   ↓
+Service
+   ↓
+Repository
+   ↓
+Database
+
+Example:
+
+@GetMapping("/users/{id}")
+public User getUser(@PathVariable Long id) {
+    return userService.getUserById(id);
+}
+public User getUserById(Long id) {
+    return userRepository.findById(id).orElseThrow();
+}
+
+Each call usually triggers a database query.
+
+4️⃣ How to Avoid Querying Database Again (Caching)
+
+If data was already requested, you can store it in memory using caching.
+
+Spring Boot supports caching via:
+
+In-memory cache (ConcurrentHashMap)
+
+Caffeine
+
+EhCache
+
+Redis (distributed)
+
+Hazelcast
+
+✅ Option 1: Simple Spring Cache (Easy Way)
+Step 1: Enable Caching
+@SpringBootApplication
+@EnableCaching
+public class Application {
+}
+Step 2: Add @Cacheable
+@Cacheable("users")
+public User getUserById(Long id) {
+    return userRepository.findById(id).orElseThrow();
+}
+What Happens?
+
+First request:
+
+GET /users/1
+→ DB Query runs
+→ Result stored in cache
+
+Second request:
+
+GET /users/1
+→ Returned from cache
+→ NO DB query
+
+This is exactly what you want:
+✔ If already called → return internally
+✔ If not → fetch from DB
+
+5️⃣ What Happens Under Load (k6 + Caching)
+
+Without cache:
+
+10,000 users
+
+10,000 DB queries
+
+Database becomes bottleneck
+
+With cache:
+
+1 DB query
+
+9,999 served from memory
+
+Huge performance improvement
+
+k6 will clearly show:
+
+Lower response time
+
+Higher throughput
+
+Reduced DB pressure
+
+6️⃣ Internal Data Without Query (Manual In-Memory Example)
+
+If you don’t want full Spring caching, you can manually store data:
+
+private Map<Long, User> userCache = new ConcurrentHashMap<>();
+
+public User getUserById(Long id) {
+    if (userCache.containsKey(id)) {
+        return userCache.get(id);
+    }
+
+    User user = userRepository.findById(id).orElseThrow();
+    userCache.put(id, user);
+    return user;
+}
+
+This works but is:
+
+Not scalable across multiple servers
+
+Lost on restart
+
+7️⃣ Best Practice for Production
+
+If you have multiple instances:
+
+Use:
+
+Redis (distributed cache)
+
+Or Hazelcast cluster
+
+Because:
+
+All instances share the same cache
+
+Works in Kubernetes / cloud
+
+8️⃣ Summary
+Component	Role
+k6	Simulates traffic & load
+Spring Boot	Builds REST API
+Controller	Handles request
+Service	Business logic
+Repository	Database access
+Cache	Avoids repeated DB calls
+🚀 Simple Architecture with Cache
+k6 → Spring Boot → Cache → DB
+                     ↑
+              Returns if exists
