@@ -1,5 +1,6 @@
 package com.example.Databases_System_Design_08.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,5 +29,6 @@ public class ParkingSpot {
     private Boolean isAvailable;
 
     @OneToMany(mappedBy = "spot")
+    @JsonManagedReference(value = "spot-ticket")
     private List<Ticket> tickets;
 }

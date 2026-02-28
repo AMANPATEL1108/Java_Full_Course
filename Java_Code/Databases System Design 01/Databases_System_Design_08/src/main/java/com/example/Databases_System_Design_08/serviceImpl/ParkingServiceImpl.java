@@ -55,8 +55,8 @@ public class ParkingServiceImpl implements ParkingService {
         Ticket ticket = ticketRepository.findById(ticketId)
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
 
-        if ("PAID".equals(ticket.getStatus())) {
-            throw new RuntimeException("Already paid");
+        if (!"PAID".equals(ticket.getStatus())) {
+            throw new RuntimeException("You can not Exit Without Pay");
         }
 
         LocalDateTime exitTime = LocalDateTime.now();
