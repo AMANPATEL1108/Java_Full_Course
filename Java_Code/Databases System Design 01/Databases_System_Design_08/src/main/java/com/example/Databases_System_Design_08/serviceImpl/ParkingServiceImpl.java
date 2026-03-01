@@ -56,20 +56,36 @@ public class ParkingServiceImpl implements ParkingService {
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
 
         if (!"PAID".equals(ticket.getStatus())) {
-            throw new RuntimeException("You can not Exit Without Pay");
+            throw new RuntimeException("Without payment you cannot exit");
         }
 
-        LocalDateTime exitTime = LocalDateTime.now();
-        long hours = Duration.between(ticket.getEntryTime(), exitTime).toHours();
+        ticket.setExitTime(LocalDateTime.now());
+        ticket.setStatus("COMPLETED");
+
+        spotRepository.freeSpot(ticket.getSpot().getId());
+
+        return ticketRepository.save(ticket);
+    }
+
+    @Override
+    @Transactional
+    public Ticket pay(Long ticketId) {
+
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new RuntimeException("Ticket not found"));
+
+        if (!"ACTIVE".equals(ticket.getStatus())) {
+            throw new RuntimeException("Payment already completed or invalid ticket");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        long hours = Duration.between(ticket.getEntryTime(), now).toHours();
         if (hours == 0) hours = 1;
 
         double amount = hours * 20.0;
 
-        ticket.setExitTime(exitTime);
         ticket.setAmount(amount);
         ticket.setStatus("PAID");
-
-        spotRepository.freeSpot(ticket.getSpot().getId());
 
         return ticketRepository.save(ticket);
     }

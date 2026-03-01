@@ -25,4 +25,10 @@ public class ParkingLotController {
 
         return parkingService.exitVehicle(ticketId);
     }
+
+    @PostMapping("/pay/{ticketId}")
+    public Ticket pay(@PathVariable Long ticketId) {
+
+        return parkingService.pay(ticketId);
+    }
 }

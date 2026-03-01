@@ -6,4 +6,6 @@ public interface ParkingService {
     Ticket parkVehicle(String plateNumber, String vehicleType);
 
     Ticket exitVehicle(Long ticketId);
+
+    Ticket pay(Long ticketId);
 }
