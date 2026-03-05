@@ -8,7 +8,7 @@ import java.util.Date;
 @Component
 public class JwtUtil {
 
-    private final String SECRET_KEY = "KBSDHBKLKAJSH$%^&^I*&AS&(@WHS*T&B^$ESF&G^UNIOYQ%@#SDF&G^UY$#CEF&^GB";
+    private final String SECRET_KEY = "BookMyShowSecretKeyForJwtTokenGenerationAndValidation2024";
 
     public String generateToken(String username) {
 
