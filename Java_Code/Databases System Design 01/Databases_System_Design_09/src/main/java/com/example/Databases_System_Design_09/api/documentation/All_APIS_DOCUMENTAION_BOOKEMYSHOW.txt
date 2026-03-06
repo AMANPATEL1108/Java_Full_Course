@@ -1,0 +1,217 @@
+Step 1 — Register User
+POST http://localhost:8080/auth/register
+json{
+  "name": "ABC Patil",
+  "email": "abcpatil@gmail.com",
+  "password": "password123",
+  "phone": "9876543210"
+}
+Save the token from response.
+
+Step 2 — Login
+POST http://localhost:8080/auth/login
+json{
+  "email": "abcpatil@gmail.com",
+  "password": "password123"
+}
+
+Step 3 — Register Admin User
+POST http://localhost:8080/auth/register
+json{
+  "name": "Admin User",
+  "email": "admin@gmail.com",
+  "password": "admin123",
+  "phone": "9999999999"
+}
+
+⚠️ After this, manually update role in MySQL:
+
+sqlUPDATE users SET role = 'ADMIN' WHERE email = 'admin@gmail.com';
+Then login as admin and save admin token.
+POST http://localhost:8080/auth/login
+json{
+  "email": "admin@gmail.com",
+  "password": "admin123"
+}
+```
+
+---
+
+## ✅ For all requests below — Set Header:
+```
+Key:   Authorization
+Value: Bearer <paste_admin_token_here>
+
+Step 4 — Create Theatre (ADMIN)
+POST http://localhost:8080/theatres
+json{
+  "name": "PVR Cinemas",
+  "city": "Mumbai",
+  "address": "Phoenix Mall, Lower Parel, Mumbai"
+}
+Save id from response (theatreId = 1)
+
+Step 5 — Create Screen (ADMIN)
+POST http://localhost:8080/screens
+json{
+  "name": "Screen 1",
+  "totalSeats": 10,
+  "theatreId": 1
+}
+Save id from response (screenId = 1)
+
+Step 6 — Create Seats (ADMIN)
+Run this 10 times changing seatNumber each time:
+POST http://localhost:8080/seats
+json{
+  "seatNumber": "A1",
+  "seatType": "STANDARD",
+  "screenId": 1
+}
+json{
+  "seatNumber": "A2",
+  "seatType": "STANDARD",
+  "screenId": 1
+}
+json{
+  "seatNumber": "A3",
+  "seatType": "PREMIUM",
+  "screenId": 1
+}
+json{
+  "seatNumber": "A4",
+  "seatType": "PREMIUM",
+  "screenId": 1
+}
+json{
+  "seatNumber": "B1",
+  "seatType": "VIP",
+  "screenId": 1
+}
+Save seat IDs from responses (seatId = 1, 2, 3, 4, 5...)
+
+Step 7 — Create Movie (ADMIN)
+POST http://localhost:8080/movies
+json{
+  "title": "Avengers: Endgame",
+  "description": "The Avengers assemble one last time to defeat Thanos.",
+  "duration": 181,
+  "language": "English",
+  "genre": "Action",
+  "releaseDate": "2024-05-01"
+}
+Save id from response (movieId = 1)
+
+Step 8 — Create Show (ADMIN)
+POST http://localhost:8080/shows
+json{
+  "movieId": 1,
+  "screenId": 1,
+  "startTime": "2026-06-01T14:00:00",
+  "endTime": "2026-06-01T17:01:00",
+  "price": 250.00
+}
+Save id from response (showId = 1)
+
+Step 9 — Check Available Seats (USER token)
+Switch to user token now.
+GET http://localhost:8080/shows/1/seats
+Header: Authorization: Bearer <user_token>
+Expected response:
+json{
+  "success": true,
+  "message": "Seat availability fetched",
+  "data": [
+    { "seatId": 1, "seatNumber": "A1", "seatType": "STANDARD", "available": true, "price": 250.0 },
+    { "seatId": 2, "seatNumber": "A2", "seatType": "STANDARD", "available": true, "price": 250.0 },
+    { "seatId": 3, "seatNumber": "A3", "seatType": "PREMIUM", "available": true, "price": 250.0 }
+  ]
+}
+
+Step 10 — Book Tickets (USER token)
+POST http://localhost:8080/bookings
+Header: Authorization: Bearer <user_token>
+json{
+  "userId": 1,
+  "showId": 1,
+  "seatIds": [1, 2, 3],
+  "paymentMethod": "UPI"
+}
+Expected response:
+json{
+  "success": true,
+  "message": "Booking confirmed successfully",
+  "data": {
+    "id": 1,
+    "userName": "ABC Patil",
+    "movieTitle": "Avengers: Endgame",
+    "screenName": "Screen 1",
+    "theatreName": "PVR Cinemas",
+    "showStartTime": "2026-06-01T14:00:00",
+    "seatNumbers": ["A1", "A2", "A3"],
+    "totalPrice": 750.0,
+    "status": "CONFIRMED",
+    "paymentStatus": "SUCCESS"
+  }
+}
+
+Step 11 — Get My Bookings (USER token)
+GET http://localhost:8080/bookings/user/1
+Header: Authorization: Bearer <user_token>
+
+Step 12 — Try Booking Already Booked Seat (should FAIL)
+POST http://localhost:8080/bookings
+json{
+  "userId": 1,
+  "showId": 1,
+  "seatIds": [1],
+  "paymentMethod": "CARD"
+}
+Expected error:
+json{
+  "success": false,
+  "message": "Seat A1 is already booked or locked",
+  "data": null
+}
+```
+
+---
+
+## Step 13 — Cancel Booking (USER token)
+
+**PATCH** `http://localhost:8080/bookings/1/cancel`
+
+Header: `Authorization: Bearer <user_token>`
+
+---
+
+## Step 14 — Other GET APIs (Public, no token needed)
+```
+GET http://localhost:8080/movies
+GET http://localhost:8080/movies/1
+GET http://localhost:8080/theatres
+GET http://localhost:8080/theatres/1
+GET http://localhost:8080/shows/movie/1
+GET http://localhost:8080/shows/theatre/1
+GET http://localhost:8080/screens/theatre/1
+GET http://localhost:8080/seats/screen/1
+
+Step 15 — Test Validation Errors (no token)
+POST http://localhost:8080/auth/register with bad data:
+json{
+  "name": "",
+  "email": "not-an-email",
+  "password": "123",
+  "phone": "12345"
+}
+Expected:
+json{
+  "success": false,
+  "message": "Validation failed",
+  "data": {
+    "name": "Name is required",
+    "email": "Invalid email format",
+    "password": "Password must be at least 6 characters",
+    "phone": "Phone must be 10 digits"
+  }
+}
