@@ -1,66 +1,62 @@
 package com.example.Databases_System_Design_010.controller;
 
-
 import com.example.Databases_System_Design_010.dto.request.ExpenseRequest;
 import com.example.Databases_System_Design_010.dto.response.ApiResponse;
 import com.example.Databases_System_Design_010.dto.response.ExpenseResponse;
+import com.example.Databases_System_Design_010.entity.User;
 import com.example.Databases_System_Design_010.service.ExpenseService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/expenses")
+@RequestMapping("/api/expenses")
+@RequiredArgsConstructor
 public class ExpenseController {
 
     private final ExpenseService expenseService;
 
-    public ExpenseController(ExpenseService expenseService) {
-        this.expenseService = expenseService;
-    }
-
-    // POST /expenses
+    // POST /api/expenses
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<ExpenseResponse>> addExpense(@Valid @RequestBody ExpenseRequest request) {
-        // TODO: implement
-        return null;
+    public ResponseEntity<ApiResponse<ExpenseResponse>> addExpense(
+            @Valid @RequestBody ExpenseRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        ExpenseResponse response = expenseService.addExpense(request, currentUser);
+        return ResponseEntity.ok(ApiResponse.success("Expense added successfully", response));
     }
 
-    // GET /expenses/{id}
-    @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<ExpenseResponse>> getExpenseById(@PathVariable Long id) {
-        // TODO: implement
-        return null;
+    // GET /api/expenses/{expenseUuid}
+    @GetMapping("/{expenseUuid}")
+    public ResponseEntity<ApiResponse<ExpenseResponse>> getExpenseByUuid(@PathVariable UUID expenseUuid) {
+        ExpenseResponse response = expenseService.getExpenseByUuid(expenseUuid);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // GET /expenses/group/{groupId}
-    @GetMapping("/group/{groupId}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<ExpenseResponse>>> getExpensesByGroup(@PathVariable Long groupId) {
-        // TODO: implement
-        return null;
+    // GET /api/expenses/group/{groupUuid}
+    @GetMapping("/group/{groupUuid}")
+    public ResponseEntity<ApiResponse<List<ExpenseResponse>>> getExpensesByGroup(@PathVariable UUID groupUuid) {
+        List<ExpenseResponse> expenses = expenseService.getExpensesByGroup(groupUuid);
+        return ResponseEntity.ok(ApiResponse.success(expenses));
     }
 
-    // GET /expenses/user/{userId}
-    @GetMapping("/user/{userId}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<ExpenseResponse>>> getExpensesByUser(@PathVariable Long userId) {
-        // TODO: implement
-        return null;
+    // GET /api/expenses/user/{userUuid}
+    @GetMapping("/user/{userUuid}")
+    public ResponseEntity<ApiResponse<List<ExpenseResponse>>> getExpensesByUser(@PathVariable UUID userUuid) {
+        List<ExpenseResponse> expenses = expenseService.getExpensesByUser(userUuid);
+        return ResponseEntity.ok(ApiResponse.success(expenses));
     }
 
-    // DELETE /expenses/{id}?requestedByUserId=1
-    @DeleteMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
+    // DELETE /api/expenses/{expenseUuid}
+    @DeleteMapping("/{expenseUuid}")
     public ResponseEntity<ApiResponse<Void>> deleteExpense(
-            @PathVariable Long id,
-            @RequestParam Long requestedByUserId) {
-        // TODO: implement
-        return null;
+            @PathVariable UUID expenseUuid,
+            @AuthenticationPrincipal User currentUser) {
+        expenseService.deleteExpense(expenseUuid, currentUser);
+        return ResponseEntity.ok(ApiResponse.success("Expense deleted successfully", null));
     }
 }

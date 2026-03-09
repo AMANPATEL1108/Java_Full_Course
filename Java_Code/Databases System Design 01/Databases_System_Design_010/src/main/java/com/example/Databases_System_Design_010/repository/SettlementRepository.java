@@ -8,12 +8,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface SettlementRepository extends JpaRepository<Settlement, Long> {
+    Optional<Settlement> findByUuid(UUID uuid);
     List<Settlement> findByGroup(Group group);
     List<Settlement> findByPayer(User payer);
     List<Settlement> findByReceiver(User receiver);
+    List<Settlement> findByPayerOrReceiver(User payer, User receiver);
     List<Settlement> findByPayerAndStatus(User payer, SettlementStatus status);
-    List<Settlement> findByPayerAndReceiverAndGroup(User payer, User receiver, Group group);
 }

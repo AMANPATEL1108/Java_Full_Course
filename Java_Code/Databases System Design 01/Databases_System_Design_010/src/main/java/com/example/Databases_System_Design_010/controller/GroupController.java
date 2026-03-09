@@ -1,81 +1,77 @@
 package com.example.Databases_System_Design_010.controller;
 
-
 import com.example.Databases_System_Design_010.dto.request.AddMemberRequest;
 import com.example.Databases_System_Design_010.dto.request.GroupRequest;
 import com.example.Databases_System_Design_010.dto.response.ApiResponse;
 import com.example.Databases_System_Design_010.dto.response.GroupResponse;
+import com.example.Databases_System_Design_010.entity.User;
 import com.example.Databases_System_Design_010.service.GroupService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("/api/groups")
+@RequiredArgsConstructor
 public class GroupController {
 
     private final GroupService groupService;
 
-    public GroupController(GroupService groupService) {
-        this.groupService = groupService;
-    }
-
-    // POST /groups?userId=1
+    // POST /api/groups
     @PostMapping
-    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<GroupResponse>> createGroup(
             @Valid @RequestBody GroupRequest request,
-            @RequestParam Long userId) {
-        // TODO: implement
-        return null;
+            @AuthenticationPrincipal User currentUser) {
+        GroupResponse response = groupService.createGroup(request, currentUser);
+        return ResponseEntity.ok(ApiResponse.success("Group created successfully", response));
     }
 
-    // GET /groups/{id}
-    @GetMapping("/{id}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<GroupResponse>> getGroupById(@PathVariable Long id) {
-        // TODO: implement
-        return null;
+    // GET /api/groups/{groupUuid}
+    @GetMapping("/{groupUuid}")
+    public ResponseEntity<ApiResponse<GroupResponse>> getGroupByUuid(@PathVariable UUID groupUuid) {
+        GroupResponse response = groupService.getGroupByUuid(groupUuid);
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 
-    // GET /groups/user/{userId}
-    @GetMapping("/user/{userId}")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<GroupResponse>>> getAllGroupsForUser(@PathVariable Long userId) {
-        // TODO: implement
-        return null;
+    // GET /api/groups/my  — groups where current user is a member
+    @GetMapping("/my")
+    public ResponseEntity<ApiResponse<List<GroupResponse>>> getMyGroups(
+            @AuthenticationPrincipal User currentUser) {
+        List<GroupResponse> groups = groupService.getAllGroupsForUser(currentUser);
+        return ResponseEntity.ok(ApiResponse.success(groups));
     }
 
-    // POST /groups/{groupId}/members
-    @PostMapping("/{groupId}/members")
-    @PreAuthorize("isAuthenticated()")
+    // POST /api/groups/{groupUuid}/members
+    @PostMapping("/{groupUuid}/members")
     public ResponseEntity<ApiResponse<GroupResponse>> addMember(
-            @PathVariable Long groupId,
-            @Valid @RequestBody AddMemberRequest request) {
-        // TODO: implement
-        return null;
+            @PathVariable UUID groupUuid,
+            @Valid @RequestBody AddMemberRequest request,
+            @AuthenticationPrincipal User currentUser) {
+        GroupResponse response = groupService.addMember(groupUuid, request, currentUser);
+        return ResponseEntity.ok(ApiResponse.success("Member added successfully", response));
     }
 
-    // DELETE /groups/{groupId}/members/{userId}
-    @DeleteMapping("/{groupId}/members/{userId}")
-    @PreAuthorize("isAuthenticated()")
+    // DELETE /api/groups/{groupUuid}/members/{userUuid}
+    @DeleteMapping("/{groupUuid}/members/{userUuid}")
     public ResponseEntity<ApiResponse<Void>> removeMember(
-            @PathVariable Long groupId,
-            @PathVariable Long userId) {
-        // TODO: implement
-        return null;
+            @PathVariable UUID groupUuid,
+            @PathVariable UUID userUuid,
+            @AuthenticationPrincipal User currentUser) {
+        groupService.removeMember(groupUuid, userUuid, currentUser);
+        return ResponseEntity.ok(ApiResponse.success("Member removed successfully", null));
     }
 
-    // DELETE /groups/{groupId}?requestedByUserId=1
-    @DeleteMapping("/{groupId}")
-    @PreAuthorize("isAuthenticated()")
+    // DELETE /api/groups/{groupUuid}
+    @DeleteMapping("/{groupUuid}")
     public ResponseEntity<ApiResponse<Void>> deleteGroup(
-            @PathVariable Long groupId,
-            @RequestParam Long requestedByUserId) {
-        // TODO: implement
-        return null;
+            @PathVariable UUID groupUuid,
+            @AuthenticationPrincipal User currentUser) {
+        groupService.deleteGroup(groupUuid, currentUser);
+        return ResponseEntity.ok(ApiResponse.success("Group deleted successfully", null));
     }
 }

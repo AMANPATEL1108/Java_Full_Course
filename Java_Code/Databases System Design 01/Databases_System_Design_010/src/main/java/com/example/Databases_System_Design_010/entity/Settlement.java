@@ -1,11 +1,8 @@
 package com.example.Databases_System_Design_010.entity;
 
-
 import com.example.Databases_System_Design_010.enumTypes.SettlementStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
@@ -16,6 +13,7 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class Settlement {
 
     @Id
@@ -26,12 +24,10 @@ public class Settlement {
     @Column(nullable = false, updatable = false, unique = true)
     private UUID uuid;
 
-    // Who is paying
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "payer_id", nullable = false)
     private User payer;
 
-    // Who is receiving
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "receiver_id", nullable = false)
     private User receiver;
@@ -56,6 +52,6 @@ public class Settlement {
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
-        this.status = SettlementStatus.PENDING;
+        if (this.status == null) this.status = SettlementStatus.PENDING;
     }
 }

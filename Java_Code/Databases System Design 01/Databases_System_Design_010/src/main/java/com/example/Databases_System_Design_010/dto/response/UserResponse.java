@@ -11,10 +11,10 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AuthResponse {
-    private String token;
-    private UUID userUuid;
+public class UserResponse {
+    private UUID uuid;
     private String name;
     private String email;
+    private String phone;
     private String role;
 }

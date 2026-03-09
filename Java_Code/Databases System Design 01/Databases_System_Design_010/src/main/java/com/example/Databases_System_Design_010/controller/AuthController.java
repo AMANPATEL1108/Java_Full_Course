@@ -1,34 +1,33 @@
 package com.example.Databases_System_Design_010.controller;
 
-
 import com.example.Databases_System_Design_010.dto.request.LoginRequest;
 import com.example.Databases_System_Design_010.dto.request.RegisterRequest;
 import com.example.Databases_System_Design_010.dto.response.ApiResponse;
 import com.example.Databases_System_Design_010.dto.response.AuthResponse;
 import com.example.Databases_System_Design_010.service.AuthService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
-
+    // POST /api/auth/register
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
-        // TODO: implement
-        return null;
+        AuthResponse response = authService.register(request);
+        return ResponseEntity.ok(ApiResponse.success("Registration successful", response));
     }
 
+    // POST /api/auth/login
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
-        // TODO: implement
-        return null;
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(ApiResponse.success("Login successful", response));
     }
 }

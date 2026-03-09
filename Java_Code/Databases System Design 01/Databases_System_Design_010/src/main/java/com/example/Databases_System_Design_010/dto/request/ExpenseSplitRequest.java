@@ -3,15 +3,15 @@ package com.example.Databases_System_Design_010.dto.request;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 public class ExpenseSplitRequest {
 
-    @NotNull(message = "User ID is required")
-    private Long userId;
+    @NotNull(message = "User UUID is required")
+    private UUID userUuid;
 
-    // For EXACT split — exact amount this user owes
     private Double exactAmount;
 
-    // For PERCENTAGE split — percentage share
     private Double percentage;
 }

@@ -1,7 +1,7 @@
 package com.example.Databases_System_Design_010.dto.response;
 
-
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,25 +12,27 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class ExpenseResponse {
-    private Long id;
     private UUID uuid;
     private String description;
     private Double amount;
     private String category;
     private String splitType;
-    private String paidByName;
-    private String paidByEmail;
+    private UUID groupUuid;
     private String groupName;
+    private UUID paidByUuid;
+    private String paidByName;
     private LocalDateTime createdAt;
     private List<SplitDetail> splits;
 
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
+    @Builder
     public static class SplitDetail {
+        private UUID userUuid;
         private String userName;
-        private String userEmail;
         private Double shareAmount;
         private Double sharePercentage;
         private Boolean settled;

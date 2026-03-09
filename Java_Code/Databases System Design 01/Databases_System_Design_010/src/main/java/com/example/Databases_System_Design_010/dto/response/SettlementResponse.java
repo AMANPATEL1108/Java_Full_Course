@@ -1,6 +1,7 @@
 package com.example.Databases_System_Design_010.dto.response;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,18 +11,19 @@ import java.util.UUID;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 public class SettlementResponse {
-    private Long id;
     private UUID uuid;
+    private UUID payerUuid;
     private String payerName;
-    private String payerEmail;
+    private UUID receiverUuid;
     private String receiverName;
-    private String receiverEmail;
+    private UUID groupUuid;
     private String groupName;
     private Double amount;
     private String status;
     private String paymentMethod;
     private String transactionRef;
-    private LocalDateTime createdAt;
     private LocalDateTime settledAt;
+    private LocalDateTime createdAt;
 }

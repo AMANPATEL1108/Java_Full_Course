@@ -1,10 +1,14 @@
 package com.example.Databases_System_Design_010.dto.request;
 
-
-import jakarta.validation.constraints.*;
+import com.example.Databases_System_Design_010.enumTypes.ExpenseCategory;
+import com.example.Databases_System_Design_010.enumTypes.SplitType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 public class ExpenseRequest {
@@ -13,22 +17,21 @@ public class ExpenseRequest {
     private String description;
 
     @NotNull(message = "Amount is required")
-    @DecimalMin(value = "0.01", message = "Amount must be greater than 0")
+    @Positive(message = "Amount must be positive")
     private Double amount;
 
-    @NotBlank(message = "Category is required")
-    private String category;      // FOOD, TRAVEL, RENT, SHOPPING, ENTERTAINMENT, OTHER
+    @NotNull(message = "Category is required")
+    private ExpenseCategory category;
 
-    @NotBlank(message = "Split type is required")
-    private String splitType;     // EQUAL, EXACT, PERCENTAGE
+    @NotNull(message = "Split type is required")
+    private SplitType splitType;
 
-    @NotNull(message = "Group ID is required")
-    private Long groupId;
+    @NotNull(message = "Group UUID is required")
+    private UUID groupUuid;
 
-    @NotNull(message = "Paid by user ID is required")
-    private Long paidByUserId;
+    @NotNull(message = "Paid by user UUID is required")
+    private UUID paidByUserUuid;
 
-    // Required for EXACT and PERCENTAGE split types
-    // For EQUAL split this can be null — auto split among all group members
+    // Required only for EXACT and PERCENTAGE split types
     private List<ExpenseSplitRequest> splits;
 }

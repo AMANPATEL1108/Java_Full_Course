@@ -1,0 +1,248 @@
+🚀 STEP 1 — Register 3 Users
+Register Alice:
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Alice Sharma",
+  "email": "alice@example.com",
+  "password": "alice123",
+  "phone": "9876543210"
+}
+Register Bob:
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Bob Patel",
+  "email": "bob@example.com",
+  "password": "bob123",
+  "phone": "9123456780"
+}
+Register Charlie:
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Charlie Singh",
+  "email": "charlie@example.com",
+  "password": "charlie123",
+  "phone": "9012345678"
+}
+
+🔑 STEP 2 — Login (do all 3, save tokens)
+Login Alice:
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "alice@example.com",
+  "password": "alice123"
+}
+Login Bob:
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "bob@example.com",
+  "password": "bob123"
+}
+Login Charlie:
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "charlie@example.com",
+  "password": "charlie123"
+}
+
+From each login response, save: data.token and data.userUuid
+You'll get 3 tokens and 3 UUIDs. Call them ALICE_TOKEN, BOB_UUID, CHARLIE_UUID etc.
+
+
+👤 STEP 3 — Verify Profile (paste Alice's token)
+GET http://localhost:8080/api/users/me
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+
+👥 STEP 4 — Create Group (as Alice)
+POST http://localhost:8080/api/groups
+Content-Type: application/json
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+
+{
+  "name": "Goa Trip 2025",
+  "description": "Trip expenses for Goa vacation"
+}
+
+From response save: data.uuid → call it GROUP_UUID
+
+
+➕ STEP 5 — Add Members (as Alice, paste GROUP_UUID)
+Add Bob:
+POST http://localhost:8080/api/groups/PASTE_GROUP_UUID_HERE/members
+Content-Type: application/json
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+
+{
+  "userUuid": "PASTE_BOB_UUID_HERE"
+}
+Add Charlie:
+POST http://localhost:8080/api/groups/PASTE_GROUP_UUID_HERE/members
+Content-Type: application/json
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+
+{
+  "userUuid": "PASTE_CHARLIE_UUID_HERE"
+}
+
+💰 STEP 6 — Get My Groups (verify 3 members)
+GET http://localhost:8080/api/groups/my
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+GET http://localhost:8080/api/groups/PASTE_GROUP_UUID_HERE
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+
+🧾 STEP 7 — Add Expenses
+Expense 1 — EQUAL split, Alice paid hotel ₹3000:
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+
+{
+  "description": "Hotel booking",
+  "amount": 3000.00,
+  "category": "TRAVEL",
+  "splitType": "EQUAL",
+  "groupUuid": "PASTE_GROUP_UUID_HERE",
+  "paidByUserUuid": "PASTE_ALICE_UUID_HERE"
+}
+
+Save data.uuid → EXPENSE1_UUID
+
+Expense 2 — EXACT split, Bob paid dinner ₹1500:
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+Authorization: Bearer PASTE_BOB_TOKEN_HERE
+
+{
+  "description": "Dinner at beach shack",
+  "amount": 1500.00,
+  "category": "FOOD",
+  "splitType": "EXACT",
+  "groupUuid": "PASTE_GROUP_UUID_HERE",
+  "paidByUserUuid": "PASTE_BOB_UUID_HERE",
+  "splits": [
+    { "userUuid": "PASTE_ALICE_UUID_HERE", "exactAmount": 600.00 },
+    { "userUuid": "PASTE_BOB_UUID_HERE",   "exactAmount": 500.00 },
+    { "userUuid": "PASTE_CHARLIE_UUID_HERE", "exactAmount": 400.00 }
+  ]
+}
+Expense 3 — PERCENTAGE split, Charlie paid car ₹4000:
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+Authorization: Bearer PASTE_CHARLIE_TOKEN_HERE
+
+{
+  "description": "Car rental",
+  "amount": 4000.00,
+  "category": "TRAVEL",
+  "splitType": "PERCENTAGE",
+  "groupUuid": "PASTE_GROUP_UUID_HERE",
+  "paidByUserUuid": "PASTE_CHARLIE_UUID_HERE",
+  "splits": [
+    { "userUuid": "PASTE_ALICE_UUID_HERE",   "percentage": 40.0 },
+    { "userUuid": "PASTE_BOB_UUID_HERE",     "percentage": 35.0 },
+    { "userUuid": "PASTE_CHARLIE_UUID_HERE", "percentage": 25.0 }
+  ]
+}
+
+📊 STEP 8 — Check Balances
+Group balance as Alice:
+GET http://localhost:8080/api/balances/group/PASTE_GROUP_UUID_HERE
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+Group balance as Bob:
+GET http://localhost:8080/api/balances/group/PASTE_GROUP_UUID_HERE
+Authorization: Bearer PASTE_BOB_TOKEN_HERE
+Overall balance (Alice across all groups):
+GET http://localhost:8080/api/balances/overall
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+
+💸 STEP 9 — Settle Up (Bob pays Alice)
+POST http://localhost:8080/api/settlements
+Content-Type: application/json
+Authorization: Bearer PASTE_BOB_TOKEN_HERE
+
+{
+  "payerUuid": "PASTE_BOB_UUID_HERE",
+  "receiverUuid": "PASTE_ALICE_UUID_HERE",
+  "groupUuid": "PASTE_GROUP_UUID_HERE",
+  "amount": 1400.00,
+  "paymentMethod": "UPI",
+  "transactionRef": "UPI/TXN/20250115/999888"
+}
+
+Save data.uuid → SETTLEMENT_UUID
+
+
+🔍 STEP 10 — Verify Everything
+Get single expense:
+GET http://localhost:8080/api/expenses/PASTE_EXPENSE1_UUID_HERE
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+All expenses in group:
+GET http://localhost:8080/api/expenses/group/PASTE_GROUP_UUID_HERE
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+All settlements in group:
+GET http://localhost:8080/api/settlements/group/PASTE_GROUP_UUID_HERE
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+Bob's settlement history:
+GET http://localhost:8080/api/settlements/user/PASTE_BOB_UUID_HERE
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+Balance after settlement (should show Bob's debt reduced):
+GET http://localhost:8080/api/balances/group/PASTE_GROUP_UUID_HERE
+Authorization: Bearer PASTE_BOB_TOKEN_HERE
+
+❌ STEP 11 — Test Error Cases
+Duplicate email (should get 400):
+POST http://localhost:8080/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Fake Alice",
+  "email": "alice@example.com",
+  "password": "test123"
+}
+No token (should get 401):
+GET http://localhost:8080/api/groups/my
+Bob tries to add member — not creator (should get 403):
+POST http://localhost:8080/api/groups/PASTE_GROUP_UUID_HERE/members
+Content-Type: application/json
+Authorization: Bearer PASTE_BOB_TOKEN_HERE
+
+{
+  "userUuid": "PASTE_ALICE_UUID_HERE"
+}
+Bad PERCENTAGE split (should get 400):
+POST http://localhost:8080/api/expenses
+Content-Type: application/json
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+
+{
+  "description": "Bad split test",
+  "amount": 1000.00,
+  "category": "OTHER",
+  "splitType": "PERCENTAGE",
+  "groupUuid": "PASTE_GROUP_UUID_HERE",
+  "paidByUserUuid": "PASTE_ALICE_UUID_HERE",
+  "splits": [
+    { "userUuid": "PASTE_ALICE_UUID_HERE", "percentage": 60.0 },
+    { "userUuid": "PASTE_BOB_UUID_HERE",   "percentage": 60.0 }
+  ]
+}
+Wrong UUID (should get 404):
+GET http://localhost:8080/api/groups/00000000-0000-0000-0000-000000000000
+Authorization: Bearer PASTE_ALICE_TOKEN_HERE
+
+Only 3 things you need to paste manually after running the requests:
+
+Tokens → from each login response data.token
+UUIDs of users → from each register/login response data.userUuid
+Group UUID → from create group response data.uuid
