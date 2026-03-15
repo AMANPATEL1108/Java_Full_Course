@@ -1,4 +1,4 @@
-public class DatOneEightySeven {
+public class DayOneEightySeven {
     public static void main(String[] args) {
         System.out.println(titleToNumber("ZY"));
     }
