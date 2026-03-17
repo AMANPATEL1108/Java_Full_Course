@@ -1,0 +1,368 @@
+I’ll explain Scalability basics in a very simple way. No prior knowledge assumed. We’ll cover:
+
+What is Scalability
+
+Latency vs Throughput
+
+CAP Theorem
+
+Small Java examples (only where useful)
+
+1. What is Scalability?
+
+Scalability = Ability of a system to handle more users/work without breaking.
+
+Example:
+Imagine a food stall 🍔
+
+10 customers → 1 cook works fine
+
+100 customers → system becomes slow
+
+If you add more cooks, system handles more customers
+
+That ability to handle increasing load is Scalability.
+
+Two types of Scaling
+1. Vertical Scaling
+
+Increase power of one machine.
+
+Example:
+
+More RAM
+
+Faster CPU
+
+Bigger server
+
+Example:
+
+Before:
+Server
+RAM: 8GB
+
+After:
+Server
+RAM: 64GB
+
+Problem:
+
+Expensive
+
+Has a limit
+
+2. Horizontal Scaling
+
+Add more machines instead of making one bigger.
+
+Example:
+
+Before:
+1 Server
+
+After:
+Server 1
+Server 2
+Server 3
+Server 4
+
+Requests are distributed using Load Balancer.
+
+This is used by:
+
+Google
+
+Netflix
+
+Amazon
+
+2. Latency vs Throughput
+
+These are very important in system design.
+
+Latency
+
+Latency = Time taken for ONE request to get response
+
+Example:
+
+You open a website.
+
+Time taken:
+
+Request → Server → Response
+
+If it takes 100 ms
+
+Latency = 100 ms
+
+Example analogy:
+
+You order pizza 🍕
+
+Time from ordering → pizza delivered.
+
+That is latency.
+
+Throughput
+
+Throughput = Number of requests handled per second
+
+Example:
+
+Server handles:
+
+1000 requests / second
+
+That means:
+
+Throughput = 1000 RPS
+
+(RPS = Requests Per Second)
+
+Difference
+Concept	Meaning
+Latency	How fast 1 request finishes
+Throughput	How many requests system handles
+
+Example:
+
+Restaurant 🍽
+
+Situation	Meaning
+Food takes 5 minutes	High latency
+100 people served per hour	Throughput
+Trade-off
+
+Sometimes improving one reduces the other.
+
+Example:
+
+Batch processing.
+
+Process 100 requests together.
+
+Result:
+
+Latency ↑
+Throughput ↑
+Simple Java Example (Latency)
+public class LatencyExample {
+
+    public static void main(String[] args) throws Exception {
+
+        long start = System.currentTimeMillis();
+
+        Thread.sleep(200); // simulate work
+
+        long end = System.currentTimeMillis();
+
+        System.out.println("Latency: " + (end - start) + " ms");
+    }
+}
+
+Output:
+
+Latency: 200 ms
+Throughput Example
+
+If a server processes:
+
+1000 requests in 1 second
+
+Throughput = 1000 RPS
+
+3. CAP Theorem
+
+CAP theorem is a fundamental rule of distributed systems.
+
+Proposed by:
+Eric Brewer
+
+CAP means:
+
+C → Consistency
+A → Availability
+P → Partition Tolerance
+
+A distributed system cannot guarantee all three at the same time.
+
+You can only choose 2 out of 3.
+
+1. Consistency (C)
+
+All users see same data at same time.
+
+Example:
+
+You update bank balance:
+
+Balance = 1000 → 500
+
+Every server shows 500 immediately.
+
+2. Availability (A)
+
+System always responds.
+
+Even if some servers fail.
+
+Example:
+
+You request data:
+
+Server always replies:
+
+Success or Error
+
+But it never hangs.
+
+3. Partition Tolerance (P)
+
+System continues working even if network breaks between servers.
+
+Example:
+
+Server A  ---X---  Server B
+
+Network failure happened.
+
+System still works.
+
+This is partition tolerance.
+
+Why Partition Happens?
+
+Because servers are in different locations:
+
+Example:
+
+India
+USA
+Europe
+
+Network failure can happen.
+
+CAP Rule
+
+When partition happens you must choose:
+
+Consistency
+OR
+Availability
+
+Not both.
+
+Example Systems
+CP Systems
+
+Prefer Consistency + Partition tolerance
+
+Example:
+
+Apache HBase
+
+MongoDB (configurable)
+
+Behavior:
+
+If data is inconsistent → system may reject request.
+
+AP Systems
+
+Prefer Availability + Partition tolerance
+
+Example:
+
+Apache Cassandra
+
+Amazon DynamoDB
+
+Behavior:
+
+System always responds.
+
+But data may be slightly outdated.
+
+Example
+
+Imagine Instagram likes ❤️
+
+Two servers:
+
+Server A
+Server B
+
+User likes post.
+
+Network breaks.
+
+Server B still shows:
+
+100 likes
+
+Server A shows:
+
+101 likes
+
+Later they sync.
+
+This is called:
+
+Eventual Consistency
+
+Visual
+        CAP
+
+      Consistency
+        /   \
+       /     \
+Partition --- Availability
+
+You must sacrifice one.
+
+Real System Design Choice
+
+Most big systems choose:
+
+AP
+
+Because availability is critical.
+
+Example companies:
+
+Netflix
+
+Amazon
+
+Better to show slightly old data than crash.
+
+Super Simple Summary
+Scalability
+
+Ability to handle more load.
+
+Two types:
+
+Vertical scaling
+Horizontal scaling
+Latency
+Time for one request
+
+Example:
+
+100 ms
+Throughput
+Requests per second
+
+Example:
+
+5000 RPS
+CAP Theorem
+
+Distributed system can only guarantee 2 of 3:
+
+Consistency
+Availability
+Partition tolerance
