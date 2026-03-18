@@ -1,0 +1,317 @@
+1. Load Balancer
+What Problem Does It Solve?
+
+Imagine you have 1 server and 1 million users.
+
+Users → Server
+
+That server will become very slow or crash.
+
+Solution → Add multiple servers
+
+Users → ??? → Server1
+               Server2
+               Server3
+
+We need something to distribute requests.
+
+That is a Load Balancer.
+
+Definition
+
+A Load Balancer distributes incoming requests across multiple servers so that no single server gets overloaded.
+
+Simple Architecture
+           Users
+             |
+             |
+        Load Balancer
+         /     |     \
+        /      |      \
+   Server1  Server2  Server3
+
+Steps:
+
+User sends request
+
+Request goes to Load Balancer
+
+Load Balancer chooses a server
+
+Server responds
+
+Example in Real Life
+
+Imagine a bank counter.
+
+Customers → Queue manager → Counter1
+                               Counter2
+                               Counter3
+
+Queue manager = Load Balancer
+
+Load Balancing Algorithms
+
+Different ways to distribute requests.
+
+1. Round Robin
+
+Requests go one by one to each server.
+
+Example:
+
+Request1 → Server1
+Request2 → Server2
+Request3 → Server3
+Request4 → Server1
+Request5 → Server2
+
+Simple and commonly used.
+
+2. Least Connections
+
+Request goes to server with least active connections.
+
+Example:
+
+Server1 → 10 users
+Server2 → 2 users
+Server3 → 5 users
+
+New request → Server2
+
+Because it has lowest load.
+
+3. IP Hash
+
+Server chosen based on user IP address.
+
+Example:
+
+hash(IP) % servers
+
+Benefit:
+
+Same user → same server.
+
+Useful for sessions.
+
+Types of Load Balancers
+1. Hardware Load Balancer
+
+Physical device.
+
+Example companies:
+
+F5 Networks
+
+Citrix
+
+Very expensive.
+
+2. Software Load Balancer
+
+Software running on servers.
+
+Popular ones:
+
+NGINX
+
+HAProxy
+
+Apache HTTP Server
+
+Used in most modern systems.
+
+Simple Example (Java Concept)
+
+Imagine we randomly send request to servers.
+
+import java.util.Random;
+
+public class LoadBalancerExample {
+
+    static String[] servers = {
+        "Server1",
+        "Server2",
+        "Server3"
+    };
+
+    public static void main(String[] args) {
+
+        Random random = new Random();
+
+        int index = random.nextInt(servers.length);
+
+        System.out.println("Request sent to: " + servers[index]);
+    }
+}
+
+This is a very simplified load balancing idea.
+
+Why Load Balancers Are Important
+
+Benefits:
+
+✅ Prevent server overload
+✅ Increase availability
+✅ Improve performance
+✅ Enable horizontal scaling
+
+2. CDN (Content Delivery Network)
+
+CDN solves latency problems for static content.
+
+Problem Without CDN
+
+Suppose server is in USA.
+
+User in India requests image.
+
+India User → Internet → USA Server
+
+Distance is large → high latency.
+
+CDN Solution
+
+Store copies of content in multiple locations worldwide.
+
+These locations are called Edge Servers.
+
+        CDN Network
+
+ India User → India Edge Server
+ USA User   → USA Edge Server
+ Europe User → Europe Edge Server
+
+User gets data from nearest server.
+
+Result:
+
+⚡ Faster loading.
+
+Example CDN Providers
+
+Popular CDNs:
+
+Cloudflare
+
+Akamai Technologies
+
+Amazon Web Services (CloudFront)
+
+Fastly
+
+CDN Architecture
+                Origin Server
+                      |
+               CDN Network
+        /          |           \
+ Edge Server   Edge Server   Edge Server
+   (India)       (Europe)       (USA)
+        \          |           /
+               Users
+What Content CDN Stores
+
+CDNs mostly store static content.
+
+Examples:
+
+Images
+
+Videos
+
+CSS files
+
+JavaScript files
+
+Fonts
+
+Example websites using CDN:
+
+Netflix
+
+Facebook
+
+YouTube
+
+Example
+
+Without CDN:
+
+User → USA Server → Image
+Latency: 500 ms
+
+With CDN:
+
+User → Nearby Edge Server → Image
+Latency: 30 ms
+
+Huge performance improvement.
+
+CDN Request Flow
+
+Step-by-step:
+
+User requests image
+
+Request goes to CDN
+
+CDN checks edge cache
+
+If cached:
+
+Edge Server → User
+
+If not cached:
+
+Edge Server → Origin Server
+Origin Server → Edge Server → User
+
+Edge server stores copy for future users.
+
+Load Balancer vs CDN
+Feature	Load Balancer	CDN
+Purpose	Distribute requests	Reduce latency
+Works with	Servers	Global edge servers
+Handles	Dynamic requests	Static content
+Example	API requests	Images, videos
+Real World Architecture
+
+Modern websites combine both.
+
+Example:
+
+Users
+   |
+   |
+  CDN
+   |
+Load Balancer
+   |
+Backend Servers
+   |
+Database
+
+This is used by:
+
+Amazon
+
+Netflix
+
+Google
+
+Super Short Summary
+Load Balancer
+
+Distributes traffic across servers.
+
+User → Load Balancer → Servers
+CDN
+
+Stores content near users.
+
+User → Nearest Edge Server
+
+✅ Load balancer → scalability
+✅ CDN → low latency
