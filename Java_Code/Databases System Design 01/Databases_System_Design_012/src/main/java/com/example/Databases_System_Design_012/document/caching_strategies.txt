@@ -1,0 +1,163 @@
+🔹 1. Cache-Aside (Lazy Loading)
+
+How it works:
+
+App checks cache first
+
+If cache hit → return data
+
+If cache miss → fetch from DB, store in cache, return
+
+Pros:
+
+Simple and widely used
+
+Cache only stores needed data
+
+Cons:
+
+First request is slow (cache miss)
+
+Risk of stale data
+
+Best for: Read-heavy applications
+
+🔹 2. Write-Through Cache
+
+How it works:
+
+Data is written to cache and database simultaneously
+
+Pros:
+
+Cache is always up-to-date
+
+No stale reads
+
+Cons:
+
+Higher write latency
+
+Unnecessary cache writes
+
+Best for: Systems needing strong consistency
+
+🔹 3. Write-Back (Write-Behind)
+
+How it works:
+
+Data written to cache first
+
+Cache updates DB asynchronously
+
+Pros:
+
+Very fast writes
+
+Reduced DB load
+
+Cons:
+
+Risk of data loss (if cache crashes)
+
+Complex to implement
+
+Best for: High-write systems (e.g., logging, analytics)
+
+🔹 4. Read-Through Cache
+
+How it works:
+
+Cache itself fetches data from DB on miss
+
+Pros:
+
+Simplifies application logic
+
+Centralized caching
+
+Cons:
+
+Less control
+
+Requires cache layer support
+
+🔹 5. Refresh-Ahead (Proactive Caching)
+
+How it works:
+
+Cache refreshes data before it expires
+
+Pros:
+
+Reduces latency spikes
+
+Keeps hot data fresh
+
+Cons:
+
+May refresh unused data
+
+More resource usage
+
+🔹 6. Write-Around Cache
+
+How it works:
+
+Writes go directly to DB
+
+Cache updated only on read
+
+Pros:
+
+Avoids polluting cache with unused data
+
+Cons:
+
+Read-after-write is slow
+
+🔹 7. Cache Eviction Policies
+
+When cache is full, data must be removed:
+
+LRU (Least Recently Used) → remove least used item
+
+LFU (Least Frequently Used) → remove least accessed
+
+FIFO (First In First Out)
+
+TTL (Time To Live) → expire after time
+
+🔹 8. Distributed Caching
+
+Used in large systems across multiple servers.
+
+Examples:
+
+Redis
+
+Memcached
+
+Benefits:
+
+Scales horizontally
+
+Shared cache across services
+
+🔹 9. CDN (Content Delivery Network) Caching
+
+Caches static assets closer to users.
+
+Examples:
+
+Cloudflare
+
+Akamai
+
+🔹 When to Use Which?
+Scenario	Strategy
+Read-heavy app	Cache-aside
+Strong consistency needed	Write-through
+High write performance	Write-back
+Avoid cache pollution	Write-around
+Low latency critical	Refresh-ahead
