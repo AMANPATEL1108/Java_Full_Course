@@ -1,0 +1,68 @@
+📄 URL Entity Documentation
+📌 Overview
+
+The Url entity represents a shortened URL record in the system. It is designed for a URL shortening service where long URLs are mapped to unique short codes and tracked for usage statistics.
+
+This class is mapped to the urls table in the database using JPA (Jakarta Persistence API).
+
+🏗️ Class Details
+@Entity
+@Table(name = "urls")
+public class Url
+@Entity: Marks this class as a JPA entity.
+@Table(name = "urls"): Maps the entity to the urls table in the database.
+🔑 Fields Description
+1. id
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+Type: Long
+Description: Primary key of the URL record.
+Behavior: Auto-generated using database identity strategy.
+2. originalUrl
+@Column(nullable = false, length = 2048)
+private String originalUrl;
+Type: String
+Description: Stores the full original URL provided by the user.
+Constraints:
+Cannot be null
+Maximum length: 2048 characters
+3. shortCode
+@Column(nullable = false, unique = true)
+private String shortCode;
+Type: String
+Description: Unique identifier used to generate the shortened URL.
+Constraints:
+Cannot be null
+Must be unique across all records
+4. clickCount
+private Long clickCount = 0L;
+Type: Long
+Default Value: 0
+Description: Tracks the number of times the shortened URL has been accessed.
+5. createdAt
+private LocalDateTime createdAt = LocalDateTime.now();
+Type: LocalDateTime
+Default Value: Current timestamp at object creation
+Description: Records when the URL entry was created.
+⚙️ Lombok Annotations
+
+The class uses Lombok to reduce boilerplate code:
+
+@Data: Generates getters, setters, toString(), equals(), and hashCode().
+@NoArgsConstructor: Generates a no-argument constructor.
+@AllArgsConstructor: Generates a constructor with all fields.
+🗄️ Database Schema Representation
+Column Name	Data Type	Constraints
+id	BIGINT	Primary Key, Auto Increment
+original_url	VARCHAR(2048)	NOT NULL
+short_code	VARCHAR	NOT NULL, UNIQUE
+click_count	BIGINT	Default: 0
+created_at	TIMESTAMP	Default: Current Time
+🔄 Typical Workflow
+User submits a long URL.
+System generates a unique shortCode.
+A new Url entity is created and stored.
+When the short URL is accessed:
+clickCount is incremented.
+User is redirected to originalUrl.
