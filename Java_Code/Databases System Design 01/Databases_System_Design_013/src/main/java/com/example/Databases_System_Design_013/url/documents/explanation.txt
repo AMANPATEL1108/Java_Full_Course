@@ -12,6 +12,7 @@ public class Url
 @Entity: Marks this class as a JPA entity.
 @Table(name = "urls"): Maps the entity to the urls table in the database.
 🔑 Fields Description
+
 1. id
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,6 +20,7 @@ private Long id;
 Type: Long
 Description: Primary key of the URL record.
 Behavior: Auto-generated using database identity strategy.
+
 2. originalUrl
 @Column(nullable = false, length = 2048)
 private String originalUrl;
@@ -27,6 +29,7 @@ Description: Stores the full original URL provided by the user.
 Constraints:
 Cannot be null
 Maximum length: 2048 characters
+
 3. shortCode
 @Column(nullable = false, unique = true)
 private String shortCode;
@@ -35,11 +38,13 @@ Description: Unique identifier used to generate the shortened URL.
 Constraints:
 Cannot be null
 Must be unique across all records
+
 4. clickCount
 private Long clickCount = 0L;
 Type: Long
 Default Value: 0
 Description: Tracks the number of times the shortened URL has been accessed.
+
 5. createdAt
 private LocalDateTime createdAt = LocalDateTime.now();
 Type: LocalDateTime
