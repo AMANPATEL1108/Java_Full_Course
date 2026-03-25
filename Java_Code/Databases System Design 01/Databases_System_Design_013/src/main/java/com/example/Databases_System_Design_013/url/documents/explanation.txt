@@ -71,3 +71,49 @@ A new Url entity is created and stored.
 When the short URL is accessed:
 clickCount is incremented.
 User is redirected to originalUrl.
+
+
+
+Rate Limiter Design
+🎯 Goal
+
+Limit number of requests per user/IP:
+
+Example: 100 requests per minute per user
+🧠 Why Rate Limiting?
+Prevent abuse / DDoS
+Ensure fair usage
+Protect backend systems
+⚙️ Common Algorithms
+1. Fixed Window Counter
+Count requests per time window
+Reset every minute
+
+✅ Simple
+❌ Burst problem at window edges
+
+2. Sliding Window Log
+Store timestamps of each request
+Remove old ones
+
+✅ Accurate
+❌ Memory heavy
+
+3. Sliding Window Counter (Optimized)
+Combines fixed windows
+Uses weighted counts
+
+✅ Balanced approach
+
+4. Token Bucket ⭐ (Most Popular)
+Tokens added at fixed rate
+Each request consumes 1 token
+
+✅ Allows bursts
+✅ Smooth traffic
+
+5. Leaky Bucket
+Requests processed at constant rate
+
+✅ Smooth output
+❌ Drops bursts
