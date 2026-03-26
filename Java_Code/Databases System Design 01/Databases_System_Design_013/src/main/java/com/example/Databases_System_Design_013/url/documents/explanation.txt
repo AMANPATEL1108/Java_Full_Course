@@ -2,7 +2,6 @@
 📌 Overview
 
 The Url entity represents a shortened URL record in the system. It is designed for a URL shortening service where long URLs are mapped to unique short codes and tracked for usage statistics.
-
 This class is mapped to the urls table in the database using JPA (Jakarta Persistence API).
 
 🏗️ Class Details
@@ -71,7 +70,6 @@ A new Url entity is created and stored.
 When the short URL is accessed:
 clickCount is incremented.
 User is redirected to originalUrl.
-
 
 
 Rate Limiter Design
