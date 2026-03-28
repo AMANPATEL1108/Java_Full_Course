@@ -1,0 +1,242 @@
+# Netflix API Reference — localhost:8080
+
+Base URL: `http://localhost:8080/api/v1`
+
+---
+
+## USER MODULE
+
+| Method | URL | Description | Body Required |
+|--------|-----|-------------|---------------|
+| POST   | /users | Register new user | Yes |
+| GET    | /users | Get all users | No |
+| GET    | /users/{id} | Get user by ID | No |
+| GET    | /users/email/{email} | Get user by email | No |
+| GET    | /users/active | Get active users | No |
+| GET    | /users/role/{role} | Get users by role (USER/ADMIN) | No |
+| PUT    | /users/{id} | Update user | Yes |
+| PATCH  | /users/{id}/deactivate | Deactivate user | No |
+| DELETE | /users/{id} | Delete user | No |
+
+### POST /users — Request
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "password": "secret123",
+  "phone": "9876543210"
+}
+```
+
+### POST /users — Response 201
+```json
+{
+  "id": 1,
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "phone": "9876543210",
+  "role": "USER",
+  "isActive": true,
+  "createdAt": "2026-03-26T10:00:00"
+}
+```
+
+---
+
+## CONTENT MODULE
+
+| Method | URL | Description | Body Required |
+|--------|-----|-------------|---------------|
+| POST   | /contents | Add content | Yes |
+| GET    | /contents | Get all content | No |
+| GET    | /contents/{id} | Get by ID | No |
+| GET    | /contents/available | Get available content | No |
+| GET    | /contents/type/{type} | Filter by type (MOVIE/SERIES/DOCUMENTARY/SHORT) | No |
+| GET    | /contents/genre/{genre} | Filter by genre | No |
+| GET    | /contents/search?title= | Search by title | No |
+| GET    | /contents/top-rated?minRating=4.0 | Top rated content | No |
+| GET    | /contents/most-watched | Most watched content | No |
+| PUT    | /contents/{id} | Update content | Yes |
+| PATCH  | /contents/{id}/view | Increment view count | No |
+| PATCH  | /contents/{id}/toggle-availability | Toggle on/off | No |
+| DELETE | /contents/{id} | Delete content | No |
+
+### POST /contents — Request
+```json
+{
+  "title": "Stranger Things",
+  "description": "Kids uncover supernatural mysteries in Hawkins.",
+  "contentType": "SERIES",
+  "genre": "SCI_FI",
+  "maturityRating": "TV-14",
+  "releaseYear": 2016,
+  "releaseDate": "2016-07-15",
+  "totalSeasons": 4,
+  "totalEpisodes": 34,
+  "thumbnailUrl": "https://cdn.example.com/st.jpg",
+  "trailerUrl": "https://cdn.example.com/st-trailer.mp4",
+  "streamUrl": "https://cdn.example.com/st-stream"
+}
+```
+
+### POST /contents — Response 201
+```json
+{
+  "id": 1,
+  "title": "Stranger Things",
+  "contentType": "SERIES",
+  "genre": "SCI_FI",
+  "maturityRating": "TV-14",
+  "releaseYear": 2016,
+  "totalSeasons": 4,
+  "totalEpisodes": 34,
+  "averageRating": 0.0,
+  "viewCount": 0,
+  "isAvailable": true,
+  "createdAt": "2026-03-26T10:00:00"
+}
+```
+
+#### Content type enum values
+`MOVIE | SERIES | DOCUMENTARY | SHORT`
+
+#### Genre enum values
+`ACTION | COMEDY | DRAMA | HORROR | THRILLER | ROMANCE | SCI_FI | ANIMATION | CRIME | FANTASY | MYSTERY | BIOGRAPHY | SPORTS | MUSICAL`
+
+---
+
+## SUBSCRIPTION MODULE
+
+| Method | URL | Description | Body Required |
+|--------|-----|-------------|---------------|
+| POST   | /subscriptions | Create subscription | Yes |
+| GET    | /subscriptions | Get all subscriptions | No |
+| GET    | /subscriptions/{id} | Get by ID | No |
+| GET    | /subscriptions/user/{userId} | All subscriptions for user | No |
+| GET    | /subscriptions/user/{userId}/active | Active subscription for user | No |
+| GET    | /subscriptions/status/{status} | Filter by status | No |
+| GET    | /subscriptions/expired | Get expired subscriptions | No |
+| PATCH  | /subscriptions/{id}/cancel | Cancel | No |
+| PATCH  | /subscriptions/{id}/pause | Pause | No |
+| PATCH  | /subscriptions/{id}/resume | Resume | No |
+
+### POST /subscriptions — Request
+```json
+{
+  "userId": 1,
+  "planType": "PREMIUM",
+  "billingCycle": "MONTHLY"
+}
+```
+
+### POST /subscriptions — Response 201
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "userFullName": "John Doe",
+  "planType": "PREMIUM",
+  "billingCycle": "MONTHLY",
+  "price": 18.99,
+  "startDate": "2026-03-26",
+  "endDate": "2026-04-26",
+  "status": "ACTIVE",
+  "maxScreens": 4,
+  "isHD": true,
+  "is4K": true,
+  "createdAt": "2026-03-26T10:00:00"
+}
+```
+
+#### Plan pricing (auto-calculated)
+| Plan     | Monthly | Annual |
+|----------|---------|--------|
+| BASIC    | $6.99   | $59.99 |
+| STANDARD | $12.99  | $119.99|
+| PREMIUM  | $18.99  | $179.99|
+
+#### Status enum values
+`ACTIVE | EXPIRED | CANCELLED | PAUSED`
+
+---
+
+## WATCHLIST MODULE
+
+| Method | URL | Description | Body Required |
+|--------|-----|-------------|---------------|
+| POST   | /watchlist/user/{userId}/content/{contentId} | Add to watchlist | No |
+| GET    | /watchlist/user/{userId} | Get user's watchlist | No |
+| GET    | /watchlist/user/{userId}/content/{contentId}/check | Check if in watchlist | No |
+| DELETE | /watchlist/user/{userId}/content/{contentId} | Remove from watchlist | No |
+| DELETE | /watchlist/user/{userId}/clear | Clear entire watchlist | No |
+
+### POST /watchlist/user/1/content/1 — Response 201
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "contentId": 1,
+  "contentTitle": "Stranger Things",
+  "contentType": "SERIES",
+  "thumbnailUrl": "https://cdn.example.com/st.jpg",
+  "addedAt": "2026-03-26T10:30:00"
+}
+```
+
+---
+
+## REVIEW MODULE
+
+| Method | URL | Description | Body Required |
+|--------|-----|-------------|---------------|
+| POST   | /reviews | Add review | Yes |
+| GET    | /reviews/{id} | Get by ID | No |
+| GET    | /reviews/content/{contentId} | All reviews for content | No |
+| GET    | /reviews/user/{userId} | All reviews by user | No |
+| GET    | /reviews/content/{contentId}/average | Average rating | No |
+| PUT    | /reviews/{id} | Update review | Yes |
+| DELETE | /reviews/{id} | Delete review | No |
+
+### POST /reviews — Request
+```json
+{
+  "userId": 1,
+  "contentId": 1,
+  "rating": 5,
+  "comment": "Absolutely incredible show!"
+}
+```
+
+### POST /reviews — Response 201
+```json
+{
+  "id": 1,
+  "userId": 1,
+  "userFullName": "John Doe",
+  "contentId": 1,
+  "contentTitle": "Stranger Things",
+  "rating": 5,
+  "comment": "Absolutely incredible show!",
+  "createdAt": "2026-03-26T11:00:00"
+}
+```
+
+### GET /reviews/content/{contentId}/average — Response 200
+```json
+4.6
+```
+
+---
+
+## Quick test order
+
+1. POST /users — create a user
+2. POST /contents — add a movie or series
+3. POST /subscriptions — subscribe the user
+4. PATCH /contents/{id}/view — register a view
+5. POST /watchlist/user/{userId}/content/{contentId} — add to watchlist
+6. GET /watchlist/user/{userId} — verify watchlist
+7. POST /reviews — leave a review
+8. GET /reviews/content/{contentId}/average — check average rating
+9. GET /contents/top-rated — see top-rated content
+10. PATCH /subscriptions/{id}/cancel — cancel subscription
