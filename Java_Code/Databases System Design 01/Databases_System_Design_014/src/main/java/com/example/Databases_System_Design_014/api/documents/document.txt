@@ -240,3 +240,216 @@ Base URL: `http://localhost:8080/api/v1`
 8. GET /reviews/content/{contentId}/average — check average rating
 9. GET /contents/top-rated — see top-rated content
 10. PATCH /subscriptions/{id}/cancel — cancel subscription
+
+
+
+
+-------------------------------------
+
+
+
+Full URL
+http://localhost:8080/api/v1/watchlist/watchlist/user/{userId}
+Parameters
+Name	In	Type	Required	Description
+userId	path	Long	required	User ID
+Request body
+No body required
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "contentTitle": "Stranger Things",
+    "contentType": "SERIES",
+    "addedAt": "2026-03-26T10:30:00"
+  },
+  {
+    "id": 2,
+    "contentTitle": "Inception",
+    "contentType": "MOVIE",
+    "addedAt": "2026-03-25T08:00:00"
+  }
+]
+GET
+/watchlist/user/{userId}/content/{contentId}/check
+Check if content is in watchlist
+Full URL
+http://localhost:8080/api/v1/watchlist/watchlist/user/{userId}/content/{contentId}/check
+Parameters
+Name	In	Type	Required	Description
+userId	path	Long	required	User ID
+contentId	path	Long	required	Content ID
+Request body
+No body required
+Response 200 OK
+Copy
+true
+DELETE
+/watchlist/user/{userId}/content/{contentId}
+Remove content from watchlist
+Full URL
+http://localhost:8080/api/v1/watchlist/watchlist/user/{userId}/content/{contentId}
+Parameters
+Name	In	Type	Required	Description
+userId	path	Long	required	User ID
+contentId	path	Long	required	Content ID
+Request body
+No body required
+Response 204 No Content
+No response body
+DELETE
+/watchlist/user/{userId}/clear
+Clear entire watchlist
+Full URL
+http://localhost:8080/api/v1/watchlist/watchlist/user/{userId}/clear
+Parameters
+Name	In	Type	Required	Description
+userId	path	Long	required	User ID
+Request body
+No body required
+Response 204 No Content
+No response body
+POST
+/reviews
+Add a review for content
+Full URL
+http://localhost:8080/api/v1/review/reviews
+Request body (JSON)
+Copy
+{
+  "userId": 1,
+  "contentId": 1,
+  "rating": 5,
+  "comment": "Absolutely incredible show!"
+}
+Response 201 Created
+Copy
+{
+  "id": 1,
+  "userId": 1,
+  "userFullName": "John Doe",
+  "contentId": 1,
+  "contentTitle": "Stranger Things",
+  "rating": 5,
+  "comment": "Absolutely incredible show!",
+  "createdAt": "2026-03-26T11:00:00"
+}
+GET
+/reviews/{id}
+Get review by ID
+Full URL
+http://localhost:8080/api/v1/review/reviews/{id}
+Parameters
+Name	In	Type	Required	Description
+id	path	Long	required	Review ID
+Request body
+No body required
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "userFullName": "John Doe",
+  "contentTitle": "Stranger Things",
+  "rating": 5,
+  "comment": "Absolutely incredible show!"
+}
+GET
+/reviews/content/{contentId}
+Get all reviews for content
+Full URL
+http://localhost:8080/api/v1/review/reviews/content/{contentId}
+Parameters
+Name	In	Type	Required	Description
+contentId	path	Long	required	Content ID
+Request body
+No body required
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "userFullName": "John Doe",
+    "rating": 5,
+    "comment": "Incredible!"
+  },
+  {
+    "id": 2,
+    "userFullName": "Jane Smith",
+    "rating": 4,
+    "comment": "Very good."
+  }
+]
+GET
+/reviews/user/{userId}
+Get all reviews by user
+Full URL
+http://localhost:8080/api/v1/review/reviews/user/{userId}
+Parameters
+Name	In	Type	Required	Description
+userId	path	Long	required	User ID
+Request body
+No body required
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "contentTitle": "Stranger Things",
+    "rating": 5
+  },
+  {
+    "id": 3,
+    "contentTitle": "Inception",
+    "rating": 4
+  }
+]
+GET
+/reviews/content/{contentId}/average
+Get average rating for content
+Full URL
+http://localhost:8080/api/v1/review/reviews/content/{contentId}/average
+Parameters
+Name	In	Type	Required	Description
+contentId	path	Long	required	Content ID
+Request body
+No body required
+Response 200 OK
+Copy
+4.6
+PUT
+/reviews/{id}
+Update a review
+Full URL
+http://localhost:8080/api/v1/review/reviews/{id}
+Parameters
+Name	In	Type	Required	Description
+id	path	Long	required	Review ID
+Request body (JSON)
+Copy
+{
+  "userId": 1,
+  "contentId": 1,
+  "rating": 4,
+  "comment": "Still great but season 4 was slower."
+}
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "rating": 4,
+  "comment": "Still great but season 4 was slower.",
+  "createdAt": "2026-03-26T11:00:00"
+}
+DELETE
+/reviews/{id}
+Delete a review
+Full URL
+http://localhost:8080/api/v1/review/reviews/{id}
+Parameters
+Name	In	Type	Required	Description
+id	path	Long	required	Review ID
+Request body
+No body required
+Response 204 No Content
+No response body
