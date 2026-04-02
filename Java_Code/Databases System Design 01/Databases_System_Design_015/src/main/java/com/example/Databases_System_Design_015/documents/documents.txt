@@ -1,0 +1,940 @@
+All
+Users
+Tweets
+Follow
+Likes
+Comments
+Hashtags
+POST
+/users
+Register new user
+Full URL
+http://localhost:8080/api/v1/users/users
+Request body (JSON)
+Copy
+{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "secret123",
+  "displayName": "John Doe",
+  "bio": "Hello world!",
+  "location": "Mumbai, India",
+  "website": "https://johndoe.com"
+}
+Response 201 Created
+Copy
+{
+  "id": 1,
+  "username": "johndoe",
+  "email": "john@example.com",
+  "displayName": "John Doe",
+  "bio": "Hello world!",
+  "profilePictureUrl": null,
+  "location": "Mumbai, India",
+  "website": "https://johndoe.com",
+  "isVerified": false,
+  "isActive": true,
+  "followersCount": 0,
+  "followingCount": 0,
+  "tweetsCount": 0,
+  "createdAt": "2026-03-30T10:00:00"
+}
+GET
+/users
+Get all users
+Full URL
+http://localhost:8080/api/v1/users/users
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "username": "johndoe",
+    "displayName": "John Doe",
+    "followersCount": 120,
+    "tweetsCount": 45
+  }
+]
+GET
+/users/{id}
+Get user by ID
+Full URL
+http://localhost:8080/api/v1/users/users/{id}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "username": "johndoe",
+  "email": "john@example.com",
+  "displayName": "John Doe",
+  "bio": "Hello world!",
+  "isVerified": false,
+  "followersCount": 120,
+  "followingCount": 80,
+  "tweetsCount": 45
+}
+GET
+/users/username/{username}
+Get user by username
+Full URL
+http://localhost:8080/api/v1/users/users/username/{username}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "username": "johndoe",
+  "displayName": "John Doe",
+  "isVerified": false,
+  "followersCount": 120
+}
+GET
+/users/search?keyword=john
+Search users by name/username
+Full URL
+http://localhost:8080/api/v1/users/users/search?keyword=john
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "username": "johndoe",
+    "displayName": "John Doe"
+  },
+  {
+    "id": 3,
+    "username": "johnny99",
+    "displayName": "Johnny"
+  }
+]
+GET
+/users/top
+Top users by followers
+Full URL
+http://localhost:8080/api/v1/users/users/top
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 5,
+    "username": "elonmusk",
+    "displayName": "Elon Musk",
+    "followersCount": 180000000
+  },
+  {
+    "id": 1,
+    "username": "johndoe",
+    "followersCount": 120
+  }
+]
+PUT
+/users/{id}
+Update user profile
+Full URL
+http://localhost:8080/api/v1/users/users/{id}
+Request body (JSON)
+Copy
+{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "newpass",
+  "displayName": "John D.",
+  "bio": "Updated bio",
+  "location": "Delhi",
+  "website": "https://john.dev"
+}
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "username": "johndoe",
+  "displayName": "John D.",
+  "bio": "Updated bio",
+  "location": "Delhi"
+}
+PATCH
+/users/{id}/deactivate
+Deactivate user account
+Full URL
+http://localhost:8080/api/v1/users/users/{id}/deactivate
+Request body
+No body required — path/query params only
+Response 204 No Content
+No response body
+DELETE
+/users/{id}
+Delete user permanently
+Full URL
+http://localhost:8080/api/v1/users/users/{id}
+Request body
+No body required — path/query params only
+Response 204 No Content
+No response body
+POST
+/tweets
+Create a new tweet
+Full URL
+http://localhost:8080/api/v1/tweets/tweets
+Request body (JSON)
+Copy
+{
+  "userId": 1,
+  "content": "Hello Twitter! #hello #firsttweet",
+  "mediaUrl": null,
+  "tweetType": "ORIGINAL",
+  "parentTweetId": null
+}
+Response 201 Created
+Copy
+{
+  "id": 1,
+  "userId": 1,
+  "username": "johndoe",
+  "userDisplayName": "John Doe",
+  "content": "Hello Twitter! #hello #firsttweet",
+  "tweetType": "ORIGINAL",
+  "likesCount": 0,
+  "retweetsCount": 0,
+  "commentsCount": 0,
+  "viewsCount": 0,
+  "isActive": true,
+  "createdAt": "2026-03-30T10:05:00"
+}
+POST
+/tweets
+Retweet an existing tweet
+Full URL
+http://localhost:8080/api/v1/tweets/tweets
+Request body (JSON)
+Copy
+{
+  "userId": 2,
+  "content": "RT: Amazing post!",
+  "tweetType": "RETWEET",
+  "parentTweetId": 1
+}
+Response 201 Created
+Copy
+{
+  "id": 2,
+  "userId": 2,
+  "username": "janedoe",
+  "tweetType": "RETWEET",
+  "parentTweetId": 1,
+  "retweetsCount": 0
+}
+POST
+/tweets
+Reply to a tweet
+Full URL
+http://localhost:8080/api/v1/tweets/tweets
+Request body (JSON)
+Copy
+{
+  "userId": 2,
+  "content": "Great tweet @johndoe!",
+  "tweetType": "REPLY",
+  "parentTweetId": 1
+}
+Response 201 Created
+Copy
+{
+  "id": 3,
+  "userId": 2,
+  "content": "Great tweet @johndoe!",
+  "tweetType": "REPLY",
+  "parentTweetId": 1
+}
+GET
+/tweets
+Get all tweets
+Full URL
+http://localhost:8080/api/v1/tweets/tweets
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "username": "johndoe",
+    "content": "Hello Twitter!",
+    "likesCount": 5,
+    "viewsCount": 120
+  }
+]
+GET
+/tweets/{id}
+Get tweet by ID
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/{id}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "userId": 1,
+  "username": "johndoe",
+  "content": "Hello Twitter! #hello #firsttweet",
+  "likesCount": 12,
+  "retweetsCount": 3,
+  "commentsCount": 2,
+  "viewsCount": 200,
+  "createdAt": "2026-03-30T10:05:00"
+}
+GET
+/tweets/user/{userId}
+Get all tweets by user
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/user/{userId}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "content": "Hello Twitter!",
+    "createdAt": "2026-03-30T10:05:00"
+  },
+  {
+    "id": 4,
+    "content": "Second tweet",
+    "createdAt": "2026-03-30T11:00:00"
+  }
+]
+GET
+/tweets/latest
+Get latest tweets (home feed)
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/latest
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 5,
+    "username": "janedoe",
+    "content": "Latest post"
+  },
+  {
+    "id": 4,
+    "username": "johndoe",
+    "content": "Second tweet"
+  }
+]
+GET
+/tweets/trending
+Trending tweets by likes
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/trending
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "content": "Hello Twitter!",
+    "likesCount": 9800
+  },
+  {
+    "id": 2,
+    "content": "Big news!",
+    "likesCount": 7200
+  }
+]
+GET
+/tweets/timeline/{userId}
+Personal timeline (self + following)
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/timeline/{userId}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 5,
+    "username": "janedoe",
+    "content": "Hey!"
+  },
+  {
+    "id": 4,
+    "username": "johndoe",
+    "content": "Second tweet"
+  }
+]
+GET
+/tweets/search?keyword=hello
+Search tweets by keyword
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/search?keyword=hello
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "content": "Hello Twitter! #hello #firsttweet"
+  }
+]
+GET
+/tweets/hashtag/{tag}
+Tweets by hashtag
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/hashtag/{tag}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "content": "Hello Twitter! #hello"
+  },
+  {
+    "id": 7,
+    "content": "Another #hello post"
+  }
+]
+GET
+/tweets/{id}/retweets
+Get retweets of a tweet
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/{id}/retweets
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 2,
+    "username": "janedoe",
+    "tweetType": "RETWEET",
+    "parentTweetId": 1
+  }
+]
+PUT
+/tweets/{id}
+Update tweet content
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/{id}
+Request body (JSON)
+Copy
+{
+  "userId": 1,
+  "content": "Updated: Hello Twitter! #hello",
+  "tweetType": "ORIGINAL"
+}
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "content": "Updated: Hello Twitter! #hello",
+  "isEdited": true
+}
+PATCH
+/tweets/{id}/view
+Increment view count
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/{id}/view
+Request body
+No body required — path/query params only
+Response 204 No Content
+No response body
+DELETE
+/tweets/{id}
+Soft delete tweet
+Full URL
+http://localhost:8080/api/v1/tweets/tweets/{id}
+Request body
+No body required — path/query params only
+Response 204 No Content
+No response body
+POST
+/follows/follow?followerId=1&followingId=2
+Follow a user
+Full URL
+http://localhost:8080/api/v1/follows/follows/follow?followerId=1&followingId=2
+Request body
+No body required — path/query params only
+Response 201 Created
+Copy
+{
+  "id": 1,
+  "followerId": 1,
+  "followerUsername": "johndoe",
+  "followingId": 2,
+  "followingUsername": "janedoe",
+  "followedAt": "2026-03-30T10:10:00"
+}
+DELETE
+/follows/unfollow?followerId=1&followingId=2
+Unfollow a user
+Full URL
+http://localhost:8080/api/v1/follows/follows/unfollow?followerId=1&followingId=2
+Request body
+No body required — path/query params only
+Response 204 No Content
+No response body
+GET
+/follows/check?followerId=1&followingId=2
+Check if following
+Full URL
+http://localhost:8080/api/v1/follows/follows/check?followerId=1&followingId=2
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+true
+GET
+/follows/{userId}/followers
+Get user's followers list
+Full URL
+http://localhost:8080/api/v1/follows/follows/{userId}/followers
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 3,
+    "username": "alice99",
+    "displayName": "Alice",
+    "followersCount": 50
+  },
+  {
+    "id": 4,
+    "username": "bob22",
+    "displayName": "Bob"
+  }
+]
+GET
+/follows/{userId}/following
+Get user's following list
+Full URL
+http://localhost:8080/api/v1/follows/follows/{userId}/following
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 2,
+    "username": "janedoe",
+    "displayName": "Jane Doe",
+    "isVerified": false
+  }
+]
+GET
+/follows/{userId}/followers/count
+Count of followers
+Full URL
+http://localhost:8080/api/v1/follows/follows/{userId}/followers/count
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+120
+GET
+/follows/{userId}/following/count
+Count of following
+Full URL
+http://localhost:8080/api/v1/follows/follows/{userId}/following/count
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+80
+POST
+/likes/like?userId=1&tweetId=1
+Like a tweet
+Full URL
+http://localhost:8080/api/v1/likes/likes/like?userId=1&tweetId=1
+Request body
+No body required — path/query params only
+Response 201 Created
+Copy
+{
+  "id": 1,
+  "userId": 1,
+  "username": "johndoe",
+  "tweetId": 1,
+  "tweetContent": "Hello Twitter!",
+  "likedAt": "2026-03-30T10:15:00"
+}
+DELETE
+/likes/unlike?userId=1&tweetId=1
+Unlike a tweet
+Full URL
+http://localhost:8080/api/v1/likes/likes/unlike?userId=1&tweetId=1
+Request body
+No body required — path/query params only
+Response 204 No Content
+No response body
+GET
+/likes/check?userId=1&tweetId=1
+Check if tweet is liked
+Full URL
+http://localhost:8080/api/v1/likes/likes/check?userId=1&tweetId=1
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+true
+GET
+/likes/tweet/{tweetId}
+All likes on a tweet
+Full URL
+http://localhost:8080/api/v1/likes/likes/tweet/{tweetId}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "userId": 1,
+    "username": "johndoe",
+    "likedAt": "2026-03-30T10:15:00"
+  },
+  {
+    "id": 2,
+    "userId": 3,
+    "username": "alice99",
+    "likedAt": "2026-03-30T10:20:00"
+  }
+]
+GET
+/likes/user/{userId}
+All tweets liked by user
+Full URL
+http://localhost:8080/api/v1/likes/likes/user/{userId}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "tweetId": 1,
+    "tweetContent": "Hello Twitter!",
+    "likedAt": "2026-03-30T10:15:00"
+  }
+]
+GET
+/likes/tweet/{tweetId}/count
+Like count for tweet
+Full URL
+http://localhost:8080/api/v1/likes/likes/tweet/{tweetId}/count
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+12
+POST
+/comments
+Add a comment to tweet
+Full URL
+http://localhost:8080/api/v1/comments/comments
+Request body (JSON)
+Copy
+{
+  "userId": 2,
+  "tweetId": 1,
+  "content": "Great tweet! Loved it.",
+  "parentCommentId": null
+}
+Response 201 Created
+Copy
+{
+  "id": 1,
+  "userId": 2,
+  "username": "janedoe",
+  "userProfilePictureUrl": null,
+  "tweetId": 1,
+  "content": "Great tweet! Loved it.",
+  "parentCommentId": null,
+  "likesCount": 0,
+  "isActive": true,
+  "createdAt": "2026-03-30T10:20:00"
+}
+POST
+/comments
+Reply to a comment (nested)
+Full URL
+http://localhost:8080/api/v1/comments/comments
+Request body (JSON)
+Copy
+{
+  "userId": 1,
+  "tweetId": 1,
+  "content": "Thank you Jane!",
+  "parentCommentId": 1
+}
+Response 201 Created
+Copy
+{
+  "id": 2,
+  "userId": 1,
+  "username": "johndoe",
+  "tweetId": 1,
+  "content": "Thank you Jane!",
+  "parentCommentId": 1,
+  "likesCount": 0,
+  "createdAt": "2026-03-30T10:22:00"
+}
+GET
+/comments/{id}
+Get comment by ID
+Full URL
+http://localhost:8080/api/v1/comments/comments/{id}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "userId": 2,
+  "username": "janedoe",
+  "tweetId": 1,
+  "content": "Great tweet! Loved it.",
+  "likesCount": 3
+}
+GET
+/comments/tweet/{tweetId}
+Top-level comments on tweet
+Full URL
+http://localhost:8080/api/v1/comments/comments/tweet/{tweetId}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "username": "janedoe",
+    "content": "Great tweet! Loved it.",
+    "likesCount": 3
+  },
+  {
+    "id": 3,
+    "username": "bob22",
+    "content": "Agreed!",
+    "likesCount": 1
+  }
+]
+GET
+/comments/{commentId}/replies
+Nested replies to comment
+Full URL
+http://localhost:8080/api/v1/comments/comments/{commentId}/replies
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 2,
+    "username": "johndoe",
+    "content": "Thank you Jane!",
+    "parentCommentId": 1
+  }
+]
+GET
+/comments/user/{userId}
+All comments by user
+Full URL
+http://localhost:8080/api/v1/comments/comments/user/{userId}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "tweetId": 1,
+    "content": "Great tweet! Loved it."
+  },
+  {
+    "id": 2,
+    "tweetId": 1,
+    "content": "Thank you Jane!"
+  }
+]
+GET
+/comments/tweet/{tweetId}/count
+Comment count for tweet
+Full URL
+http://localhost:8080/api/v1/comments/comments/tweet/{tweetId}/count
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+5
+PUT
+/comments/{id}
+Update a comment
+Full URL
+http://localhost:8080/api/v1/comments/comments/{id}
+Request body (JSON)
+Copy
+{
+  "userId": 2,
+  "tweetId": 1,
+  "content": "Great tweet! Really loved it.",
+  "parentCommentId": null
+}
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "content": "Great tweet! Really loved it.",
+  "isEdited": true
+}
+DELETE
+/comments/{id}
+Soft delete a comment
+Full URL
+http://localhost:8080/api/v1/comments/comments/{id}
+Request body
+No body required — path/query params only
+Response 204 No Content
+No response body
+POST
+/hashtags
+Create a hashtag manually
+Full URL
+http://localhost:8080/api/v1/hashtags/hashtags
+Request body (JSON)
+Copy
+{
+  "tag": "springboot"
+}
+Response 201 Created
+Copy
+{
+  "id": 1,
+  "tag": "springboot",
+  "usageCount": 0,
+  "createdAt": "2026-03-30T09:00:00"
+}
+GET
+/hashtags
+Get all hashtags
+Full URL
+http://localhost:8080/api/v1/hashtags/hashtags
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "tag": "springboot",
+    "usageCount": 142
+  },
+  {
+    "id": 2,
+    "tag": "java",
+    "usageCount": 98
+  }
+]
+GET
+/hashtags/{id}
+Get hashtag by ID
+Full URL
+http://localhost:8080/api/v1/hashtags/hashtags/{id}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "tag": "springboot",
+  "usageCount": 142,
+  "createdAt": "2026-03-30T09:00:00"
+}
+GET
+/hashtags/tag/{tag}
+Get hashtag by tag name
+Full URL
+http://localhost:8080/api/v1/hashtags/hashtags/tag/{tag}
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+{
+  "id": 1,
+  "tag": "springboot",
+  "usageCount": 142
+}
+GET
+/hashtags/trending
+Trending hashtags (by usage)
+Full URL
+http://localhost:8080/api/v1/hashtags/hashtags/trending
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "tag": "springboot",
+    "usageCount": 142
+  },
+  {
+    "id": 3,
+    "tag": "hello",
+    "usageCount": 89
+  },
+  {
+    "id": 2,
+    "tag": "java",
+    "usageCount": 78
+  }
+]
+GET
+/hashtags/search?keyword=spring
+Search hashtags by keyword
+Full URL
+http://localhost:8080/api/v1/hashtags/hashtags/search?keyword=spring
+Request body
+No body required — path/query params only
+Response 200 OK
+Copy
+[
+  {
+    "id": 1,
+    "tag": "springboot",
+    "usageCount": 142
+  },
+  {
+    "id": 5,
+    "tag": "springmvc",
+    "usageCount": 22
+  }
+]
+DELETE
+/hashtags/{id}
+Delete a hashtag
+Full URL
+http://localhost:8080/api/v1/hashtags/hashtags/{id}
+Request body
+No body required — path/query params only
+Response 204 No Content
+No response body
