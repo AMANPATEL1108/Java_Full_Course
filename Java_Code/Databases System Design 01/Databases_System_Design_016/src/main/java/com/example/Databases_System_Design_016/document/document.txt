@@ -1,0 +1,134 @@
+Step 1 — Register User 1 (John)
+POST http://localhost:8080/api/v1/users
+Content-Type: application/json
+
+{
+  "phoneNumber": "+919876543210",
+  "displayName": "John Doe",
+  "about": "Hey there! I am using WhatsApp.",
+  "profilePictureUrl": "https://cdn.example.com/john.jpg"
+}
+Expected: 201 Created → note down id: 1
+
+Step 2 — Register User 2 (Jane)
+POST http://localhost:8080/api/v1/users
+Content-Type: application/json
+
+{
+  "phoneNumber": "+919876543211",
+  "displayName": "Jane Doe",
+  "about": "Available",
+  "profilePictureUrl": "https://cdn.example.com/jane.jpg"
+}
+Expected: 201 Created → note down id: 2
+
+Step 3 — John adds Jane as a Contact
+POST http://localhost:8080/api/v1/contacts
+Content-Type: application/json
+
+{
+  "ownerId": 1,
+  "contactUserId": 2,
+  "nickname": "Jane Work"
+}
+Expected: 201 Created → isBlocked: false
+
+Step 4 — Create a Private Chat between John and Jane
+POST http://localhost:8080/api/v1/chats/private?senderId=1&receiverId=2
+No body needed. Expected: 201 Created → note down id: 1 (chatId)
+
+Step 5 — John sends a Text Message
+POST http://localhost:8080/api/v1/messages
+Content-Type: application/json
+
+{
+  "chatId": 1,
+  "senderId": 1,
+  "content": "Hey Jane! How are you?",
+  "messageType": "TEXT"
+}
+Expected: 201 Created → status: SENT → note down id: 1 (messageId)
+
+Step 6 — Jane replies to John's Message
+POST http://localhost:8080/api/v1/messages
+Content-Type: application/json
+
+{
+  "chatId": 1,
+  "senderId": 2,
+  "content": "I am great! Thanks for asking.",
+  "messageType": "TEXT",
+  "replyToMessageId": 1
+}
+Expected: 201 Created → replyToContent: "Hey Jane! How are you?"
+
+Step 7 — Mark John's Message as Delivered
+PATCH http://localhost:8080/api/v1/messages/1/status?status=DELIVERED
+No body needed. Expected: 200 OK → deliveredAt timestamp set
+
+Step 8 — Mark John's Message as Read
+PATCH http://localhost:8080/api/v1/messages/1/status?status=READ
+No body needed. Expected: 200 OK → readAt timestamp set
+
+Step 9 — Get all Messages in Chat (verify everything)
+GET http://localhost:8080/api/v1/messages/chat/1
+Expected: 200 OK → 2 messages in order, message 2 has replyToMessageId: 1
+
+Step 10 — Create a Group
+POST http://localhost:8080/api/v1/groups
+Content-Type: application/json
+
+{
+  "name": "Dev Team",
+  "description": "Our dev group",
+  "createdById": 1,
+  "memberIds": [2]
+}
+Expected: 201 Created → John = ADMIN, Jane = MEMBER → note down id: 1 (groupId)
+
+Step 11 — Create Group Chat
+POST http://localhost:8080/api/v1/chats/group/1
+No body needed. Expected: 201 Created → chatType: GROUP → note down id: 2 (group chatId)
+
+Step 12 — John sends a Message in Group Chat
+POST http://localhost:8080/api/v1/messages
+Content-Type: application/json
+
+{
+  "chatId": 2,
+  "senderId": 1,
+  "content": "Welcome to Dev Team group!",
+  "messageType": "TEXT"
+}
+Expected: 201 Created
+
+Step 13 — John posts a Status
+POST http://localhost:8080/api/v1/statuses
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "statusType": "TEXT",
+  "caption": "Coding all day!",
+  "backgroundColor": "#25D366",
+  "fontStyle": "bold"
+}
+Expected: 201 Created → expiresAt = 24 hours from now → note down id: 1 (statusId)
+
+Step 14 — Jane views John's Status
+PATCH http://localhost:8080/api/v1/statuses/1/view
+No body needed. Expected: 200 OK → viewCount: 1
+
+Step 15 — Jane's Status Feed (sees John's status)
+POST http://localhost:8080/api/v1/statuses/feed
+Content-Type: application/json
+
+[1]
+Expected: 200 OK → John's active statuses appear in list
+
+Step 16 — Get all Chats for Jane (final verification)
+GET http://localhost:8080/api/v1/chats/user/2
+Expected: 200 OK → 2 chats: private chat with John + Dev Team group chat, both with lastMessage populated
+
+Verification Checklist
+StepWhat to verifyStep 1–2Both users get id: 1 and id: 2Step 3Contact shows isBlocked: falseStep 4Chat chatType: PRIVATE, unreadCount: 0Step 5–62 messages in chat, reply shows replyToContentStep 7–8deliveredAt and readAt timestamps filledStep 9Both messages returned in correct orderStep 10John is ADMIN, Jane is MEMBER, memberCount: 2Step 11–12Group chat has lastMessage: "Welcome to Dev Team group!"Step 13Status has expiresAt = 24h from creationStep 14viewCount increments to 1Step 15John's status appears in Jane's feedStep 16Jane sees both chats sorted by latest message
