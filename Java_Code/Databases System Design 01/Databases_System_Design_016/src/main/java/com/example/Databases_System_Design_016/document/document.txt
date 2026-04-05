@@ -132,3 +132,46 @@ Expected: 200 OK → 2 chats: private chat with John + Dev Team group chat, both
 
 Verification Checklist
 StepWhat to verifyStep 1–2Both users get id: 1 and id: 2Step 3Contact shows isBlocked: falseStep 4Chat chatType: PRIVATE, unreadCount: 0Step 5–62 messages in chat, reply shows replyToContentStep 7–8deliveredAt and readAt timestamps filledStep 9Both messages returned in correct orderStep 10John is ADMIN, Jane is MEMBER, memberCount: 2Step 11–12Group chat has lastMessage: "Welcome to Dev Team group!"Step 13Status has expiresAt = 24h from creationStep 14viewCount increments to 1Step 15John's status appears in Jane's feedStep 16Jane sees both chats sorted by latest message
+
+
+//----------------------------------------------------------------
+
+
+
+🔹 1. User Setup
+Create two users: John (id: 1) and Jane (id: 2)
+These represent app users.
+🔹 2. Contact Linking
+John adds Jane as a contact
+Now they can interact (like WhatsApp contacts)
+🔹 3. Private Chat Creation
+Create a 1-to-1 chat between John and Jane
+Chat gets chatId = 1
+🔹 4. Messaging Flow
+John sends message → status = SENT
+Jane replies → linked using replyToMessageId
+Update message status:
+DELIVERED
+READ
+🔹 5. Message Retrieval
+Fetch chat messages → verify:
+Correct order
+Reply mapping works
+🔹 6. Group Feature
+Create group “Dev Team”
+John = ADMIN
+Jane = MEMBER
+Create group chat (chatId = 2)
+Send message in group
+🔹 7. Status Feature (like WhatsApp Status)
+John posts a status (expires in 24h)
+Jane views it → viewCount +1
+Jane fetches feed → sees John’s status
+🔹 8. Final Chat List
+Get all chats for Jane:
+Private chat with John
+Group chat
+Each chat shows latest message
+✅ Overall Flow Summary
+
+👉 Users → Contacts → Chats → Messages → Status → Groups → Feed → Chat List
