@@ -81,6 +81,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
+		<finalName>cloud-devops-02</finalName>
 	</build>
 
 </project>
