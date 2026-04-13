@@ -1,0 +1,154 @@
+🚀 Dockerizing a Spring Boot App with Database & Docker Compose (Complete Guide)
+📌 1. Overview
+
+This guide explains how to:
+
+Build a Java Spring Boot application
+Dockerize it
+Connect it with a database (MySQL/PostgreSQL)
+Use Docker Compose for multi-container setup
+Include everything in a Pull Request workflow
+🧱 2. Prerequisites
+
+Make sure you have:
+
+Java (17+ recommended)
+Maven or Gradle
+Docker installed
+Docker Compose installed
+Git (for PR workflow)
+📦 3. Spring Boot Application Setup
+
+Create a simple Spring Boot app using Spring Boot.
+
+Example: application.properties
+spring.datasource.url=jdbc:mysql://db:3306/mydb
+spring.datasource.username=root
+spring.datasource.password=root
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+👉 Note: db is the service name from Docker Compose.
+
+🐳 4. Dockerize Spring Boot Application
+Step 1: Build JAR
+mvn clean package
+Step 2: Create Dockerfile
+FROM openjdk:17-jdk-slim
+
+WORKDIR /app
+
+COPY target/myapp.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
+Step 3: Build Docker Image
+docker build -t springboot-app .
+🗄️ 5. Add Database Container
+
+We’ll use MySQL.
+
+🔗 6. Docker Compose Setup
+
+Create docker-compose.yml:
+
+version: "3.8"
+
+services:
+  app:
+    build: .
+    container_name: springboot-app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mydb
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+
+  db:
+    image: mysql:8.0
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_DATABASE: mydb
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+
+volumes:
+  db_data:
+▶️ 7. Run the Application
+docker-compose up --build
+Access:
+App → http://localhost:8080
+DB → localhost:3307
+🔄 8. Database Migration (Optional but Recommended)
+
+Use tools like:
+
+Flyway
+Liquibase
+🌿 9. Git & Pull Request Workflow
+Step 1: Create Branch
+git checkout -b feature/docker-setup
+Step 2: Add Files
+
+Include:
+
+Dockerfile
+docker-compose.yml
+Updated configs
+git add .
+git commit -m "Added Docker and Docker Compose setup"
+Step 3: Push Branch
+git push origin feature/docker-setup
+Step 4: Create Pull Request
+
+On GitHub (or GitLab/Bitbucket):
+
+Compare branches
+Add description
+Request review
+Sample PR Description
+## 🚀 Docker Setup for Spring Boot App
+
+### Changes:
+- Added Dockerfile for containerization
+- Added docker-compose.yml for app + MySQL
+- Configured environment variables
+
+### How to Run:
+docker-compose up --build
+
+### Notes:
+- Database runs on port 3307
+- App runs on port 8080
+⚙️ 10. Best Practices
+Use .env file for credentials
+Don’t hardcode passwords
+Use multi-stage Docker builds
+Keep image size small
+Use health checks in Docker Compose
+🧪 11. Testing the Setup
+Check logs:
+docker-compose logs -f
+Stop containers:
+docker-compose down
+🧩 12. Optional Enhancements
+Add Redis for caching
+Add NGINX for reverse proxy
+CI/CD pipeline (GitHub Actions)
+🎯 Conclusion
+
+You now have:
+
+A Dockerized Spring Boot app
+Connected MySQL database
+Managed via Docker Compose
+Integrated into a Pull Request workflow
