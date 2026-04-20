@@ -1,0 +1,112 @@
+🐳 Docker & Docker Compose – Simple Guide
+🔹 What is Docker?
+
+Docker is a tool that lets you package an application along with everything it needs (code, libraries, dependencies) into a container.
+
+👉 Think of a container like a ready-to-run box that works the same on any machine.
+
+🔹 Why do we need Docker?
+1. Works Everywhere
+
+If your app runs on your laptop, it will run the same on a server.
+
+👉 No more:
+
+“It works on my machine”
+Version conflicts
+2. Easy Setup
+
+Instead of installing many tools manually, Docker sets everything up.
+
+Example:
+
+Without Docker → install Node, Python, DB, etc.
+With Docker → just run one command
+3. Isolation
+
+Each container runs separately.
+
+👉 One app won’t break another app.
+
+4. Fast Deployment
+
+You can quickly move your app to:
+
+cloud
+server
+another developer’s system
+🔹 When should you use Docker?
+
+Use Docker when:
+
+✔ You are building a backend (Node.js, Python, Java, etc.)
+✔ Your project has multiple dependencies
+✔ You are working in a team
+✔ You want consistent environments (dev, test, production)
+✔ You are deploying apps to cloud
+
+🔹 What is Docker Compose?
+
+Docker Compose is a tool used to run multiple containers together.
+
+👉 Instead of running containers one by one, you define everything in a single file.
+
+🔹 Why do we need Docker Compose?
+
+Many apps need multiple services:
+
+Example:
+
+Backend (Node.js)
+Database (MongoDB/MySQL)
+Cache (Redis)
+
+Without Compose:
+👉 You start each container manually
+
+With Compose:
+👉 One command runs everything
+
+🔹 When should you use Docker Compose?
+
+Use Docker Compose when:
+
+✔ Your app has multiple services
+✔ You need a database + backend + frontend
+✔ You want to start everything with one command
+✔ You want easy local development setup
+
+🔹 Simple Example
+Without Docker Compose:
+
+Run separately:
+
+docker run node-app
+docker run mongodb
+With Docker Compose:
+
+Create a file:
+
+version: '3'
+services:
+  app:
+    image: node-app
+    ports:
+      - "3000:3000"
+
+  db:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+Run everything:
+
+docker-compose up
+🔹 Summary
+Tool	Use Case
+Docker	Run a single app in container
+Docker Compose	Run multiple containers together
+🔹 Final Idea
+
+👉 Use Docker to package and run your app
+👉 Use Docker Compose when your app needs multiple services working together
