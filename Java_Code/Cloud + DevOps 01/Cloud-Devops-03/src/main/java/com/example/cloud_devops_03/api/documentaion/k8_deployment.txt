@@ -1,0 +1,145 @@
+1. What you need installed
+
+Before anything else, make sure you have:
+
+Java & Maven/Gradle → to build your Spring Boot app
+Docker → to containerize the app
+Kubernetes (cluster) → via:
+Local: Minikube or Kind
+Cloud: AWS EKS / GKE / AKS
+kubectl → to interact with cluster
+
+Optional but helpful:
+
+Helm (for easier deployments)
+2. Build your Spring Boot app
+
+Create your JAR:
+
+mvn clean package
+
+This generates:
+
+target/my-app.jar
+3. Create a Dockerfile
+
+In your project root:
+
+FROM openjdk:17-jdk-slim
+COPY target/my-app.jar app.jar
+ENTRYPOINT ["java", "-jar", "/app.jar"]
+4. Build & push Docker image
+
+Build:
+
+docker build -t your-dockerhub-username/my-app:1.0 .
+
+Push:
+
+docker push your-dockerhub-username/my-app:1.0
+5. Kubernetes Deployment YAML
+
+Create deployment.yaml:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: springboot-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: springboot
+  template:
+    metadata:
+      labels:
+        app: springboot
+    spec:
+      containers:
+      - name: springboot-container
+        image: your-dockerhub-username/my-app:1.0
+        ports:
+        - containerPort: 8080
+6. Kubernetes Service YAML
+
+Expose your app via service:
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-service
+spec:
+  type: NodePort
+  selector:
+    app: springboot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 30007
+7. Deploy to Kubernetes
+
+Apply configs:
+
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+
+Check:
+
+kubectl get pods
+kubectl get services
+8. Access the application
+
+If using Minikube:
+
+minikube service springboot-service
+
+Or:
+
+http://<node-ip>:30007
+9. Important things in your Spring Boot code
+
+Your app usually needs minimal changes, but ensure:
+
+✅ Use correct port
+
+In application.properties:
+
+server.port=8080
+✅ Externalize configs
+
+Use:
+
+environment variables
+ConfigMaps / Secrets in K8s
+
+Example:
+
+spring.datasource.url=${DB_URL}
+✅ Health endpoints (recommended)
+
+Add dependency:
+
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+
+Then enable:
+
+management.endpoints.web.exposure.include=health,info
+10. (Optional but important) Liveness & readiness probes
+
+Add to deployment:
+
+livenessProbe:
+  httpGet:
+    path: /actuator/health
+    port: 8080
+  initialDelaySeconds: 30
+  periodSeconds: 10
+Common mistakes to avoid
+❌ Not pushing image to a registry (K8s can’t pull local images)
+❌ Wrong port mismatch (Spring vs container)
+❌ Using localhost in DB configs
+❌ Forgetting resource limits
