@@ -1,0 +1,224 @@
+🚀 0. Big Picture (Internal View)
+
+You’re not just “deploying an app.” You’re building a layered system:
+
+Spring Boot → creates a runnable Java process
+Docker → wraps that process with OS + dependencies
+Kubernetes → orchestrates many such containers across machines
+
+Think of it like this:
+
+👉 JAR = program
+👉 Image = packaged environment
+👉 Container = running instance
+👉 Kubernetes = distributed operating system
+
+🧱 1. Maven Build (What happens internally)
+mvn clean package
+Inside Maven:
+Reads pom.xml
+Downloads dependencies into local .m2 repo
+Compiles .java → .class
+Runs test lifecycle
+Uses Spring Boot plugin to:
+Bundle dependencies into one JAR (fat JAR)
+Add a custom classloader
+Inside the JAR:
+/BOOT-INF/classes     → your code
+/BOOT-INF/lib         → dependencies
+/org/springframework/boot/loader → launcher
+
+👉 When you run:
+
+java -jar app.jar
+
+Spring Boot:
+
+Starts embedded server (Tomcat/Netty)
+Creates IoC container
+Wires beans
+Opens port (8080)
+🐳 2. Docker (What really happens)
+Image build process:
+docker build -t my-app .
+
+Docker uses Union File System (layers):
+
+Layer 1 → OS (Debian slim)
+Layer 2 → JDK
+Layer 3 → your JAR
+
+👉 Each layer is immutable & cached.
+
+Container runtime:
+
+When you run container:
+
+Uses Linux kernel features:
+Namespaces → isolation (PID, network, filesystem)
+cgroups → resource limits (CPU, RAM)
+
+👉 Important:
+Containers are not VMs — they share host kernel.
+
+📦 3. Registry (Why push?)
+
+When you do:
+
+docker push my-app
+
+Internally:
+
+Image layers are uploaded separately
+Kubernetes later pulls these layers
+
+👉 Optimization:
+If node already has base layers → only new layers downloaded
+
+☸️ 4. Kubernetes Architecture (Core Internal Components)
+
+Kubernetes is a control plane + worker nodes
+
+Control Plane:
+API Server → entry point (kubectl talks here)
+etcd → key-value DB (stores cluster state)
+Controller Manager → ensures desired state
+Scheduler → assigns Pods to nodes
+Worker Node:
+Kubelet → talks to API server, runs Pods
+Container Runtime (containerd/Docker)
+Kube-proxy → networking
+📦 5. Deployment (What really happens)
+
+When you apply YAML:
+
+kubectl apply -f deployment.yaml
+Internally:
+YAML → sent to API Server
+Stored in etcd
+Deployment Controller wakes up:
+Creates a ReplicaSet
+ReplicaSet:
+Ensures desired number of Pods
+Pod creation:
+Scheduler picks a node
+Kubelet on that node:
+Pulls image
+Starts container
+
+👉 This is a reconciliation loop:
+Kubernetes constantly checks:
+
+“Actual state == Desired state?”
+
+🔁 6. Self-Healing Mechanism
+
+If a Pod crashes:
+
+Kubelet detects failure
+Reports to API server
+ReplicaSet creates a new Pod
+
+👉 You never restart manually — system heals itself.
+
+🌐 7. Networking (Most misunderstood part)
+
+Every Pod gets:
+
+Unique IP
+Internal DNS name
+Service abstraction:
+type: NodePort
+
+Internally:
+
+kube-proxy creates iptables rules
+Traffic routing:
+NodeIP:30007
+   ↓
+Service (virtual IP)
+   ↓
+Random Pod (load balanced)
+
+👉 Load balancing = round-robin at network layer
+
+🔍 8. Labels & Selectors (Glue of Kubernetes)
+
+This is critical:
+
+labels:
+  app: springboot
+
+Used by:
+
+Deployment → to manage Pods
+Service → to route traffic
+
+👉 No labels = nothing connects
+
+⚙️ 9. Probes (How K8s decides app health)
+
+Example:
+
+livenessProbe:
+
+Internally:
+
+Kubelet periodically calls:
+
+/actuator/health
+If fails:
+Liveness fails → container restarted
+Readiness fails → removed from traffic
+
+👉 This is how zero-downtime works.
+
+⚠️ 10. Why “localhost” breaks in Kubernetes
+
+Inside container:
+
+localhost = same container only
+
+So:
+
+❌ localhost:3306 → wrong
+✅ mysql-service:3306 → correct
+
+👉 Kubernetes DNS resolves service names automatically.
+
+🔥 11. Full Internal Flow (End-to-End)
+
+Let’s trace a real request:
+
+User → Browser
+   ↓
+Node IP:30007
+   ↓
+kube-proxy (iptables rule)
+   ↓
+Service (ClusterIP)
+   ↓
+Pod IP (selected)
+   ↓
+Container
+   ↓
+Spring Boot app
+   ↓
+Tomcat handles request
+   ↓
+Response back
+🧠 12. What Makes Kubernetes Powerful
+Declarative model (you say what, not how)
+Continuous reconciliation loop
+Built-in:
+scaling
+healing
+networking
+rollout/rollback
+🚀 Final Mental Model
+
+Think of it like:
+
+Spring Boot → your application brain
+Docker → portable box
+Kubernetes → automated warehouse managing boxes
