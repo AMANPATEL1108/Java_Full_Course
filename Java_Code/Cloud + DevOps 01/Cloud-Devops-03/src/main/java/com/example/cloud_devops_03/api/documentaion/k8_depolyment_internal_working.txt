@@ -456,3 +456,125 @@ Kubernetes → ensures it runs correctly, repeatedly, and at scale
 👉 The real power is this loop:
 
 Observe → Compare → Fix
+
+
+//short
+
+
+🧠 Core Concept
+Kubernetes works on:
+Desired State vs Actual State → Fix continuously
+🧱 1. Maven Build
+mvn package
+Compiles code + bundles dependencies
+Creates fat JAR
+JAR contains:
+App code
+Dependencies
+Spring Boot loader
+
+👉 Output: Runnable file
+
+▶️ 2. Run App
+java -jar app.jar
+Starts:
+Embedded server (Tomcat)
+Spring IoC container
+Runs on port 8080
+
+👉 Output: Running Java process
+
+🐳 3. Docker
+docker build
+Packages:
+OS + JDK + JAR
+Uses layered system
+
+👉 Container = isolated process (not VM)
+👉 Uses:
+
+Namespaces (isolation)
+cgroups (resource limits)
+📦 4. Docker Registry
+docker push
+Stores image in registry
+Layers uploaded separately
+
+👉 Nodes pull only missing layers (fast)
+
+☸️ 5. Kubernetes Architecture
+
+Control Plane
+
+API Server → entry point
+etcd → state storage
+Scheduler → assigns Pods
+Controller → maintains state
+
+Worker Node
+
+Kubelet → runs Pods
+Container runtime → runs containers
+Kube-proxy → networking
+📦 6. Deployment Flow
+kubectl apply
+YAML → API Server → etcd
+Deployment → ReplicaSet → Pods
+Scheduler → assigns node
+Kubelet → starts container
+
+👉 Loop: Check → Compare → Fix
+
+🔁 7. Self-Healing
+Pod crashes →
+Kubelet detects
+Controller recreates Pod
+
+👉 No manual restart needed
+
+🌐 8. Networking
+Each Pod → unique IP
+Service → stable access point
+
+Flow:
+User → NodePort → Service → Pod
+
+👉 Load balancing via kube-proxy (iptables)
+
+🏷️ 9. Labels & Selectors
+
+Key-value pairs:
+
+app: springboot
+Used by:
+Deployment → manage Pods
+Service → route traffic
+
+👉 No labels = nothing connects
+
+⚙️ 10. Probes
+Liveness → restart if dead
+Readiness → allow traffic or not
+
+👉 Ensures zero downtime
+
+⚠️ 11. Localhost Rule
+Inside container:
+localhost = same container only
+
+❌ Wrong: localhost:3306
+✅ Correct: mysql-service:3306
+
+🔥 12. Full Flow
+
+Code → JAR → Docker Image → Registry → Kubernetes → Running Pods
+
+Request Flow:
+User → Service → Pod → App → Response
+
+🚀 Final Mental Model
+Spring Boot → app logic
+Docker → packaging
+Kubernetes → management system
+
+👉 Kubernetes = auto-healing + auto-scaling + auto-routing system
