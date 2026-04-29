@@ -1,0 +1,88 @@
+🔹 What is Scaling?
+
+Scaling means increasing or decreasing the number of application instances based on load.
+
+👉 Types of Scaling
+1. Vertical Scaling
+Increase resources (CPU, RAM) of a single server
+Example: upgrading your server from 4GB → 16GB RAM
+
+⚠️ Limitation: hardware limits
+
+2. Horizontal Scaling (most common)
+Run multiple instances of your Spring Boot app
+Distribute traffic across them
+
+Example:
+
+1 instance → 5 instances when traffic increases
+
+This is usually done using:
+
+Docker
+Kubernetes
+Cloud services like Amazon Web Services, Google Cloud Platform
+👉 How Spring Boot supports scaling
+
+Spring Boot apps are:
+
+Stateless (ideally) → easier to replicate
+Run as independent processes
+Easily containerized
+
+You usually add:
+
+Load balancer (like NGINX)
+External DB (shared across instances)
+Cache (like Redis)
+🔹 What is Auto-Healing?
+
+Auto-healing means automatically recovering from failures without manual intervention.
+
+👉 Example
+
+If your Spring Boot app crashes:
+
+System detects failure
+Restarts the app automatically
+👉 How it works in real systems
+
+Using tools like Kubernetes:
+
+Health checks (liveness/readiness probes)
+If app is unhealthy → restart container
+If node fails → move app to another node
+👉 In Spring Boot
+
+Spring Boot provides health endpoints using:
+
+Spring Boot Actuator
+
+Example endpoints:
+
+/actuator/health
+/actuator/info
+
+These endpoints help orchestration tools decide:
+
+Is app alive?
+Is app ready to serve traffic?
+🔹 Simple Flow (Real World)
+User traffic increases
+Kubernetes detects high load
+New Spring Boot instances are created (scaling)
+One instance crashes
+Kubernetes restarts it (auto-healing)
+🔹 Key Difference
+Feature	Scaling	Auto-Healing
+Purpose	Handle more load	Recover from failure
+Trigger	High traffic	App crash / unhealthy state
+Action	Add/remove instances	Restart/replace instance
+🔹 Quick Summary
+Scaling = Handle growth (more users)
+Auto-healing = Handle failures (app crashes)
+Spring Boot supports both via:
+Stateless design
+Actuator health checks
+Real implementation happens using:
+Kubernetes / Cloud platforms
