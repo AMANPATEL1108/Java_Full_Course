@@ -1,0 +1,60 @@
+Amazon EC2 basics (and how it fits with Java Spring Boot)
+
+What EC2 is:
+EC2 = Elastic Compute Cloud. It’s a service from Amazon Web Services that gives you virtual servers in the cloud. Think of it as renting a computer on the internet where you can run your applications.
+
+🧠 Core EC2 concepts (simple terms)
+Instance → A virtual machine (your server)
+AMI (Amazon Machine Image) → Preconfigured OS (like Ubuntu, Amazon Linux)
+Instance Type → CPU/RAM specs (e.g., t2.micro, t3.large)
+Key Pair → SSH login credentials
+Security Group → Firewall rules (controls ports like 22, 80, 8080)
+Elastic IP → Static public IP
+🚀 How EC2 is used with Java Spring Boot
+
+If you build a backend using Spring Boot, EC2 is commonly used to deploy and run it.
+
+Typical workflow:
+Build your Spring Boot app
+→ Generates a .jar file
+Launch EC2 instance
+→ Choose Linux (e.g., Amazon Linux)
+Connect to EC2
+→ Using SSH
+
+Install Java
+
+sudo yum install java-17-amazon-corretto
+Upload your JAR
+→ Using SCP or Git
+
+Run your app
+
+java -jar your-app.jar
+Open port (e.g., 8080) in Security Group
+→ So users can access your API
+🌐 Example
+
+If your Spring Boot app runs on port 8080, you access it like:
+
+http://<EC2-Public-IP>:8080
+🧩 Why use EC2 for Spring Boot?
+Full control over server
+Easy scaling (launch more instances)
+Works with any Java app
+Integrates with other AWS services
+⚖️ When EC2 might NOT be ideal
+
+You might avoid EC2 if:
+
+You don’t want server management
+You prefer simpler deployment
+
+Alternatives:
+
+AWS Elastic Beanstalk (auto deploy)
+AWS Lambda (no server)
+Amazon ECS (Docker-based)
+🧠 Simple analogy
+Spring Boot app = your software
+EC2 = the computer where it runs
