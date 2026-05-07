@@ -1,0 +1,112 @@
+1. Build your Spring Boot app
+
+From your project directory:
+
+If using Maven:
+mvn clean package
+If using Gradle:
+gradle build
+
+This creates a .jar file in target/ or build/libs/.
+
+2. Launch an EC2 instance
+
+Go to Amazon Web Services → EC2:
+
+Choose OS: Amazon Linux 2 (or Ubuntu)
+Instance type: t2.micro (free tier)
+Allow inbound:
+SSH (port 22)
+HTTP (port 80) or your app port (e.g., 8080)
+
+Download your .pem key.
+
+3. Connect to EC2
+chmod 400 your-key.pem
+ssh -i your-key.pem ec2-user@your-ec2-public-ip
+
+(Use ubuntu@... if Ubuntu)
+
+4. Install Java
+
+Spring Boot needs Java (usually 17+):
+
+Amazon Linux:
+
+sudo yum update -y
+sudo yum install java-17-amazon-corretto -y
+
+Ubuntu:
+
+sudo apt update
+sudo apt install openjdk-17-jdk -y
+
+Check:
+
+java -version
+5. Upload your JAR
+
+From your local machine:
+
+scp -i your-key.pem target/your-app.jar ec2-user@your-ec2-public-ip:/home/ec2-user/
+6. Run the app
+
+On EC2:
+
+java -jar your-app.jar
+
+To keep it running in background:
+
+nohup java -jar your-app.jar > app.log 2>&1 &
+7. Access your app
+
+Open in browser:
+
+http://your-ec2-public-ip:8080
+
+If it doesn’t load:
+
+Check EC2 Security Group allows port 8080
+Check app logs: cat app.log
+8. (Optional) Use port 80 instead of 8080
+
+Either:
+
+Change Spring Boot port in application.properties:
+server.port=80
+
+OR
+
+Use a reverse proxy like Nginx
+9. (Recommended) Run as a service
+
+Create a systemd service:
+
+sudo nano /etc/systemd/system/spring-app.service
+
+Paste:
+
+[Unit]
+Description=Spring Boot App
+After=network.target
+
+[Service]
+User=ec2-user
+ExecStart=/usr/bin/java -jar /home/ec2-user/your-app.jar
+SuccessExitStatus=143
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+Then:
+
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl start spring-app
+sudo systemctl enable spring-app
+10. (Optional but important in real apps)
+Use a domain + DNS (Route 53)
+Add HTTPS via Let’s Encrypt
+Store configs in environment variables
+Use a database like RDS instead of local
