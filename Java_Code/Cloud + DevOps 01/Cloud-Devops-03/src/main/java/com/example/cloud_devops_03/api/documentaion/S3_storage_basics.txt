@@ -1,0 +1,266 @@
+Amazon S3 (Simple Storage Service) Documentation
+ is a cloud object storage service used to store files like images, videos, PDFs, backups, logs, etc.
+
+S3 Basics
+What is S3?
+
+S3 stores data as:
+
+Buckets → like folders/containers
+Objects → actual files stored inside buckets
+
+Example:
+
+Bucket: my-app-files
+ ├── profile1.png
+ ├── invoice.pdf
+ └── video.mp4
+Common Features
+File upload/download
+Public or private access
+Highly scalable
+Versioning
+Lifecycle management
+Pre-signed URLs
+Encryption
+How S3 Works in Spring Boot
+
+Typical flow:
+
+Client → Spring Boot API → AWS S3 Bucket
+
+Example:
+
+User uploads image
+Spring Boot receives file
+App uploads file to S3
+S3 returns file URL
+Store URL in DB
+Step-by-Step S3 Implementation in Spring Boot
+1. Create AWS S3 Bucket
+
+In AWS Console:
+
+Open S3
+Create Bucket
+Choose:
+unique bucket name
+region
+Keep bucket private initially
+2. Create IAM User
+
+Create IAM user with:
+
+AmazonS3FullAccess (for learning)
+Generate:
+Access Key
+Secret Key
+3. Add Maven Dependency
+
+For Spring Boot 3.x:
+
+<dependency>
+    <groupId>software.amazon.awssdk</groupId>
+    <artifactId>s3</artifactId>
+</dependency>
+4. Configure application.properties
+aws.accessKey=YOUR_ACCESS_KEY
+aws.secretKey=YOUR_SECRET_KEY
+aws.region=ap-south-1
+aws.s3.bucket=my-bucket-name
+
+Better approach:
+
+use environment variables
+never hardcode secrets in production
+5. Create S3 Config
+@Configuration
+public class S3Config {
+
+    @Value("${aws.accessKey}")
+    private String accessKey;
+
+    @Value("${aws.secretKey}")
+    private String secretKey;
+
+    @Value("${aws.region}")
+    private String region;
+
+    @Bean
+    public S3Client s3Client() {
+
+        AwsBasicCredentials credentials =
+                AwsBasicCredentials.create(accessKey, secretKey);
+
+        return S3Client.builder()
+                .region(Region.of(region))
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(credentials))
+                .build();
+    }
+}
+6. Create S3 Service
+@Service
+public class S3Service {
+
+    @Autowired
+    private S3Client s3Client;
+
+    @Value("${aws.s3.bucket}")
+    private String bucketName;
+
+    public String uploadFile(MultipartFile file) throws IOException {
+
+        String fileName = System.currentTimeMillis()
+                + "_" + file.getOriginalFilename();
+
+        PutObjectRequest putObjectRequest =
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(fileName)
+                        .contentType(file.getContentType())
+                        .build();
+
+        s3Client.putObject(
+                putObjectRequest,
+                RequestBody.fromBytes(file.getBytes()));
+
+        return fileName;
+    }
+}
+7. Create REST Controller
+@RestController
+@RequestMapping("/files")
+public class FileController {
+
+    @Autowired
+    private S3Service s3Service;
+
+    @PostMapping("/upload")
+    public ResponseEntity<String> upload(
+            @RequestParam("file") MultipartFile file)
+            throws IOException {
+
+        String fileName = s3Service.uploadFile(file);
+
+        return ResponseEntity.ok("Uploaded: " + fileName);
+    }
+}
+8. Test API
+
+Using Postman:
+
+POST /files/upload
+Content-Type: multipart/form-data
+
+Select file and upload.
+
+Important S3 Concepts
+1. Bucket
+
+Top-level container.
+
+Example:
+
+company-documents
+user-images
+2. Object Key
+
+Unique file path inside bucket.
+
+Example:
+
+images/profile.png
+docs/resume.pdf
+3. Pre-Signed URL
+
+Temporary secure URL for upload/download.
+
+Useful when:
+
+frontend uploads directly to S3
+secure downloads
+4. Public vs Private Bucket
+Public
+
+Anyone can access file URL.
+
+Private
+
+Only authenticated users can access.
+
+Production apps usually keep buckets private.
+
+Advanced Features
+File Download
+public byte[] downloadFile(String key) {
+
+    GetObjectRequest request = GetObjectRequest.builder()
+            .bucket(bucketName)
+            .key(key)
+            .build();
+
+    ResponseBytes<GetObjectResponse> objectBytes =
+            s3Client.getObjectAsBytes(request);
+
+    return objectBytes.asByteArray();
+}
+Delete File
+public void deleteFile(String key) {
+
+    DeleteObjectRequest request =
+            DeleteObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .build();
+
+    s3Client.deleteObject(request);
+}
+Recommended Production Architecture
+
+Better pattern:
+
+Frontend → PreSigned URL → S3
+                  ↓
+            Spring Boot generates URL
+
+Advantages:
+
+faster uploads
+lower backend load
+scalable
+Best Practices
+Do
+Keep bucket private
+Use IAM roles
+Validate file types
+Limit file size
+Use UUID for filenames
+Store only URLs in DB
+Avoid
+Hardcoding AWS keys
+Public write access
+Uploading huge files through backend
+Real Project Use Cases
+
+S3 is commonly used for:
+
+Profile images
+Resume uploads
+Invoice PDFs
+Product images
+Video storage
+Backup systems
+Log storage
+Typical Interview Question
+Why use S3 instead of DB for files?
+
+Because:
+
+cheaper
+scalable
+optimized for file storage
+CDN integration
+high durability
+
+Databases are not ideal for large binary files.
