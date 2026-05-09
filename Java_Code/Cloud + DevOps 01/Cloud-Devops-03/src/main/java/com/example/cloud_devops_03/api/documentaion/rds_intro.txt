@@ -1,0 +1,184 @@
+What is RDS in a Java Spring Boot Application?
+
+RDS usually refers to Amazon Relational Database Service (Amazon RDS) by AWS. It is a managed relational database service that lets you run databases like:
+
+MySQL
+PostgreSQL
+MariaDB
+Oracle
+SQL Server
+
+without manually managing servers, backups, patching, or scaling.
+
+In a Spring Boot application, RDS acts as the database layer where your app stores and retrieves data.
+
+Typical Architecture
+Spring Boot App  --->  Amazon RDS Database
+        |
+   JPA / Hibernate
+        |
+   JDBC Driver
+
+Your Spring Boot app connects to the RDS endpoint using JDBC.
+
+Why Use Amazon RDS?
+
+Benefits:
+
+Managed backups
+Automatic patching
+High availability
+Easy scaling
+Monitoring with CloudWatch
+Security using VPC + IAM + Security Groups
+
+Good for production applications because AWS manages much of the database infrastructure.
+
+Common Setup with Spring Boot
+
+Most Spring Boot apps use:
+
+Spring Data JPA
+Hibernate
+JDBC
+MySQL/PostgreSQL driver
+Example: Spring Boot + MySQL RDS
+1. Add Dependencies
+Maven
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-data-jpa</artifactId>
+</dependency>
+
+<dependency>
+    <groupId>com.mysql</groupId>
+    <artifactId>mysql-connector-j</artifactId>
+</dependency>
+2. Configure application.properties
+spring.datasource.url=jdbc:mysql://your-rds-endpoint:3306/mydb
+spring.datasource.username=admin
+spring.datasource.password=password
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+
+Example RDS endpoint:
+
+mydb.c8xyzabc123.ap-south-1.rds.amazonaws.com
+3. Create Entity
+import jakarta.persistence.*;
+
+@Entity
+public class Employee {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    // getters and setters
+}
+4. Create Repository
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface EmployeeRepository
+        extends JpaRepository<Employee, Long> {
+}
+5. Use Repository
+@RestController
+@RequestMapping("/employees")
+public class EmployeeController {
+
+    @Autowired
+    private EmployeeRepository repository;
+
+    @PostMapping
+    public Employee save(@RequestBody Employee emp) {
+        return repository.save(emp);
+    }
+
+    @GetMapping
+    public List<Employee> getAll() {
+        return repository.findAll();
+    }
+}
+How Spring Boot Connects to RDS
+
+When the app starts:
+
+Spring Boot reads datasource config
+JDBC driver connects to RDS endpoint
+Hibernate/JPA manages SQL operations
+Queries are executed on RDS
+Important AWS Concepts
+Security Group
+
+RDS must allow inbound access from your Spring Boot server.
+
+Usually:
+
+MySQL → Port 3306
+PostgreSQL → Port 5432
+Public vs Private RDS
+Public RDS
+
+Accessible from internet.
+
+Good for:
+
+Testing
+Development
+Private RDS
+
+Accessible only inside VPC.
+
+Good for:
+
+Production
+Best Practices
+Use Environment Variables
+
+Avoid hardcoding credentials.
+
+spring.datasource.username=${DB_USER}
+spring.datasource.password=${DB_PASSWORD}
+Connection Pooling
+
+Spring Boot uses HikariCP by default.
+
+It improves performance by reusing DB connections.
+
+Use Flyway or Liquibase
+
+For DB schema migration:
+
+Flyway
+Liquibase
+Interview-Style Summary
+
+Amazon RDS is a managed relational database service by AWS. In Spring Boot applications, it is commonly connected using Spring Data JPA and JDBC drivers. Spring Boot communicates with the RDS endpoint to perform CRUD operations while AWS manages backups, scaling, availability, and maintenance.
+
+Common Interview Questions
+Q1. Difference between RDS and normal MySQL?
+
+RDS is managed by AWS:
+
+backups
+scaling
+monitoring
+failover
+patching
+
+Self-hosted MySQL requires manual management.
+
+Q2. Which driver is needed?
+MySQL → mysql-connector-j
+PostgreSQL → postgresql
+Q3. What is the RDS endpoint?
+
+Hostname used by applications to connect to the DB.
+
+Example:
+
+mydb.xxxxxx.ap-south-1.rds.amazonaws.com
