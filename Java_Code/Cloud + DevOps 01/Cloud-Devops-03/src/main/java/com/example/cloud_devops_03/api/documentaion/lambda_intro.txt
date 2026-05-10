@@ -1,0 +1,153 @@
+A Lambda Expression in Java is a short way to write anonymous functions (functions without a name).
+It was introduced in Java 8 to make code cleaner and support functional programming.
+
+Basic Syntax
+(parameters) -> expression
+
+or
+
+(parameters) -> {
+    // multiple statements
+}
+Why Use Lambda?
+
+Before Java 8:
+
+Runnable r = new Runnable() {
+    @Override
+    public void run() {
+        System.out.println("Hello");
+    }
+};
+
+With Lambda:
+
+Runnable r = () -> System.out.println("Hello");
+
+Cleaner and shorter.
+
+Functional Interface
+
+Lambda works with a Functional Interface.
+
+A functional interface has only one abstract method.
+
+Example:
+
+interface Greeting {
+    void sayHello();
+}
+
+Using lambda:
+
+Greeting g = () -> System.out.println("Hello!");
+
+g.sayHello();
+Examples
+1. No Parameters
+() -> System.out.println("Hi")
+2. One Parameter
+x -> x * x
+
+Example:
+
+interface Square {
+    int calc(int x);
+}
+
+Square s = x -> x * x;
+
+System.out.println(s.calc(5));
+
+Output:
+
+25
+3. Multiple Parameters
+(a, b) -> a + b
+
+Example:
+
+interface Add {
+    int sum(int a, int b);
+}
+
+Add ad = (a, b) -> a + b;
+
+System.out.println(ad.sum(3, 4));
+
+Output:
+
+7
+Lambda with Collections
+
+Using forEach:
+
+List<String> names = Arrays.asList("Ram", "Shyam", "Hari");
+
+names.forEach(name -> System.out.println(name));
+Lambda with Comparator
+
+Before:
+
+Collections.sort(list, new Comparator<Integer>() {
+    public int compare(Integer a, Integer b) {
+        return a - b;
+    }
+});
+
+Using lambda:
+
+Collections.sort(list, (a, b) -> a - b);
+Important Points
+Works only with functional interfaces
+Makes code shorter and readable
+Widely used in:
+Streams API
+Collections
+Event handling
+Multithreading
+Common Functional Interfaces
+
+From java.util.function package:
+
+Interface	Method
+Predicate<T>	returns boolean
+Function<T,R>	takes input, returns output
+Consumer<T>	takes input, no return
+Supplier<T>	no input, returns output
+
+Example:
+
+Predicate<Integer> isEven = n -> n % 2 == 0;
+
+System.out.println(isEven.test(4));
+
+Output:
+
+true
+Simple Real-Life Example
+List<Integer> nums = Arrays.asList(1,2,3,4,5);
+
+nums.stream()
+    .filter(n -> n % 2 == 0)
+    .forEach(n -> System.out.println(n));
+
+Output:
+
+2
+4
+
+This uses lambda with the Stream API.
+
+Summary
+
+Lambda expression:
+
+Reduces boilerplate code
+Represents anonymous functions
+Used with functional interfaces
+Introduced in Java 8
+
+General form:
+
+(parameters) -> body
