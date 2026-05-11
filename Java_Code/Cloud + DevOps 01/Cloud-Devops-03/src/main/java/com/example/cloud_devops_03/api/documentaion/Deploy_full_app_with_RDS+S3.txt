@@ -1,0 +1,17 @@
+STEP 1 — Create AWS Account
+
+Go to:
+
+AWS Console
+
+Create:
+
+AWS account
+Billing setup
+IAM admin user (DON’T use root account daily)
+
+Learn:
+
+Region selection (ap-south-1 for India)
+IAM users
+Security basics
