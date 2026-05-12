@@ -15,3 +15,40 @@ Learn:
 Region selection (ap-south-1 for India)
 IAM users
 Security basics
+STEP 2 — Create Your Database (RDS)
+
+Go to:
+
+Amazon RDS
+
+Choose:
+
+PostgreSQL OR MySQL
+Free tier initially
+
+Recommended:
+
+PostgreSQL
+Important Settings
+Setting	Value
+Engine	PostgreSQL
+Public Access	No
+Multi-AZ	Off initially
+DB Instance	db.t3.micro
+Storage	20GB
+
+Create:
+
+DB username
+Strong password
+
+After creation you get:
+
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+0 → 10
+DB works
+10 → 100
+Multi-AZ
+Automated backups
+Read replicas
+Monitoring
