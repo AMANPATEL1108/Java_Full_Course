@@ -52,3 +52,46 @@ Multi-AZ
 Automated backups
 Read replicas
 Monitoring
+
+
+
+STEP 3 — Create S3 Bucket
+
+Go to:
+
+Amazon S3
+
+Create bucket:
+
+Unique bucket name
+Same region as app
+
+Example:
+
+myapp-prod-uploads
+Configure
+
+Enable:
+
+Versioning
+Block public access (initially)
+
+Use for:
+
+Images
+PDFs
+Videos
+Static files
+Backups
+Backend Upload Flow
+User uploads file
+→ Backend receives
+→ Uploads to S3
+→ Saves URL in DB
+100-level
+
+Use:
+
+Presigned URLs
+CloudFront CDN
+Lifecycle rules
