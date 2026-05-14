@@ -95,3 +95,32 @@ Use:
 Presigned URLs
 CloudFront CDN
 Lifecycle rules
+
+
+STEP 4 — Launch Backend Server
+
+Simplest options:
+
+Option	Good For
+EC2	Learning
+ECS/Fargate	Production
+Elastic Beanstalk	Easy deployment
+Docker on VPS	Cheap/simple
+
+For beginners:
+Use EC2.
+
+Go to:
+
+Amazon EC2
+
+Launch:
+
+Ubuntu Server
+t2.micro or t3.micro
+
+Open ports:
+
+22 SSH
+80 HTTP
+443 HTTPS
