@@ -124,3 +124,40 @@ Open ports:
 22 SSH
 80 HTTP
 443 HTTPS
+
+
+STEP 5 — Deploy Backend Code
+
+SSH into server:
+
+ssh -i key.pem ubuntu@SERVER_IP
+
+Install:
+
+sudo apt update
+sudo apt install nodejs npm nginx git
+
+Clone app:
+
+git clone YOUR_REPO
+cd app
+npm install
+
+Add environment variables:
+
+DATABASE_URL=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+S3_BUCKET=
+JWT_SECRET=
+
+Run:
+
+npm start
+
+Production:
+Use PM2.
+
+npm install -g pm2
+pm2 start server.js
+pm2 save
