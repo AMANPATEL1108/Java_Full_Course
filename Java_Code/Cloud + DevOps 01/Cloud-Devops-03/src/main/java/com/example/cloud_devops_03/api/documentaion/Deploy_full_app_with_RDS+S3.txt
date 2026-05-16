@@ -161,3 +161,29 @@ Use PM2.
 npm install -g pm2
 pm2 start server.js
 pm2 save
+
+
+STEP 6 — Connect Backend to RDS
+
+Inside backend config:
+
+const db = new Pool({
+ connectionString: process.env.DATABASE_URL
+})
+
+Test:
+
+npm run migrate
+
+Check:
+
+Tables created
+Backend can read/write
+Common Issue
+
+RDS Security Group must allow EC2 access.
+
+Add inbound rule:
+
+PostgreSQL 5432
+Source = EC2 security group
