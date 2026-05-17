@@ -187,3 +187,25 @@ Add inbound rule:
 
 PostgreSQL 5432
 Source = EC2 security group
+
+STEP 7 — Connect Backend to S3
+
+Install SDK:
+
+npm install @aws-sdk/client-s3
+
+Example upload:
+
+const s3 = new S3Client({
+ region: "ap-south-1"
+})
+
+Upload:
+
+await s3.send(new PutObjectCommand({
+ Bucket: process.env.S3_BUCKET,
+ Key: fileName,
+ Body: fileBuffer
+}))
+
+Save URL into database.
