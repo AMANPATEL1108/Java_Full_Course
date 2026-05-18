@@ -209,3 +209,30 @@ await s3.send(new PutObjectCommand({
 }))
 
 Save URL into database.
+
+
+
+STEP 8 — Deploy Frontend
+
+Options:
+
+Frontend	Best Platform
+React/Vite	S3 + CloudFront
+Next.js	Vercel
+Static site	S3 Hosting
+
+Easy path:
+Use Vercel.
+
+Go to:
+
+Vercel
+
+Connect GitHub repo.
+
+Add API URL:
+
+VITE_API_URL=https://api.myapp.com
+
+Deploy.
+
