@@ -236,3 +236,34 @@ VITE_API_URL=https://api.myapp.com
 
 Deploy.
 
+
+
+
+STEP 9 — Domain + HTTPS
+
+Buy domain:
+
+Namecheap
+Route53
+GoDaddy
+
+Use:
+
+Frontend → app.example.com
+Backend → api.example.com
+
+For HTTPS:
+Install Nginx + Certbot.
+
+sudo apt install certbot python3-certbot-nginx
+
+Generate SSL:
+
+sudo certbot --nginx
+
+Now:
+
+https://api.example.com
+
+works securely.
+
