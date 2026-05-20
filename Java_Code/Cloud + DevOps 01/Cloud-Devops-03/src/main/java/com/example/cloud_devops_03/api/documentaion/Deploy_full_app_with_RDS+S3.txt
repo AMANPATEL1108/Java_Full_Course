@@ -236,9 +236,6 @@ VITE_API_URL=https://api.myapp.com
 
 Deploy.
 
-
-
-
 STEP 9 — Domain + HTTPS
 
 Buy domain:
@@ -267,3 +264,148 @@ https://api.example.com
 
 works securely.
 
+
+
+STEP 10 — Production Hardening (100-Level)
+
+This is where real apps become scalable.
+
+Add Monitoring
+
+Use:
+
+CloudWatch
+Sentry
+UptimeRobot
+Add CI/CD
+
+Use:
+
+GitHub Actions
+
+Deploy automatically on push.
+
+Add Docker
+
+Create:
+
+docker-compose.yml
+
+Benefits:
+
+Easier scaling
+Reproducible deploys
+Add CDN
+
+Use:
+
+CloudFront before S3
+
+Faster global delivery.
+
+Add Auto Scaling
+
+For high traffic:
+
+Load Balancer
+ECS/Fargate
+Auto Scaling Groups
+Final Production Architecture
+Users
+  ↓
+CloudFront CDN
+  ↓
+Frontend (Vercel/S3)
+  ↓
+Load Balancer
+  ↓
+Backend Containers
+  ↓
+RDS PostgreSQL
+
+Files
+  ↓
+S3
+Recommended Beginner Stack
+
+If you’re learning:
+
+Layer	Recommendation
+Frontend	React + Vite
+Backend	Node.js + Express
+DB	PostgreSQL
+Hosting	EC2
+Files	S3
+DB Hosting	RDS
+SSL	Certbot
+Deploy	PM2 + Nginx
+Easiest Real Deployment Flow
+GitHub
+   ↓
+EC2 Backend
+   ↓
+RDS PostgreSQL
+
+Frontend
+   ↓
+Vercel
+
+Uploads
+   ↓
+S3
+
+That setup is enough for:
+
+SaaS apps
+AI apps
+E-commerce
+Dashboards
+Internal tools
+What Most Beginners Forget
+Security Groups
+
+AWS firewall rules must allow:
+
+EC2 → RDS
+Internet → EC2 ports 80/443
+Environment Variables
+
+Never hardcode:
+
+DB passwords
+AWS keys
+JWT secrets
+S3 Permissions
+
+Use IAM policies carefully.
+
+Do NOT make bucket public unless needed.
+
+Cost Estimate (Small App)
+Service	Approx Monthly
+EC2 t3.micro	$8–12
+RDS micro	$15–25
+S3	$1–5
+Domain	$1/month avg
+CloudFront	Small initially
+
+Total:
+
+~$25–45/month
+Best Learning Order
+Deploy backend alone
+Connect RDS
+Add S3 uploads
+Add frontend
+Add domain
+Add HTTPS
+Add CI/CD
+Dockerize
+Scale
+Monitor
+Useful Official Docs
+AWS Documentation
+RDS Getting Started
+S3 Developer Guide
+EC2 User Guide
+PM2 Documentation
