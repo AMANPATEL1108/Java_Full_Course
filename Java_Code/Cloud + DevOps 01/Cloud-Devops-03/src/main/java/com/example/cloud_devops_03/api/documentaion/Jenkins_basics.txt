@@ -1,0 +1,384 @@
+Jenkins Basics for Java Spring Boot
+
+Jenkins is an automation server mainly used for CI/CD (Continuous Integration / Continuous Deployment).
+
+With a Spring Boot project, Jenkins can:
+
+Pull code from GitHub/GitLab
+Build your project using Maven or Gradle
+Run tests
+Create JAR files
+Deploy the application automatically
+1. What is Jenkins?
+
+Jenkins automates software development tasks.
+
+Example workflow:
+
+Developer pushes code → Jenkins detects changes →
+Builds Spring Boot app → Runs tests →
+Deploys application
+2. Why Use Jenkins in Spring Boot?
+
+Benefits:
+
+Automatic builds
+Automatic testing
+Faster deployments
+Reduced manual work
+Detect bugs early
+3. Jenkins Architecture
+Main Components
+Jenkins Server
+
+Main machine where Jenkins runs.
+
+Agent/Node
+
+Worker machines that execute jobs.
+
+Pipeline
+
+Defines build/deployment steps.
+
+Job
+
+A task Jenkins performs.
+
+4. Install Jenkins
+Official Documentation
+Jenkins Official Site
+Jenkins Installation Guide
+Install Jenkins Using Docker (Recommended)
+docker run -p 8080:8080 -p 50000:50000 jenkins/jenkins:lts
+
+Open:
+
+http://localhost:8080
+5. Create Spring Boot Project
+
+Use:
+
+Spring Initializr
+
+Dependencies:
+
+Spring Web
+Spring Data JPA
+Lombok
+MySQL Driver
+6. Maven Build for Spring Boot
+
+Example pom.xml
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
+
+Build project:
+
+mvn clean install
+
+Generated file:
+
+target/app.jar
+7. Connect Jenkins with GitHub
+Install Plugins
+
+In Jenkins:
+
+Manage Jenkins → Plugins
+
+Install:
+
+Git Plugin
+Maven Integration Plugin
+Pipeline Plugin
+Create Jenkins Job
+Step 1
+New Item → Freestyle Project
+Step 2
+
+Add GitHub repository URL.
+
+Example:
+
+https://github.com/your-repo/demo.git
+Step 3
+
+Build Step:
+
+Invoke top-level Maven targets
+
+Goals:
+
+clean install
+Step 4
+
+Save and Build.
+
+8. Jenkins Pipeline for Spring Boot
+
+Best practice is using a Jenkinsfile.
+
+Create file in project root:
+
+pipeline {
+    agent any
+
+    tools {
+        maven 'Maven3'
+    }
+
+    stages {
+
+        stage('Clone') {
+            steps {
+                git 'https://github.com/your-repo/demo.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'mvn package'
+            }
+        }
+
+        stage('Run') {
+            steps {
+                sh 'java -jar target/demo.jar &'
+            }
+        }
+    }
+}
+9. How Jenkins Pipeline Works
+Stages Explained
+Stage	Purpose
+Clone	Downloads code
+Build	Compiles project
+Test	Runs JUnit tests
+Package	Creates JAR
+Run	Starts Spring Boot app
+10. Configure Maven in Jenkins
+
+Go to:
+
+Manage Jenkins → Global Tool Configuration
+
+Add:
+
+Maven
+JDK
+
+Example:
+
+JDK 17
+Maven 3.9
+11. Java + Spring Boot CI/CD Flow
+GitHub Push
+   ↓
+Jenkins Trigger
+   ↓
+Maven Build
+   ↓
+JUnit Tests
+   ↓
+Create JAR
+   ↓
+Deploy to Server
+12. Automatic Build Trigger
+GitHub Webhook
+
+In GitHub:
+
+Settings → Webhooks
+
+Payload URL:
+
+http://your-jenkins-url/github-webhook/
+
+Now Jenkins builds automatically after every push.
+
+13. Deploy Spring Boot App
+Linux Server Deployment
+scp target/demo.jar user@server:/app/
+
+Run:
+
+java -jar demo.jar
+14. Jenkinsfile Advanced Example
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME = "demo"
+    }
+
+    stages {
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker build -t demo .
+                docker run -d -p 8081:8080 demo
+                '''
+            }
+        }
+    }
+}
+15. Integrating Docker with Jenkins
+
+Install:
+
+Docker
+Docker Pipeline Plugin
+
+Example Dockerfile:
+
+FROM openjdk:17
+
+COPY target/demo.jar app.jar
+
+ENTRYPOINT ["java","-jar","/app.jar"]
+
+Build Docker image:
+
+docker build -t demo .
+16. Best Practices
+Use Pipeline as Code
+
+Always store Jenkinsfile in Git.
+
+Use Separate Environments
+Dev
+QA
+Production
+Secure Credentials
+
+Use:
+
+Manage Jenkins → Credentials
+
+Never hardcode passwords.
+
+17. Common Jenkins Commands
+Start Jenkins
+systemctl start jenkins
+Check Status
+systemctl status jenkins
+Restart Jenkins
+systemctl restart jenkins
+18. Common Interview Questions
+What is CI/CD?
+
+Continuous Integration and Continuous Deployment.
+
+Difference Between Freestyle and Pipeline?
+Freestyle → UI based
+Pipeline → Code based
+What is Jenkinsfile?
+
+A file containing pipeline steps.
+
+Why Use Jenkins?
+
+Automation of build/test/deploy process.
+
+19. Recommended Learning Path
+Learn Git & GitHub
+Learn Maven
+Learn Spring Boot Build Process
+Learn Jenkins Freestyle Jobs
+Learn Jenkins Pipeline
+Learn Docker + Jenkins
+Learn Kubernetes Deployment
+20. Official Documentation
+Jenkins
+Jenkins Documentation
+Spring Boot
+Spring Boot Documentation
+Maven
+Apache Maven Documentation
+Docker
+Docker Documentation
+21. Real Project Structure
+springboot-app/
+│
+├── src/
+├── target/
+├── Dockerfile
+├── Jenkinsfile
+├── pom.xml
+22. Real Industry Flow
+Developer
+   ↓
+GitHub
+   ↓
+Jenkins Pipeline
+   ↓
+Maven Build
+   ↓
+JUnit Testing
+   ↓
+Docker Build
+   ↓
+Kubernetes Deployment
+23. Simple Mini Project Practice
+
+Build:
+
+Employee Management System
+Product API
+Student Management API
+
+Then:
+
+Push to GitHub
+Connect Jenkins
+Create Pipeline
+Deploy with Docker
+24. Summary
+
+Jenkins helps automate:
+
+Build
+Test
+Package
+Deploy
+
+For Spring Boot:
+
+Use Maven/Gradle
+Write Jenkinsfile
+Configure pipeline
+Integrate GitHub
+Deploy automatically
