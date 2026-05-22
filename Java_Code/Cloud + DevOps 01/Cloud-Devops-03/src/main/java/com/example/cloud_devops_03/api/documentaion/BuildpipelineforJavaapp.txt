@@ -1,0 +1,76 @@
+STEP 1 — WRITE & BUILD THE SPRING BOOT APPLICATION
+
+This is where developers write code and create the application artifact (.jar).
+
+1. Create Spring Boot Project
+
+Use:
+
+Spring Initializr
+Maven or Gradle
+Java 17+
+Dependencies:
+Spring Web
+Spring Data JPA
+MySQL Driver
+2. Project Structure
+src/
+ └── main/
+      ├── java/
+      └── resources/
+pom.xml
+3. Build Tool (Maven)
+
+pom.xml
+
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.example</groupId>
+    <artifactId>demo</artifactId>
+    <version>1.0</version>
+
+    <dependencies>
+
+        <!-- Spring Boot -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <!-- Create executable jar -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+        </plugins>
+    </build>
+</project>
+4. Build the Application
+
+Command:
+
+mvn clean install
+
+What happens:
+
+Command	Meaning
+clean	removes old build
+compile	compiles Java code
+test	runs test cases
+package	creates jar
+install	installs into local Maven repo
+
+Generated file:
+
+target/demo-1.0.jar
+
+Run app:
+
+java -jar target/demo-1.0.jar
