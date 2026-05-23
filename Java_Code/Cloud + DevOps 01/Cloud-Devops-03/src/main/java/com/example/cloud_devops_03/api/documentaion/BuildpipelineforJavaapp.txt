@@ -74,3 +74,49 @@ target/demo-1.0.jar
 Run app:
 
 java -jar target/demo-1.0.jar
+
+
+STEP 2 — TESTING PIPELINE
+
+Before deployment, the pipeline checks whether the app works correctly.
+
+This is the Quality Gate.
+
+Types of Testing
+Type	Purpose
+Unit Test	test single class
+Integration Test	test DB/API
+API Test	test endpoints
+Security Test	vulnerability scan
+Example Unit Test
+@SpringBootTest
+class DemoApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+}
+
+Run tests:
+
+mvn test
+Code Quality Tools
+
+Common tools:
+
+Tool	Purpose
+JUnit	unit testing
+Mockito	mock dependencies
+SonarQube	code quality
+JaCoCo	coverage report
+CI Trigger
+
+Whenever code is pushed to GitHub:
+
+Developer Pushes Code
+        ↓
+CI Pipeline Starts
+        ↓
+Compile + Test
+        ↓
+Pass/Fail
