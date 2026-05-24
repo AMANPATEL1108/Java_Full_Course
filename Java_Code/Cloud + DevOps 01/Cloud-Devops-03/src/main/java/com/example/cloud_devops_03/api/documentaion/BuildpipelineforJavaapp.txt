@@ -120,3 +120,72 @@ CI Pipeline Starts
 Compile + Test
         ↓
 Pass/Fail
+
+
+
+STEP 3 — CI/CD PIPELINE AUTOMATION
+
+Now automation starts.
+
+This is the heart of DevOps.
+
+What is CI/CD?
+Term	Meaning
+CI	Continuous Integration
+CD	Continuous Delivery/Deployment
+Popular CI/CD Tools
+Tool	Usage
+Jenkins	automation
+GitHub Actions	GitHub CI
+GitLab CI/CD	DevOps pipeline
+Docker	containerization
+Kubernetes	deployment
+Example Jenkins Pipeline
+
+Jenkinsfile
+
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                sh 'docker build -t springboot-app .'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh 'docker run -p 8080:8080 springboot-app'
+            }
+        }
+    }
+}
+Dockerize Spring Boot App
+Dockerfile
+FROM openjdk:17
+
+COPY target/demo.jar demo.jar
+
+ENTRYPOINT ["java","-jar","/demo.jar"]
+
+Build Docker image:
+
+docker build -t demo-app .
+
+Run container:
+
+docker run -p 8080:8080 demo-app
