@@ -189,3 +189,139 @@ docker build -t demo-app .
 Run container:
 
 docker run -p 8080:8080 demo-app
+
+
+
+STEP 4 — DEPLOYMENT & MONITORING (PRODUCTION)
+
+Now the app goes live.
+
+Deployment Environments
+Environment	Purpose
+Dev	development
+QA	testing
+Staging	pre-production
+Production	live users
+Cloud Deployment Options
+Platform	Use
+Amazon Web Services	cloud hosting
+Google Cloud	cloud deployment
+Microsoft	enterprise hosting
+Kubernetes Deployment Example
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: springboot-app
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: springboot-app
+
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+
+    spec:
+      containers:
+      - name: springboot-app
+        image: springboot-app:latest
+        ports:
+        - containerPort: 8080
+
+Deploy:
+
+kubectl apply -f deployment.yaml
+Monitoring & Logging
+
+Production apps must be monitored.
+
+Common Monitoring Tools
+Tool	Purpose
+Prometheus	metrics
+Grafana	dashboards
+ELK Stack	logs
+FULL PIPELINE FLOW (IMPORTANT)
+1. Developer writes Spring Boot code
+                ↓
+2. Push code to GitHub
+                ↓
+3. Jenkins/GitHub Actions starts pipeline
+                ↓
+4. Maven build runs
+                ↓
+5. Unit tests execute
+                ↓
+6. SonarQube checks quality
+                ↓
+7. Docker image created
+                ↓
+8. Image pushed to registry
+                ↓
+9. Kubernetes deploys app
+                ↓
+10. Monitoring + Logging starts
+REAL INDUSTRY PIPELINE
+GitHub
+   ↓
+Jenkins
+   ↓
+Maven Build
+   ↓
+JUnit Tests
+   ↓
+SonarQube Scan
+   ↓
+Docker Build
+   ↓
+Docker Hub
+   ↓
+Kubernetes
+   ↓
+AWS Production
+SKILLS YOU SHOULD LEARN (0 → 100)
+Beginner
+Java basics
+Spring Boot basics
+REST APIs
+Maven
+Git
+Intermediate
+JUnit
+Mockito
+Docker
+Jenkins
+GitHub Actions
+Advanced
+Kubernetes
+AWS
+Microservices
+Monitoring
+CI/CD architecture
+MOST IMPORTANT INTERVIEW QUESTION
+“Explain Build Pipeline”
+
+Best short answer:
+
+A build pipeline automates the process of compiling, testing, packaging, and deploying a Spring Boot application using tools like Maven, Jenkins, Docker, and Kubernetes to ensure fast and reliable software delivery.
+
+FINAL UNDERSTANDING
+CODE
+ ↓
+BUILD
+ ↓
+TEST
+ ↓
+PACKAGE
+ ↓
+DOCKERIZE
+ ↓
+DEPLOY
+ ↓
+MONITOR
+
+That is the complete Spring Boot build pipeline lifecycle.
