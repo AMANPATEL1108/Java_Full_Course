@@ -1,0 +1,206 @@
+1. What is GitHub Actions?
+
+GitHub Actions Documentation
+
+GitHub Actions is GitHub’s built-in CI/CD system.
+
+CI = Continuous Integration
+Automatically test/build code after changes
+CD = Continuous Delivery/Deployment
+Automatically deploy app to server/cloud
+2. Why Spring Boot Developers Use It
+
+For Java/Spring Boot projects, GitHub Actions can:
+
+✅ Build Maven/Gradle projects
+✅ Run unit tests
+✅ Check code quality
+✅ Generate JAR/WAR files
+✅ Build Docker images
+✅ Deploy to AWS/Render/Railway/Kubernetes
+✅ Run on every push automatically
+
+3. Big Picture Architecture
+Developer pushes code
+        ↓
+GitHub Repository
+        ↓
+GitHub Actions Workflow starts
+        ↓
+Runner machine created (Ubuntu VM)
+        ↓
+Steps execute:
+   - Checkout code
+   - Setup Java
+   - Build project
+   - Run tests
+   - Package JAR
+   - Deploy
+4. Important Terminology
+Term	Meaning
+Workflow	Full automation process
+Job	Group of steps
+Step	Single command/action
+Runner	VM/server running workflow
+Action	Reusable GitHub automation
+Trigger	Event that starts workflow
+5. Workflow File Location
+
+Inside your Spring Boot project:
+
+.github/workflows/
+
+Example:
+
+.github/workflows/ci.yml
+6. Your First Spring Boot Pipeline
+
+Suppose you have a Maven Spring Boot project.
+
+Project structure:
+
+my-app/
+ ├── src/
+ ├── pom.xml
+ └── .github/
+      └── workflows/
+           └── ci.yml
+7. Basic Pipeline Example
+
+Create:
+
+# .github/workflows/ci.yml
+
+name: Spring Boot CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build with Maven
+        run: mvn clean install
+8. Line-by-Line Explanation
+Workflow Name
+name: Spring Boot CI
+
+Pipeline name visible in GitHub UI.
+
+Trigger
+on:
+  push:
+    branches:
+      - main
+
+Pipeline runs when code is pushed to main.
+
+Other triggers:
+
+on:
+  pull_request:
+on:
+  workflow_dispatch:
+
+(manual run button)
+
+Jobs
+jobs:
+  build:
+
+A workflow can contain multiple jobs.
+
+Example:
+
+build → test → deploy
+Runner Machine
+runs-on: ubuntu-latest
+
+GitHub creates temporary Ubuntu VM.
+
+Other options:
+
+windows-latest
+macos-latest
+9. Steps
+
+Each step executes sequentially.
+
+Checkout Code
+uses: actions/checkout@v4
+
+Downloads your repository into runner machine.
+
+Without this:
+❌ no code available
+
+Setup Java
+uses: actions/setup-java@v4
+
+Installs Java.
+
+with:
+  distribution: temurin
+  java-version: 17
+
+Sets Java 17.
+
+Maven Build
+run: mvn clean install
+
+Runs Maven command.
+
+Equivalent local command:
+
+mvn clean install
+10. What Happens Internally
+
+When pipeline runs:
+
+1. VM starts
+2. GitHub clones code
+3. Java installed
+4. Maven downloads dependencies
+5. Tests execute
+6. JAR generated
+7. Result shown in GitHub
+11. Maven Lifecycle Understanding
+
+Important for Spring Boot pipelines.
+
+mvn clean install
+
+Breakdown:
+
+Command	Meaning
+clean	Delete old build
+compile	Compile Java
+test	Run tests
+package	Create JAR
+install	Install in local Maven repo
+12. Add Unit Testing
+
+Pipeline with tests:
+
+- name: Run Tests
+  run: mvn test
+
+If tests fail:
+❌ Pipeline fails
+
+This prevents broken code merge.
