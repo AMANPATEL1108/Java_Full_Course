@@ -204,3 +204,132 @@ If tests fail:
 ❌ Pipeline fails
 
 This prevents broken code merge.
+
+
+13. Example Spring Boot Test
+@SpringBootTest
+class DemoApplicationTests {
+
+    @Test
+    void contextLoads() {
+    }
+}
+
+Pipeline automatically runs this.
+
+14. Pipeline Status
+
+GitHub shows:
+
+🟢 Success
+🔴 Failed
+🟡 Running
+
+Inside:
+
+Actions tab
+PR checks
+15. Real Industry Pipeline
+
+Production-grade example:
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Cache Maven Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: maven-cache-${{ hashFiles('pom.xml') }}
+
+      - name: Build
+        run: mvn clean package
+
+      - name: Run Tests
+        run: mvn test
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-jar
+          path: target/*.jar
+16. What is Artifact?
+
+Generated build output.
+
+Example:
+
+target/demo-0.0.1.jar
+
+GitHub stores it for download.
+
+17. Maven Dependency Caching
+
+Without cache:
+
+dependencies download every run
+
+With cache:
+⚡ pipeline becomes much faster
+
+18. Environment Variables
+
+Example:
+
+env:
+  DB_URL: mysql://localhost
+
+Use in Java:
+
+@Value("${DB_URL}")
+19. GitHub Secrets
+
+Never hardcode passwords.
+
+Use:
+
+GitHub Repo →
+Settings →
+Secrets and Variables →
+Actions
+
+Example secret:
+
+AWS_SECRET_KEY
+
+Use in workflow:
+
+env:
+  AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+20. Multi-Stage Pipeline
+
+Example flow:
+
+Build
+   ↓
+Test
+   ↓
+Code Quality
+   ↓
+Docker Build
+   ↓
+Deploy
