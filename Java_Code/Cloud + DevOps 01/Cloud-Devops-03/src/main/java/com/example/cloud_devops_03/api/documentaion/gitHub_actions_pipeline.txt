@@ -333,3 +333,51 @@ Code Quality
 Docker Build
    ↓
 Deploy
+
+21. Separate Jobs Example
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+
+  deploy:
+    needs: test
+
+needs creates dependency chain.
+
+22. Docker + Spring Boot Pipeline
+
+Build Docker image automatically.
+
+- name: Build Docker Image
+  run: docker build -t myapp .
+23. Example Dockerfile
+FROM eclipse-temurin:17
+
+COPY target/demo.jar app.jar
+
+ENTRYPOINT ["java","-jar","/app.jar"]
+24. Deploy to Server
+
+Example SSH deployment:
+
+- name: Deploy
+  run: |
+    ssh user@server "
+      docker pull myapp
+      docker restart myapp
+    "
+
+Usually secrets are used for SSH keys.
+
+25. Common GitHub Actions for Java
+Action	Purpose
+actions/checkout	Clone repo
+actions/setup-java	Install Java
+actions/cache	Cache dependencies
+upload-artifact	Store build output
+docker/login-action	Docker login
