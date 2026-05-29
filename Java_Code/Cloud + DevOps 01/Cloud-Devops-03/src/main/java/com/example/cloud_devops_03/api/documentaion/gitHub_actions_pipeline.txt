@@ -381,3 +381,177 @@ actions/setup-java	Install Java
 actions/cache	Cache dependencies
 upload-artifact	Store build output
 docker/login-action	Docker login
+
+
+26. Common Triggers
+Push
+on: push
+Pull Request
+on: pull_request
+Schedule (CRON)
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+Runs daily.
+
+27. Branch-Based Deployment
+
+Example:
+
+on:
+  push:
+    branches:
+      - dev
+      - staging
+      - main
+
+Different branch → different environment.
+
+28. Profiles in Spring Boot
+
+Use environments:
+
+application-dev.properties
+application-prod.properties
+
+Pipeline can activate profile:
+
+run: mvn spring-boot:run -Dspring.profiles.active=prod
+29. Gradle Version
+
+If using Gradle:
+
+- name: Build
+  run: ./gradlew build
+30. Matrix Builds
+
+Test multiple Java versions.
+
+strategy:
+  matrix:
+    java: [17, 21]
+31. Example Matrix Pipeline
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        java: [17, 21]
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+
+      - run: mvn test
+32. CI/CD Interview Questions
+Q1. Difference between CI and CD?
+CI = integrate + test code
+CD = deploy automatically
+Q2. Why use GitHub Actions?
+Integrated with GitHub
+Easy YAML configuration
+Free tier available
+Supports Java/Spring Boot well
+Q3. What is a runner?
+
+Machine executing pipeline.
+
+Q4. What are secrets?
+
+Secure environment variables.
+
+Q5. What is artifact?
+
+Generated build file like JAR/WAR.
+
+33. Real Enterprise Flow
+Developer Push
+      ↓
+GitHub Actions
+      ↓
+SonarQube Scan
+      ↓
+JUnit Tests
+      ↓
+Docker Build
+      ↓
+Push to DockerHub
+      ↓
+Deploy to Kubernetes
+      ↓
+Smoke Tests
+34. Important Best Practices
+✅ Keep pipelines fast
+
+Use caching.
+
+✅ Run tests always
+
+Never skip tests.
+
+✅ Use secrets
+
+Never commit credentials.
+
+✅ Separate environments
+
+dev/staging/prod
+
+✅ Fail fast
+
+Stop deployment if tests fail.
+
+35. Most Important Files
+File	Purpose
+pom.xml	Maven config
+build.gradle	Gradle config
+ci.yml	GitHub workflow
+Dockerfile	Container image
+application.properties	Spring config
+36. Full Production-Level Example
+name: Spring Boot CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  build-and-test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: maven-${{ hashFiles('**/pom.xml') }}
+
+      - name: Build
+        run: mvn clean package
+
+      - name: Test
+        run: mvn test
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: springboot-app
+          path: target/*.jar
