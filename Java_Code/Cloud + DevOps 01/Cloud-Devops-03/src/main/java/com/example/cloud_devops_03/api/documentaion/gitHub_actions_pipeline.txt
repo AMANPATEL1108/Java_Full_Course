@@ -555,3 +555,78 @@ jobs:
         with:
           name: springboot-app
           path: target/*.jar
+
+
+37. Learning Roadmap (0 → 100)
+Beginner
+
+Learn:
+
+Git basics
+GitHub basics
+Maven
+Spring Boot basics
+YAML syntax
+Intermediate
+
+Learn:
+
+Multi-job workflows
+Secrets
+Docker
+Artifacts
+Deployment
+Advanced
+
+Learn:
+
+Kubernetes
+Helm
+AWS deployment
+Self-hosted runners
+Terraform
+SonarQube
+Blue-Green deployment
+38. Practice Project Ideas
+Project 1
+
+Simple REST API + CI pipeline
+
+Project 2
+
+Spring Boot + MySQL + Docker + CI/CD
+
+Project 3
+
+Deploy to AWS EC2 automatically
+
+Project 4
+
+Kubernetes deployment pipeline
+
+39. Best Resources
+GitHub Actions Docs
+Spring Boot Docs
+Maven Docs
+Docker Docs
+40. Final Mental Model
+Code Push
+   ↓
+GitHub detects event
+   ↓
+Workflow YAML executes
+   ↓
+Runner VM created
+   ↓
+Java installed
+   ↓
+Maven builds app
+   ↓
+Tests run
+   ↓
+Artifact generated
+   ↓
+Deploy happens
+41. One-Line Definition
+
+GitHub Actions pipeline in Spring Boot is an automated CI/CD workflow that builds, tests, packages, and deploys your Java application whenever code changes happen.
