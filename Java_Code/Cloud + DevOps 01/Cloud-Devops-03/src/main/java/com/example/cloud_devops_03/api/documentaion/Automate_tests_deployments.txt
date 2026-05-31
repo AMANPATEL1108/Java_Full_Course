@@ -1,0 +1,87 @@
+Step 1: Understand Why We Test and Deploy
+
+Before automation, understand the problem.
+
+Without testing:
+
+Bugs reach production
+New features break old features
+
+Without deployment automation:
+
+Manual deployment mistakes
+Different environments behave differently
+Releases become slow
+Traditional Flow
+Developer
+   ↓
+Write Code
+   ↓
+Manual Test
+   ↓
+Manual Deploy
+   ↓
+Production
+Automated Flow
+Developer
+   ↓
+Push Code
+   ↓
+Automatic Tests
+   ↓
+Build Application
+   ↓
+Deploy Automatically
+   ↓
+Production
+
+Goal:
+
+Every code change is verified automatically.
+Every successful build can be deployed automatically.
+Step 2: Learn Unit Testing
+
+Unit tests verify small pieces of code.
+
+Example service:
+
+@Service
+public class CalculatorService {
+
+    public int add(int a, int b) {
+        return a + b;
+    }
+}
+
+Test:
+
+class CalculatorServiceTest {
+
+    CalculatorService service =
+            new CalculatorService();
+
+    @Test
+    void testAdd() {
+
+        assertEquals(
+                5,
+                service.add(2,3)
+        );
+    }
+}
+
+Spring Boot uses:
+
+spring-boot-starter-test
+
+Tools:
+
+JUnit 5
+AssertJ
+Mockito
+
+Learn:
+
+@Test
+assertEquals()
+assertTrue()
