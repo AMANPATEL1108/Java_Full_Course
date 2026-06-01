@@ -85,3 +85,111 @@ Learn:
 @Test
 assertEquals()
 assertTrue()
+
+
+Step 3: Learn Mockito (Mocking)
+
+Real services often depend on databases.
+
+Example:
+
+@Service
+public class UserService {
+
+    private UserRepository repo;
+
+    public UserService(UserRepository repo) {
+        this.repo = repo;
+    }
+
+    public User getUser(Long id) {
+        return repo.findById(id)
+                .orElseThrow();
+    }
+}
+
+Instead of hitting a real database:
+
+@Mock
+UserRepository repo;
+
+@InjectMocks
+UserService service;
+
+Mock behavior:
+
+when(repo.findById(1L))
+    .thenReturn(Optional.of(user));
+
+Verify:
+
+verify(repo).findById(1L);
+
+Mockito is essential for unit testing business logic.
+
+Step 4: Integration Testing
+
+Unit tests test one class.
+
+Integration tests verify components work together.
+
+Example:
+
+@SpringBootTest
+class UserServiceIT {
+
+    @Autowired
+    UserService service;
+
+    @Test
+    void testUserCreation() {
+
+    }
+}
+
+Spring starts:
+
+Controllers
+Services
+Repositories
+
+This verifies actual application behavior.
+
+Step 5: API Testing
+
+Most Spring Boot apps expose REST APIs.
+
+Controller:
+
+@RestController
+@RequestMapping("/users")
+public class UserController {
+}
+
+Test API:
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class UserControllerTest {
+
+    @Autowired
+    MockMvc mockMvc;
+
+    @Test
+    void getUser() throws Exception {
+
+        mockMvc.perform(
+                get("/users/1")
+        )
+        .andExpect(status().isOk());
+    }
+}
+
+Checks:
+
+Status codes
+JSON response
+Headers
+
+This is very common in companies.
+
