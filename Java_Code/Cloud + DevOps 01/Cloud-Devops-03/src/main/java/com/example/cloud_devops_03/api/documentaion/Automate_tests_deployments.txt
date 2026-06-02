@@ -193,3 +193,64 @@ Headers
 
 This is very common in companies.
 
+
+
+Step 6: Test Coverage
+
+Coverage shows how much code tests execute.
+
+Tool:
+
+jacoco-maven-plugin
+
+Generate report:
+
+mvn test
+
+Example report:
+
+Coverage: 85%
+
+Industry target:
+
+70% - 90%
+
+Don't chase 100%.
+
+Focus on:
+
+Business logic
+Critical paths
+Step 7: Build Automation with Maven
+
+Spring Boot uses Maven.
+
+Build application:
+
+mvn clean package
+
+Produces:
+
+target/app.jar
+
+Pipeline:
+
+Compile
+ ↓
+Run Tests
+ ↓
+Create JAR
+
+Maven automatically:
+
+mvn verify
+
+runs
+
+Compile
+Test
+Package
+Verify
+
+This is the first automation step.
+
