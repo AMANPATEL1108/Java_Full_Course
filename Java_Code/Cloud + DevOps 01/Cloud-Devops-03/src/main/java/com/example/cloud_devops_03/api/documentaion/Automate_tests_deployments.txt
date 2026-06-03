@@ -254,3 +254,98 @@ Verify
 
 This is the first automation step.
 
+
+Step 8: CI (Continuous Integration)
+
+CI means:
+
+Whenever code is pushed:
+
+Run Tests
+Build Project
+Check Quality
+
+Popular tools:
+
+GitHub Actions
+Jenkins
+GitLab CI
+
+Example GitHub Action:
+
+name: Spring Boot CI
+
+on:
+  push:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+
+      - run: mvn clean test
+
+Now every push triggers tests automatically.
+
+Flow:
+
+Git Push
+   ↓
+GitHub Action
+   ↓
+Run Tests
+   ↓
+Pass / Fail
+Step 9: CD (Continuous Deployment)
+
+After tests pass:
+
+Build Jar
+ ↓
+Create Docker Image
+ ↓
+Deploy Server
+
+Dockerfile:
+
+FROM eclipse-temurin:21
+
+COPY target/app.jar app.jar
+
+ENTRYPOINT ["java","-jar","app.jar"]
+
+Build image:
+
+docker build -t myapp .
+
+Run:
+
+docker run -p 8080:8080 myapp
+
+Deployment targets:
+
+AWS
+Azure
+GCP
+Kubernetes
+VPS
+
+Pipeline:
+
+Push Code
+ ↓
+Tests
+ ↓
+Build
+ ↓
+Docker
+ ↓
+Deploy
