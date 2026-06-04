@@ -349,3 +349,48 @@ Build
 Docker
  ↓
 Deploy
+
+
+
+Step 10: Complete Enterprise CI/CD Pipeline
+
+A real company pipeline looks like:
+
+Developer
+    ↓
+Git Push
+    ↓
+CI Pipeline
+    ↓
+Unit Tests
+    ↓
+Integration Tests
+    ↓
+Code Quality (SonarQube)
+    ↓
+Build JAR
+    ↓
+Create Docker Image
+    ↓
+Push Docker Image
+    ↓
+Deploy Staging
+    ↓
+Smoke Tests
+    ↓
+Approve
+    ↓
+Deploy Production
+
+Tools commonly used:
+
+Purpose	Tool
+Testing	JUnit
+Mocking	Mockito
+Coverage	JaCoCo
+Build	Maven
+CI/CD	GitHub Actions
+Containers	Docker
+Quality	SonarQube
+Deployment	Kubernetes
+Cloud	AWS
